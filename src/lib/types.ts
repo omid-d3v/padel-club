@@ -43,8 +43,7 @@ export interface MatchSet {
   id: string;
   match_id: string;
   set_number: number;
-  team1_score: number | null;
-  team2_score: number | null;
+  winner_team: 1 | 2 | null;
 }
 export interface Standing {
   id: string;

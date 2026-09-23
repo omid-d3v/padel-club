@@ -26,7 +26,7 @@ export default async function Results({
           {fullName(king)}
         </h1>
         <p className="text-lg text-primary">
-          {number(king.total_points)} امتیاز
+          {number(king.total_points)} برد بازی
         </p>
         <p className="mt-5 text-xs text-white/60">
           یک رقابت تمام شد؛ داستان بعدی روی زمین شروع می‌شود.
@@ -44,7 +44,7 @@ export default async function Results({
         detailed
       />
       <p className="mt-4 text-xs leading-7 text-muted-foreground">
-        ترتیب: امتیاز، برد ست، تفاضل امتیاز و در تساوی کامل، اسلات اولیه.
+        ترتیب: برد بازی، برد راند، تفاضل راند و در تساوی کامل، اسلات اولیه.
       </p>
     </>
   );

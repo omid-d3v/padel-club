@@ -4,7 +4,11 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { playerSchema, tournamentSchema, scoreSchema } from "@/lib/validation";
+import {
+  playerSchema,
+  tournamentSchema,
+  roundWinnersSchema,
+} from "@/lib/validation";
 import type { ActionResult } from "@/lib/types";
 function fail(error: unknown): ActionResult {
   const message =
@@ -17,7 +21,7 @@ function fail(error: unknown): ActionResult {
     SCORE_CONFLICT:
       "نتیجه در دستگاه دیگری تغییر کرده است. صفحه را تازه کنید و دوباره تلاش کنید.",
     TOURNAMENT_NOT_ACTIVE: "مسابقه فعال نیست؛ ابتدا وضعیت آن را بررسی کنید.",
-    INCOMPLETE_MATCHES: "ابتدا نتیجه هر ۱۴ بازی را کامل ثبت کنید.",
+    INCOMPLETE_MATCHES: "ابتدا نتیجه همه بازی‌های باقی‌مانده را کامل ثبت کنید.",
     INVALID_STATUS: "وضعیت مسابقه تغییر کرده؛ صفحه را تازه کنید.",
     ADMIN_REQUIRED: "این عملیات فقط برای ادمین مجاز است.",
     TOURNAMENT_LOCKED: "نتایج مسابقه پایان‌یافته قابل تغییر نیست.",
@@ -106,28 +110,42 @@ export async function createTournament(input: unknown): Promise<ActionResult> {
   refresh();
   return { success: true, id: data as string };
 }
-export async function saveScores(
+export async function saveRoundWinners(
   matchId: string,
   version: number,
-  sets: unknown,
+  rounds: unknown,
 ): Promise<ActionResult> {
   const db = await requireAdmin();
-  const parsed = scoreSchema.safeParse(sets);
+  const parsed = roundWinnersSchema.safeParse(rounds);
   if (!parsed.success)
     return {
       success: false,
-      error:
-        "هر ست باید دو امتیاز صحیح متفاوت بین ۰ تا ۹۹ داشته باشد یا کاملاً خالی بماند.",
+      error: "برای هر راند، تیم برنده را انتخاب کنید یا راند را خالی بگذارید.",
     };
   if (!z.uuid().safeParse(matchId).success || !Number.isInteger(version))
     return { success: false, error: "اطلاعات بازی معتبر نیست." };
-  const { error } = await db.rpc("save_match_scores", {
+  const { error } = await db.rpc("save_match_round_winners", {
     p_match_id: matchId,
     p_version: version,
-    p_sets: parsed.data,
+    p_rounds: parsed.data,
   });
   if (error) return fail(error);
   refresh();
+  return { success: true };
+}
+export async function deleteMatch(
+  matchId: string,
+  tournamentId: string,
+): Promise<ActionResult> {
+  const db = await requireAdmin();
+  if (
+    !z.uuid().safeParse(matchId).success ||
+    !z.uuid().safeParse(tournamentId).success
+  )
+    return { success: false, error: "شناسه بازی معتبر نیست." };
+  const { error } = await db.rpc("delete_match", { p_match_id: matchId });
+  if (error) return fail(error);
+  refresh(tournamentId);
   return { success: true };
 }
 export async function changeStatus(

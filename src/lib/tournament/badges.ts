@@ -58,6 +58,6 @@ export function getBadges(
         ),
     )
   )
-    badges.push("🎯 امتیاززن");
+    badges.push("🎯 برنده راند");
   return badges;
 }

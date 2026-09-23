@@ -1,1 +1,21 @@
-{"0": "Player Admin and Data", "1": "Project Scripts and Linting", "2": "Tournament Domain and Tests", "3": "Admin Actions and Validation", "4": "Supabase Auth and Server", "5": "Architecture and Product Docs", "6": "TypeScript Configuration", "7": "Forms and UI Components", "8": "Browser Test Backend", "9": "UI Aliases and Styling", "10": "Runtime Dependencies", "11": "Development Dependencies", "12": "Database Schema and RPC", "13": "Generated Next Types", "14": "PostCSS Configuration", "15": "Loading Interface"}
+{
+  "0": "Player Admin and Data",
+  "1": "Project Scripts and Linting",
+  "2": "Tournament Domain and Tests",
+  "3": "Admin Actions and Validation",
+  "4": "Round Winner Migration and Match Deletion",
+  "5": "Architecture and Product Docs",
+  "6": "TypeScript Configuration",
+  "7": "Forms and UI Components",
+  "8": "Browser Test Backend",
+  "9": "UI Aliases and Styling",
+  "10": "Runtime Dependencies",
+  "11": "Development Dependencies",
+  "12": "Database Schema and RPC",
+  "13": "Generated Next Types",
+  "14": "PostCSS Configuration",
+  "15": "Loading Interface",
+  "16": "Match Set Round Winners",
+  "17": "Generated Root Params Reference",
+  "18": "Generated Routes Reference"
+}

@@ -44,9 +44,8 @@ create table public.matches (
 );
 create table public.match_sets (
  id uuid primary key default gen_random_uuid(), match_id uuid not null references public.matches(id) on delete cascade,
- set_number integer not null check(set_number between 1 and 3), team1_score integer, team2_score integer,
- unique(match_id,set_number),
- check((team1_score is null and team2_score is null) or (team1_score is not null and team2_score is not null and team1_score between 0 and 99 and team2_score between 0 and 99 and team1_score<>team2_score))
+ set_number integer not null check(set_number between 1 and 3), winner_team integer check(winner_team in (1,2)),
+ unique(match_id,set_number)
 );
 create table public.tournament_results (
  id uuid primary key default gen_random_uuid(), tournament_id uuid not null references public.tournaments(id) on delete cascade,
@@ -85,17 +84,15 @@ begin
  perform 1 from public.tournaments where id=p_tournament_id for update;
  if not found then raise exception 'NOT_FOUND'; end if;
  if exists(select 1 from public.tournaments where id=p_tournament_id and status='completed') then raise exception 'TOURNAMENT_LOCKED'; end if;
- with scores as (
+ with round_stats as (
  select tp.player_id,tp.slot,
- coalesce(sum(case when tp.player_id in(m.team1_player1_id,m.team1_player2_id) then s.team1_score else s.team2_score end),0)::integer total_points,
- count(*) filter(where s.team1_score is not null and ((tp.player_id in(m.team1_player1_id,m.team1_player2_id) and s.team1_score>s.team2_score) or (tp.player_id in(m.team2_player1_id,m.team2_player2_id) and s.team2_score>s.team1_score)))::integer sets_won,
- count(*) filter(where s.team1_score is not null and ((tp.player_id in(m.team1_player1_id,m.team1_player2_id) and s.team1_score<s.team2_score) or (tp.player_id in(m.team2_player1_id,m.team2_player2_id) and s.team2_score<s.team1_score)))::integer sets_lost,
- coalesce(sum(case when tp.player_id in(m.team1_player1_id,m.team1_player2_id) then s.team1_score-s.team2_score else s.team2_score-s.team1_score end),0)::integer point_difference
+ count(s.id) filter(where s.winner_team is not null and ((s.winner_team=1 and tp.player_id in(m.team1_player1_id,m.team1_player2_id)) or (s.winner_team=2 and tp.player_id in(m.team2_player1_id,m.team2_player2_id))))::integer sets_won,
+ count(s.id) filter(where s.winner_team is not null and ((s.winner_team=2 and tp.player_id in(m.team1_player1_id,m.team1_player2_id)) or (s.winner_team=1 and tp.player_id in(m.team2_player1_id,m.team2_player2_id))))::integer sets_lost
  from public.tournament_players tp
  left join public.matches m on m.tournament_id=tp.tournament_id and tp.player_id in(m.team1_player1_id,m.team1_player2_id,m.team2_player1_id,m.team2_player2_id)
  left join public.match_sets s on s.match_id=m.id
  where tp.tournament_id=p_tournament_id group by tp.player_id,tp.slot
- ), wins as (
+ ), match_stats as (
  select tp.player_id,
  count(m.id) filter(where m.winner_team is not null and ((m.winner_team=1 and tp.player_id in(m.team1_player1_id,m.team1_player2_id)) or (m.winner_team=2 and tp.player_id in(m.team2_player1_id,m.team2_player2_id))))::integer matches_won,
  count(m.id) filter(where m.winner_team is not null and ((m.winner_team=2 and tp.player_id in(m.team1_player1_id,m.team1_player2_id)) or (m.winner_team=1 and tp.player_id in(m.team2_player1_id,m.team2_player2_id))))::integer matches_lost
@@ -103,9 +100,9 @@ begin
  where tp.tournament_id=p_tournament_id group by tp.player_id
  )
  insert into public.tournament_results(tournament_id,player_id,total_points,sets_won,sets_lost,point_difference,matches_won,matches_lost,rank)
- select p_tournament_id,s.player_id,s.total_points,s.sets_won,s.sets_lost,s.point_difference,w.matches_won,w.matches_lost,
- row_number() over(order by s.total_points desc,s.sets_won desc,s.point_difference desc,s.slot)::integer
- from scores s join wins w using(player_id)
+ select p_tournament_id,r.player_id,m.matches_won,r.sets_won,r.sets_lost,r.sets_won-r.sets_lost,m.matches_won,m.matches_lost,
+ row_number() over(order by m.matches_won desc,r.sets_won desc,(r.sets_won-r.sets_lost) desc,r.slot)::integer
+ from round_stats r join match_stats m using(player_id)
  on conflict(tournament_id,player_id) do update set total_points=excluded.total_points,sets_won=excluded.sets_won,sets_lost=excluded.sets_lost,point_difference=excluded.point_difference,matches_won=excluded.matches_won,matches_lost=excluded.matches_lost,rank=excluded.rank;
 end; $$;
 create function public.create_tournament(p_title text,p_date date,p_player_ids uuid[]) returns uuid language plpgsql security definer set search_path = '' as $$
@@ -134,7 +131,7 @@ begin
  update public.tournaments set status='active' where id=p_tournament_id and status='draft';
  if not found then raise exception 'INVALID_STATUS'; end if;
 end; $$;
-create function public.save_match_scores(p_match_id uuid,p_version integer,p_sets jsonb) returns void language plpgsql security definer set search_path = '' as $$
+create function public.save_match_round_winners(p_match_id uuid,p_version integer,p_rounds jsonb) returns void language plpgsql security definer set search_path = '' as $$
 declare tid uuid; m public.matches; state text; completed integer; won integer;
 begin
  if not public.is_admin() then raise exception 'ADMIN_REQUIRED'; end if;
@@ -145,16 +142,25 @@ begin
  if state<>'active' then raise exception 'TOURNAMENT_NOT_ACTIVE'; end if;
  select * into m from public.matches where id=p_match_id for update;
  if p_version is null or m.version<>p_version then raise exception 'SCORE_CONFLICT'; end if;
- if p_sets is null or jsonb_typeof(p_sets)<>'array' then raise exception 'INVALID_SETS'; end if;
- if jsonb_array_length(p_sets)<>3 then raise exception 'INVALID_SETS'; end if;
- if (select count(distinct x.set_number) from jsonb_to_recordset(p_sets) as x(set_number integer))<>3 then raise exception 'INVALID_SETS'; end if;
- if exists(select 1 from jsonb_to_recordset(p_sets) as x(set_number integer) where x.set_number is null or x.set_number not between 1 and 3) then raise exception 'INVALID_SETS'; end if;
- -- Integer record conversion rejects decimals; table constraints reject ties and half-empty pairs.
- insert into public.match_sets(match_id,set_number,team1_score,team2_score)
- select p_match_id,x.set_number,x.team1_score,x.team2_score from jsonb_to_recordset(p_sets) as x(set_number integer,team1_score integer,team2_score integer)
- on conflict(match_id,set_number) do update set team1_score=excluded.team1_score,team2_score=excluded.team2_score;
- select count(*) filter(where team1_score is not null),count(*) filter(where team1_score>team2_score) into completed,won from public.match_sets where match_id=p_match_id;
+ if p_rounds is null or jsonb_typeof(p_rounds)<>'array' then raise exception 'INVALID_ROUNDS'; end if;
+ if jsonb_array_length(p_rounds)<>3 then raise exception 'INVALID_ROUNDS'; end if;
+ if (select count(distinct x.set_number) from jsonb_to_recordset(p_rounds) as x(set_number integer))<>3 then raise exception 'INVALID_ROUNDS'; end if;
+ if exists(select 1 from jsonb_to_recordset(p_rounds) as x(set_number integer,winner_team integer) where x.set_number is null or x.set_number not between 1 and 3 or (x.winner_team is not null and x.winner_team not in (1,2))) then raise exception 'INVALID_ROUNDS'; end if;
+ insert into public.match_sets(match_id,set_number,winner_team)
+ select p_match_id,x.set_number,x.winner_team from jsonb_to_recordset(p_rounds) as x(set_number integer,winner_team integer)
+ on conflict(match_id,set_number) do update set winner_team=excluded.winner_team;
+ select count(*) filter(where winner_team is not null),count(*) filter(where winner_team=1) into completed,won from public.match_sets where match_id=p_match_id;
  update public.matches set winner_team=case when completed=3 then case when won>=2 then 1 else 2 end else null end,version=version+1 where id=p_match_id;
+ perform public.recalculate_tournament_standings(tid);
+end; $$;
+create function public.delete_match(p_match_id uuid) returns void language plpgsql security definer set search_path = '' as $$
+declare tid uuid; state text;
+begin
+ if not public.is_admin() then raise exception 'ADMIN_REQUIRED'; end if;
+ select m.tournament_id,t.status into tid,state from public.matches m join public.tournaments t on t.id=m.tournament_id where m.id=p_match_id for update of t;
+ if tid is null then raise exception 'NOT_FOUND'; end if;
+ if state='completed' then raise exception 'TOURNAMENT_LOCKED'; end if;
+ delete from public.matches where id=p_match_id;
  perform public.recalculate_tournament_standings(tid);
 end; $$;
 create function public.finish_tournament(p_tournament_id uuid) returns void language plpgsql security definer set search_path = '' as $$
@@ -163,7 +169,7 @@ begin
  if not public.is_admin() then raise exception 'ADMIN_REQUIRED'; end if;
  select status into state from public.tournaments where id=p_tournament_id for update;
  if state is distinct from 'active' then raise exception 'INVALID_STATUS'; end if;
- if (select count(*) from public.matches where tournament_id=p_tournament_id and winner_team is not null)<>14 then raise exception 'INCOMPLETE_MATCHES'; end if;
+ if not exists(select 1 from public.matches where tournament_id=p_tournament_id) or exists(select 1 from public.matches where tournament_id=p_tournament_id and winner_team is null) then raise exception 'INCOMPLETE_MATCHES'; end if;
  perform public.recalculate_tournament_standings(p_tournament_id);
  update public.tournaments set status='completed' where id=p_tournament_id;
 end; $$;
@@ -179,6 +185,6 @@ create view public.public_leaderboard as
  from public.public_results group by player_id,first_name,last_name;
 revoke all on public.public_results,public.public_leaderboard from anon,authenticated;
 grant select on public.public_results,public.public_leaderboard to anon,authenticated;
-revoke all on function public.is_admin(),public.create_tournament(text,date,uuid[]),public.start_tournament(uuid),public.save_match_scores(uuid,integer,jsonb),public.finish_tournament(uuid),public.recalculate_tournament_standings(uuid) from public,anon,authenticated;
-grant execute on function public.is_admin(),public.create_tournament(text,date,uuid[]),public.start_tournament(uuid),public.save_match_scores(uuid,integer,jsonb),public.finish_tournament(uuid),public.recalculate_tournament_standings(uuid) to authenticated;
+revoke all on function public.is_admin(),public.create_tournament(text,date,uuid[]),public.start_tournament(uuid),public.save_match_round_winners(uuid,integer,jsonb),public.delete_match(uuid),public.finish_tournament(uuid),public.recalculate_tournament_standings(uuid) from public,anon,authenticated;
+grant execute on function public.is_admin(),public.create_tournament(text,date,uuid[]),public.start_tournament(uuid),public.save_match_round_winners(uuid,integer,jsonb),public.delete_match(uuid),public.finish_tournament(uuid),public.recalculate_tournament_standings(uuid) to authenticated;
 commit;

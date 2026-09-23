@@ -39,22 +39,12 @@ export const tournamentSchema = z.object({
     .length(8, "دقیقاً هشت بازیکن انتخاب کنید.")
     .refine((v) => new Set(v).size === 8),
 });
-export const scoreSchema = z
+export const roundWinnersSchema = z
   .array(
-    z
-      .object({
-        set_number: z.number().int().min(1).max(3),
-        team1_score: z.number().int().min(0).max(99).nullable(),
-        team2_score: z.number().int().min(0).max(99).nullable(),
-      })
-      .refine(
-        (s) =>
-          (s.team1_score === null && s.team2_score === null) ||
-          (s.team1_score !== null &&
-            s.team2_score !== null &&
-            s.team1_score !== s.team2_score),
-        "هر ست باید دو امتیاز متفاوت داشته باشد یا کاملاً خالی باشد.",
-      ),
+    z.object({
+      set_number: z.number().int().min(1).max(3),
+      winner_team: z.union([z.literal(1), z.literal(2)]).nullable(),
+    }),
   )
   .length(3)
   .refine((s) => new Set(s.map((x) => x.set_number)).size === 3);

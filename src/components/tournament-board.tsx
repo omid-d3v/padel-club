@@ -7,45 +7,56 @@ import {
   Check,
   Flag,
   RefreshCw,
+  Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Dialog } from "@/components/ui/dialog";
 import { Pending } from "@/components/forms";
 import { TournamentStandings } from "@/components/shared";
-import { saveScores, changeStatus } from "@/app/actions";
+import { saveRoundWinners, changeStatus, deleteMatch } from "@/app/actions";
 import type { Match, MatchSet, Player, TournamentData } from "@/lib/types";
 import { cn, fullName, number } from "@/lib/utils";
-import { normalizeDigits } from "@/lib/validation";
-export function ScoreInput({
-  value,
+export function RoundWinnerPicker({
+  winner,
   onChange,
-  label,
+  team1,
+  team2,
   disabled,
 }: {
-  value: string;
-  onChange: (s: string) => void;
-  label: string;
+  winner: 1 | 2 | null;
+  onChange: (winner: 1 | 2 | null) => void;
+  team1: string;
+  team2: string;
   disabled: boolean;
 }) {
   return (
-    <Input
-      type="text"
-      inputMode="numeric"
-      pattern="[0-9۰-۹٠-٩]*"
-      maxLength={2}
-      value={value}
-      onChange={(e) => {
-        const v = normalizeDigits(e.target.value);
-        if (/^\d{0,2}$/.test(v)) onChange(v);
-      }}
-      aria-label={label}
-      placeholder="—"
-      disabled={disabled}
-      dir="ltr"
-      className="h-14 max-w-24 text-center text-2xl font-bold tabular-nums"
-    />
+    <div className="grid grid-cols-2 gap-2">
+      <Button
+        type="button"
+        variant={winner === 1 ? "default" : "outline"}
+        disabled={disabled}
+        aria-pressed={winner === 1}
+        aria-label={`تیم اول: ${team1}`}
+        onClick={() => onChange(winner === 1 ? null : 1)}
+        className="h-auto min-h-12 whitespace-normal px-3 py-2 text-xs leading-6"
+      >
+        تیم اول
+        <span className="sr-only">: {team1}</span>
+      </Button>
+      <Button
+        type="button"
+        variant={winner === 2 ? "default" : "outline"}
+        disabled={disabled}
+        aria-pressed={winner === 2}
+        aria-label={`تیم دوم: ${team2}`}
+        onClick={() => onChange(winner === 2 ? null : 2)}
+        className="h-auto min-h-12 whitespace-normal px-3 py-2 text-xs leading-6"
+      >
+        تیم دوم
+        <span className="sr-only">: {team2}</span>
+      </Button>
+    </div>
   );
 }
 export function MatchCard({
@@ -53,24 +64,26 @@ export function MatchCard({
   sets,
   players,
   locked,
+  canDelete,
   onDirty,
 }: {
   match: Match;
   sets: MatchSet[];
   players: Player[];
   locked: boolean;
+  canDelete: boolean;
   onDirty: (id: string, dirty: boolean) => void;
 }) {
-  const [scores, setScores] = useState(
+  const [roundWinners, setRoundWinners] = useState(
     sets.map((s) => ({
       set_number: s.set_number,
-      a: s.team1_score === null ? "" : String(s.team1_score),
-      b: s.team2_score === null ? "" : String(s.team2_score),
+      winner_team: s.winner_team,
     })),
   );
   const [pending, start] = useTransition();
   const [error, setError] = useState("");
   const [dirty, setDirty] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const router = useRouter();
   const name = (id: string) => {
     const p = players.find((p) => p.id === id);
@@ -87,16 +100,33 @@ export function MatchCard({
           </span>
           زمین {number(match.court_number)}
         </h3>
-        {dirty ? (
-          <span className="text-xs text-amber-800">ذخیره نشده</span>
-        ) : match.winner_team ? (
-          <span className="flex items-center gap-1 text-xs text-emerald-700">
-            <Check size={16} />
-            پایان بازی
-          </span>
-        ) : (
-          <span className="text-xs text-muted-foreground">در انتظار نتیجه</span>
-        )}
+        <div className="flex items-center gap-2">
+          {dirty ? (
+            <span className="text-xs text-amber-800">ذخیره نشده</span>
+          ) : match.winner_team ? (
+            <span className="flex items-center gap-1 text-xs text-emerald-700">
+              <Check size={16} />
+              پایان بازی
+            </span>
+          ) : (
+            <span className="text-xs text-muted-foreground">
+              در انتظار نتیجه
+            </span>
+          )}
+          {canDelete && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              disabled={pending}
+              onClick={() => setDeleteOpen(true)}
+              aria-label={`حذف بازی زمین ${number(match.court_number)}`}
+              className="text-red-700 hover:bg-red-50 hover:text-red-800"
+            >
+              <Trash2 size={17} />
+            </Button>
+          )}
+        </div>
       </div>
       <form
         className="p-5"
@@ -105,14 +135,10 @@ export function MatchCard({
           setError("");
           start(async () => {
             try {
-              const r = await saveScores(
+              const r = await saveRoundWinners(
                 match.id,
                 match.version,
-                scores.map((s) => ({
-                  set_number: s.set_number,
-                  team1_score: s.a === "" ? null : Number(s.a),
-                  team2_score: s.b === "" ? null : Number(s.b),
-                })),
+                roundWinners,
               );
               if (!r.success) {
                 setError(r.error);
@@ -160,35 +186,26 @@ export function MatchCard({
           </div>
         </div>
         <div className="my-6 space-y-4">
-          {scores.map((s, i) => (
+          {roundWinners.map((s, i) => (
             <div
               key={s.set_number}
-              className="grid grid-cols-[1fr_48px_1fr] items-center justify-items-center gap-3"
+              className="rounded-xl border border-border p-3"
             >
-              <ScoreInput
+              <p className="mb-3 text-center text-xs font-semibold text-muted-foreground">
+                راند {number(s.set_number)} — کدام تیم برد؟
+              </p>
+              <RoundWinnerPicker
                 disabled={pending || locked}
-                label={`زمین ${match.court_number}، ست ${s.set_number}، تیم اول: ${team1}`}
-                value={s.a}
-                onChange={(v) => {
+                team1={team1}
+                team2={team2}
+                winner={s.winner_team}
+                onChange={(winner) => {
                   setDirty(true);
                   onDirty(match.id, true);
-                  setScores((prev) =>
-                    prev.map((x, j) => (i === j ? { ...x, a: v } : x)),
-                  );
-                }}
-              />
-              <span className="text-xs text-muted-foreground">
-                ست {number(s.set_number)}
-              </span>
-              <ScoreInput
-                disabled={pending || locked}
-                label={`زمین ${match.court_number}، ست ${s.set_number}، تیم دوم: ${team2}`}
-                value={s.b}
-                onChange={(v) => {
-                  setDirty(true);
-                  onDirty(match.id, true);
-                  setScores((prev) =>
-                    prev.map((x, j) => (i === j ? { ...x, b: v } : x)),
+                  setRoundWinners((prev) =>
+                    prev.map((x, j) =>
+                      i === j ? { ...x, winner_team: winner } : x,
+                    ),
                   );
                 }}
               />
@@ -204,11 +221,57 @@ export function MatchCard({
           <Button className="w-full" disabled={pending || !dirty}>
             <Pending
               pending={pending}
-              label={match.winner_team ? "ذخیره نتیجه جدید" : "ثبت نتیجه"}
+              label={
+                match.winner_team ? "ذخیره انتخاب‌های جدید" : "ثبت برنده راندها"
+              }
             />
           </Button>
         )}
       </form>
+      <Dialog
+        open={deleteOpen}
+        onOpenChange={(open) => {
+          if (!pending) setDeleteOpen(open);
+        }}
+        title="این بازی حذف شود؟"
+        description="بازی، انتخاب‌های سه راند و اثر آن در جدول نتایج کاملاً حذف می‌شود. این کار قابل بازگشت نیست."
+      >
+        <div className="flex gap-3">
+          <Button
+            variant="destructive"
+            disabled={pending}
+            onClick={() =>
+              start(async () => {
+                try {
+                  const result = await deleteMatch(
+                    match.id,
+                    match.tournament_id,
+                  );
+                  if (!result.success) {
+                    toast.error(result.error);
+                    return;
+                  }
+                  setDeleteOpen(false);
+                  onDirty(match.id, false);
+                  toast.success("بازی و نتیجه‌های آن حذف شد");
+                  router.refresh();
+                } catch {
+                  toast.error("حذف بازی انجام نشد. دوباره تلاش کنید.");
+                }
+              })
+            }
+          >
+            <Pending pending={pending} label="حذف کامل بازی" />
+          </Button>
+          <Button
+            variant="outline"
+            disabled={pending}
+            onClick={() => setDeleteOpen(false)}
+          >
+            انصراف
+          </Button>
+        </div>
+      </Dialog>
     </section>
   );
 }
@@ -247,6 +310,7 @@ export function RoundNavigator({
 }
 export function TournamentBoard({ data }: { data: TournamentData }) {
   const router = useRouter();
+  const totalMatches = data.matches.length;
   const completed = data.matches.filter((m) => m.winner_team !== null).length;
   const firstIncomplete =
     data.rounds.find((r) =>
@@ -304,13 +368,13 @@ export function TournamentBoard({ data }: { data: TournamentData }) {
         <div className="mb-3 flex items-center justify-between text-sm">
           <span className="font-medium">مسیر مسابقه</span>
           <span className="text-muted-foreground">
-            {number(completed)} از ۱۴ بازی کامل شده
+            {number(completed)} از {number(totalMatches)} بازی کامل شده
           </span>
         </div>
         <progress
           aria-label="پیشرفت مسابقه"
           value={completed}
-          max={14}
+          max={Math.max(totalMatches, 1)}
           className="h-2 w-full overflow-hidden rounded-full accent-lime-500"
         />
         <div className="mt-5">
@@ -337,6 +401,7 @@ export function TournamentBoard({ data }: { data: TournamentData }) {
               sets={data.sets.filter((s) => s.match_id === m.id)}
               players={data.players}
               locked={status !== "active"}
+              canDelete={status !== "completed"}
               onDirty={(id, isDirty) =>
                 setDirtyIds((prev) =>
                   isDirty
@@ -352,7 +417,8 @@ export function TournamentBoard({ data }: { data: TournamentData }) {
           <div>
             <h2 className="text-xl font-bold">جدول زنده</h2>
             <p className="mt-2 text-xs leading-6 text-muted-foreground">
-              امتیاز، برد ست، سپس تفاضل؛ تساوی کامل بر اساس اسلات اولیه.
+              برد بازی، سپس برد راند و تفاضل راند؛ تساوی کامل بر اساس اسلات
+              اولیه.
             </p>
           </div>
           <Button
@@ -370,34 +436,36 @@ export function TournamentBoard({ data }: { data: TournamentData }) {
           players={data.players}
         />
         <p className="mt-3 text-xs text-muted-foreground">
-          جدول پس از هر ثبت نتیجه به‌روز می‌شود. ست‌های کاملِ بازی ناتمام هم در
-          امتیازها لحاظ می‌شوند.
+          جدول پس از هر ثبت نتیجه یا حذف بازی به‌روز می‌شود. راندهای ثبت‌شدهٔ
+          بازی ناتمام هم در آمار راندها لحاظ می‌شوند.
         </p>
       </section>
-      {completed === 14 && status === "active" && (
-        <div className="panel flex flex-wrap items-center justify-between gap-4 p-6">
-          <div>
-            <h2 className="font-bold">وقت معرفی پادشاه زمین است 👑</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              هر ۱۴ بازی ثبت شده. نتایج را نهایی کنید.
-            </p>
+      {totalMatches > 0 &&
+        completed === totalMatches &&
+        status === "active" && (
+          <div className="panel flex flex-wrap items-center justify-between gap-4 p-6">
+            <div>
+              <h2 className="font-bold">وقت معرفی پادشاه زمین است 👑</h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                همه بازی‌های باقی‌مانده ثبت شده‌اند. نتایج را نهایی کنید.
+              </p>
+            </div>
+            <Button
+              disabled={dirty || pending}
+              onClick={() => setFinishOpen(true)}
+            >
+              <Flag size={18} />
+              پایان مچ‌میکینگ
+            </Button>
           </div>
-          <Button
-            disabled={dirty || pending}
-            onClick={() => setFinishOpen(true)}
-          >
-            <Flag size={18} />
-            پایان مچ‌میکینگ
-          </Button>
-        </div>
-      )}
+        )}
       <Dialog
         open={finishOpen}
         onOpenChange={(o) => {
           if (!pending) setFinishOpen(o);
         }}
         title="نتایج نهایی شوند؟"
-        description="با پایان مسابقه، نتایج قفل می‌شوند و در لیدربرد عمومی قرار می‌گیرند. قبل از ادامه، امتیازها را بررسی کنید."
+        description="با پایان مسابقه، نتایج قفل می‌شوند و در لیدربرد عمومی قرار می‌گیرند. قبل از ادامه، برنده راندها را بررسی کنید."
       >
         <div className="flex gap-3">
           <Button disabled={pending} onClick={() => change("finish")}>

@@ -21,19 +21,14 @@ async function tournament() {
   );
   return rows[0].id;
 }
-async function save(
-  match: string,
-  version: number,
-  values: (number | null)[][],
-) {
-  return db.query("select public.save_match_scores($1,$2,$3::jsonb)", [
+async function save(match: string, version: number, winners: (1 | 2 | null)[]) {
+  return db.query("select public.save_match_round_winners($1,$2,$3::jsonb)", [
     match,
     version,
     JSON.stringify(
-      values.map((s, i) => ({
+      winners.map((winner_team, i) => ({
         set_number: i + 1,
-        team1_score: s[0],
-        team2_score: s[1],
+        winner_team,
       })),
     ),
   ]);
@@ -45,6 +40,15 @@ beforeAll(async () => {
   await db.exec(
     readFileSync(
       new URL("../supabase/migrations/001_initial.sql", import.meta.url),
+      "utf8",
+    ),
+  );
+  await db.exec(
+    readFileSync(
+      new URL(
+        "../supabase/migrations/20260923143706_round_winners_and_match_deletion.sql",
+        import.meta.url,
+      ),
       "utf8",
     ),
   );
@@ -61,7 +65,7 @@ afterAll(async () => {
   await db.close();
 });
 describe("database authority and scoring", () => {
-  it("atomically generates the exact schedule: 8 slots, 7 rounds, 14 matches and 42 empty sets", async () => {
+  it("atomically generates the exact schedule: 8 slots, 7 rounds, 14 matches and 42 empty round winners", async () => {
     const id = await tournament();
     const slots = await query<{ slot: Slot; player_id: string }>(
       "select slot,player_id from tournament_players where tournament_id=$1",
@@ -81,7 +85,7 @@ describe("database authority and scoring", () => {
     expect(
       (
         await query<{ count: number }>(
-          "select count(*)::integer count from match_sets s join matches m on m.id=s.match_id where m.tournament_id=$1 and s.team1_score is null",
+          "select count(*)::integer count from match_sets s join matches m on m.id=s.match_id where m.tournament_id=$1 and s.winner_team is null",
           [id],
         )
       )[0].count,
@@ -100,15 +104,11 @@ describe("database authority and scoring", () => {
           )
         )[0].id,
         0,
-        [
-          [6, 3],
-          [4, 6],
-          [6, 2],
-        ],
+        [1, 2, 1],
       ),
     ).rejects.toThrow("TOURNAMENT_NOT_ACTIVE");
   });
-  it("counts partial sets, waits for all three to choose winner, and recalculates corrections without double counting", async () => {
+  it("counts partial rounds, chooses the best-of-three winner, and recalculates corrections without double counting", async () => {
     const id = await tournament();
     await db.query("select start_tournament($1)", [id]);
     const m = (
@@ -118,11 +118,7 @@ describe("database authority and scoring", () => {
         team2_player1_id: string;
       }>("select * from matches where tournament_id=$1 limit 1", [id])
     )[0];
-    await save(m.id, 0, [
-      [6, 3],
-      [4, 6],
-      [null, null],
-    ]);
+    await save(m.id, 0, [1, 2, null]);
     expect(
       (
         await query<{ winner_team: number | null }>(
@@ -131,11 +127,7 @@ describe("database authority and scoring", () => {
         )
       )[0].winner_team,
     ).toBeNull();
-    await save(m.id, 1, [
-      [6, 3],
-      [4, 6],
-      [6, 2],
-    ]);
+    await save(m.id, 1, [1, 2, 1]);
     let r = (
       await query<{
         total_points: number;
@@ -149,10 +141,10 @@ describe("database authority and scoring", () => {
       )
     )[0];
     expect(r).toMatchObject({
-      total_points: 16,
+      total_points: 1,
       sets_won: 2,
       sets_lost: 1,
-      point_difference: 5,
+      point_difference: 1,
       matches_won: 1,
     });
     expect(
@@ -162,19 +154,9 @@ describe("database authority and scoring", () => {
           [id, m.team2_player1_id],
         )
       )[0],
-    ).toEqual({ total_points: 11, point_difference: -5, matches_lost: 1 });
-    await expect(
-      save(m.id, 1, [
-        [1, 6],
-        [2, 6],
-        [3, 6],
-      ]),
-    ).rejects.toThrow("SCORE_CONFLICT");
-    await save(m.id, 2, [
-      [1, 6],
-      [2, 6],
-      [3, 6],
-    ]);
+    ).toEqual({ total_points: 0, point_difference: -1, matches_lost: 1 });
+    await expect(save(m.id, 1, [2, 2, 2])).rejects.toThrow("SCORE_CONFLICT");
+    await save(m.id, 2, [2, 2, 2]);
     r = (
       await query<typeof r>(
         "select * from tournament_results where tournament_id=$1 and player_id=$2",
@@ -182,17 +164,13 @@ describe("database authority and scoring", () => {
       )
     )[0];
     expect(r).toMatchObject({
-      total_points: 6,
+      total_points: 0,
       sets_won: 0,
       sets_lost: 3,
-      point_difference: -12,
+      point_difference: -3,
       matches_won: 0,
     });
-    await save(m.id, 3, [
-      [null, null],
-      [null, null],
-      [null, null],
-    ]);
+    await save(m.id, 3, [null, null, null]);
     expect(
       (
         await query(
@@ -211,44 +189,27 @@ describe("database authority and scoring", () => {
         [id],
       )
     )[0];
-    for (const values of [
-      [
-        [6, 6],
-        [6, 0],
-        [6, 0],
-      ],
-      [
-        [6, null],
-        [6, 0],
-        [6, 0],
-      ],
-      [
-        [-1, 0],
-        [6, 0],
-        [6, 0],
-      ],
-      [
-        [100, 0],
-        [6, 0],
-        [6, 0],
-      ],
-      [
-        [6.5, 0],
-        [6, 0],
-        [6, 0],
-      ],
-    ])
-      await expect(save(m.id, 0, values)).rejects.toThrow();
+    for (const winner of [-1, 0, 3, 1.5])
+      await expect(
+        db.query("select save_match_round_winners($1,0,$2::jsonb)", [
+          m.id,
+          JSON.stringify([
+            { set_number: 1, winner_team: winner },
+            { set_number: 2, winner_team: 1 },
+            { set_number: 3, winner_team: 2 },
+          ]),
+        ]),
+      ).rejects.toThrow();
     await expect(
-      db.query("select save_match_scores($1,0,$2::jsonb)", [
+      db.query("select save_match_round_winners($1,0,$2::jsonb)", [
         m.id,
         JSON.stringify([
-          { set_number: 1 },
-          { set_number: 1 },
-          { set_number: 3 },
+          { set_number: 1, winner_team: 1 },
+          { set_number: 1, winner_team: 2 },
+          { set_number: 3, winner_team: 1 },
         ]),
       ]),
-    ).rejects.toThrow("INVALID_SETS");
+    ).rejects.toThrow("INVALID_ROUNDS");
     expect(
       (
         await query<{ version: number }>(
@@ -268,6 +229,49 @@ describe("database authority and scoring", () => {
       ]),
     ).rejects.toThrow("EIGHT_PLAYERS_REQUIRED");
   });
+  it("deletes a match, cascades its rounds, and removes its contribution from standings", async () => {
+    const id = await tournament();
+    await db.query("select start_tournament($1)", [id]);
+    const match = (
+      await query<{ id: string; team1_player1_id: string }>(
+        "select id,team1_player1_id from matches where tournament_id=$1 order by id limit 1",
+        [id],
+      )
+    )[0];
+    await save(match.id, 0, [1, 1, 1]);
+    expect(
+      (
+        await query<{ total_points: number; sets_won: number }>(
+          "select total_points,sets_won from tournament_results where tournament_id=$1 and player_id=$2",
+          [id, match.team1_player1_id],
+        )
+      )[0],
+    ).toEqual({ total_points: 1, sets_won: 3 });
+    await db.query("select delete_match($1)", [match.id]);
+    expect(
+      await query("select * from matches where id=$1", [match.id]),
+    ).toHaveLength(0);
+    expect(
+      await query("select * from match_sets where match_id=$1", [match.id]),
+    ).toHaveLength(0);
+    expect(
+      (
+        await query<{ total_points: number; sets_won: number }>(
+          "select total_points,sets_won from tournament_results where tournament_id=$1 and player_id=$2",
+          [id, match.team1_player1_id],
+        )
+      )[0],
+    ).toEqual({ total_points: 0, sets_won: 0 });
+    const remaining = await query<{ id: string }>(
+      "select id from matches where tournament_id=$1",
+      [id],
+    );
+    expect(remaining).toHaveLength(13);
+    for (const item of remaining) await save(item.id, 0, [1, 2, 1]);
+    await expect(
+      db.query("select finish_tournament($1)", [id]),
+    ).resolves.toBeDefined();
+  });
   it("publishes only finalized data, freezes completed results, and exposes no phone column", async () => {
     const id = await tournament();
     await db.query("select start_tournament($1)", [id]);
@@ -278,12 +282,7 @@ describe("database authority and scoring", () => {
       "select id from matches where tournament_id=$1",
       [id],
     );
-    for (const m of matches)
-      await save(m.id, 0, [
-        [6, 3],
-        [4, 6],
-        [6, 2],
-      ]);
+    for (const m of matches) await save(m.id, 0, [1, 2, 1]);
     const results = await query<{
       total_points: number;
       point_difference: number;
@@ -297,9 +296,7 @@ describe("database authority and scoring", () => {
       [id],
     );
     expect(results.map((r) => r.rank)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
-    expect(results.reduce((s, r) => s + r.total_points, 0)).toBe(
-      14 * 2 * (16 + 11),
-    );
+    expect(results.reduce((s, r) => s + r.total_points, 0)).toBe(28);
     expect(results.reduce((s, r) => s + r.point_difference, 0)).toBe(0);
     expect(results.reduce((s, r) => s + r.matches_won, 0)).toBe(28);
     expect(results.reduce((s, r) => s + r.matches_lost, 0)).toBe(28);
@@ -317,12 +314,11 @@ describe("database authority and scoring", () => {
     }
     await db.query("select finish_tournament($1)", [id]);
     await expect(
-      save(matches[0].id, 1, [
-        [1, 6],
-        [1, 6],
-        [1, 6],
-      ]),
-    ).rejects.toThrow("TOURNAMENT_NOT_ACTIVE");
+      db.query("select delete_match($1)", [matches[0].id]),
+    ).rejects.toThrow("TOURNAMENT_LOCKED");
+    await expect(save(matches[0].id, 1, [2, 2, 2])).rejects.toThrow(
+      "TOURNAMENT_NOT_ACTIVE",
+    );
     await expect(
       db.query("select recalculate_tournament_standings($1)", [id]),
     ).rejects.toThrow("TOURNAMENT_LOCKED");
@@ -337,7 +333,7 @@ describe("database authority and scoring", () => {
       "select * from public_leaderboard",
     );
     expect(leaders).toHaveLength(8);
-    expect(leaders.reduce((s, l) => s + l.crowns, 0)).toBe(1);
+    expect(leaders.reduce((s, l) => s + l.crowns, 0)).toBe(2);
     await expect(db.query("select phone from players")).rejects.toThrow(
       "permission denied",
     );

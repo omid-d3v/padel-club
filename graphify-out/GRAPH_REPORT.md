@@ -1,34 +1,43 @@
 # Graph Report - padel-club  (2026-09-23)
 
 ## Corpus Check
-- Corpus is ~15,347 words - fits in a single context window. You may not need a graph.
+- 56 files · ~16,611 words
+- Verdict: corpus is large enough that graph structure adds value.
+- Unclassified: 4 file(s) not represented in the graph (top: (none) 2, .example 1, .css 1)
 
 ## Summary
-- 320 nodes · 700 edges · 16 communities (13 shown, 3 thin omitted)
+- 330 nodes · 706 edges · 19 communities (12 shown, 7 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 3 edges (avg confidence: 0.92)
 - Token cost: 0 input · 0 output
 
+## Graph Freshness
+- Built from commit: `e5c9fd17`
+- Run `git rev-parse HEAD` and compare to check if the graph is stale.
+- Run `graphify update .` after code changes (no API cost).
+
 ## Community Hubs (Navigation)
-- Player Admin and Data
-- Project Scripts and Linting
-- Tournament Domain and Tests
-- Admin Actions and Validation
-- Supabase Auth and Server
-- Architecture and Product Docs
-- TypeScript Configuration
-- Forms and UI Components
-- Browser Test Backend
-- UI Aliases and Styling
-- Runtime Dependencies
-- Development Dependencies
-- Generated Next Types
-- PostCSS Configuration
+- shared.tsx
+- package.json
+- domain.test.ts
+- actions.ts
+- Next.js App Router Architecture
+- compilerOptions
+- forms.tsx
+- backend.mjs
+- components.json
+- dependencies
+- devDependencies
+- next-env.d.ts
+- postcss.config.mjs
+- public.match_sets
+- ref_next_types_root_params_d_ts
+- ref_next_types_routes_d_ts
 
 ## God Nodes (most connected - your core abstractions)
 1. `next` - 20 edges
 2. `number()` - 20 edges
 3. `fullName()` - 20 edges
-4. `requireAdmin` - 17 edges
+4. `requireAdmin` - 18 edges
 5. `compilerOptions` - 16 edges
 6. `cn()` - 15 edges
 7. `lucide-react` - 13 edges
@@ -45,89 +54,85 @@
   CLAUDE.md → AGENTS.md
 - `AdminLayout()` --calls--> `requireAdmin`  [EXTRACTED]
   src/app/(admin)/layout.tsx → src/lib/auth.ts
-- `Profile()` --calls--> `getBadges()`  [EXTRACTED]
-  src/app/(admin)/players/[id]/page.tsx → src/lib/tournament/badges.ts
+- `Dashboard()` --calls--> `number()`  [EXTRACTED]
+  src/app/(admin)/page.tsx → src/lib/utils.ts
 
 ## Import Cycles
 - None detected.
 
 ## Hyperedges (group relationships)
-- **Tournament Scoring and Ranking Model** — readme_tournament_lifecycle, readme_score_entry_rules, readme_ranking_rules, readme_leaderboard_rules [EXTRACTED 1.00]
 - **Supabase Security and Integrity Model** — readme_supabase_backend, readme_admin_authorization, readme_row_level_security, readme_database_integrity_model, readme_optimistic_concurrency_control [EXTRACTED 1.00]
+- **Tournament Scoring and Ranking Model** — readme_tournament_lifecycle, readme_score_entry_rules, readme_ranking_rules, readme_leaderboard_rules [EXTRACTED 1.00]
 
-## Communities (16 total, 3 thin omitted)
+## Communities (19 total, 7 thin omitted)
 
-### Community 0 - "Player Admin and Data"
-Cohesion: 0.12
-Nodes (41): Dashboard(), Profile(), Players(), Tournament(), New(), Tournaments(), LeaderboardPage(), Results() (+33 more)
-
-### Community 1 - "Project Scripts and Linting"
-Cohesion: 0.05
-Nodes (37): author, description, engines, node, keywords, license, name, private (+29 more)
-
-### Community 2 - "Tournament Domain and Tests"
+### Community 0 - "shared.tsx"
 Cohesion: 0.11
-Nodes (25): @electric-sql/pglite, ref_node_fs, ref_node_url, vitest, Database, Json, Table, View (+17 more)
+Nodes (40): class-variance-authority, @radix-ui/react-slot, Dashboard(), Profile(), Players(), New(), Tournaments(), LeaderboardPage() (+32 more)
 
-### Community 3 - "Admin Actions and Validation"
-Cohesion: 0.15
-Nodes (22): zod, changeStatus(), createTournament(), deletePlayer(), fail(), logout(), recalculateTournamentStandings(), refresh() (+14 more)
+### Community 1 - "package.json"
+Cohesion: 0.05
+Nodes (36): author, description, engines, node, keywords, license, name, private (+28 more)
 
-### Community 4 - "Supabase Auth and Server"
-Cohesion: 0.13
-Nodes (13): config, next, @supabase/ssr, login(), Global Stylesheet, metadata, dynamic, Login() (+5 more)
+### Community 2 - "domain.test.ts"
+Cohesion: 0.14
+Nodes (17): @electric-sql/pglite, ref_node_fs, ref_node_url, vitest, zod, generateMatches(), SCHEDULE, SLOTS (+9 more)
 
-### Community 5 - "Architecture and Product Docs"
+### Community 3 - "actions.ts"
+Cohesion: 0.10
+Nodes (29): config, next, @supabase/ssr, changeStatus(), createTournament(), deleteMatch(), deletePlayer(), fail() (+21 more)
+
+### Community 5 - "Next.js App Router Architecture"
 Cohesion: 0.09
 Nodes (22): Project Knowledge Graph, Graphify Codebase Workflow, Next.js Agent Rules, AGENTS.md Reference, Admin Authorization, Browser Test Strategy, Database-Centric Integrity Model, Database Test Strategy (+14 more)
 
-### Community 6 - "TypeScript Configuration"
+### Community 6 - "compilerOptions"
 Cohesion: 0.11
 Nodes (18): compilerOptions, allowJs, esModuleInterop, incremental, isolatedModules, jsx, lib, module (+10 more)
 
-### Community 7 - "Forms and UI Components"
-Cohesion: 0.27
-Nodes (11): lucide-react, react, sonner, DeletePlayer(), Pending(), PlayerForm(), PlayerAvatar(), Dialog() (+3 more)
+### Community 7 - "forms.tsx"
+Cohesion: 0.14
+Nodes (27): clsx, lucide-react, react, tailwind-merge, Tournament(), Results(), CreateTournamentForm(), DeletePlayer() (+19 more)
 
-### Community 8 - "Browser Test Backend"
+### Community 8 - "backend.mjs"
 Cohesion: 0.16
 Nodes (17): ref_node_http, base64(), matches, names, participants, players, results, rounds (+9 more)
 
-### Community 9 - "UI Aliases and Styling"
+### Community 9 - "components.json"
 Cohesion: 0.12
 Nodes (16): aliases, components, hooks, lib, ui, utils, iconLibrary, rsc (+8 more)
 
-### Community 10 - "Runtime Dependencies"
+### Community 10 - "dependencies"
 Cohesion: 0.13
 Nodes (15): dependencies, class-variance-authority, clsx, @fontsource/vazirmatn, lucide-react, next, @radix-ui/react-dialog, @radix-ui/react-slot (+7 more)
 
-### Community 11 - "Development Dependencies"
+### Community 11 - "devDependencies"
 Cohesion: 0.15
 Nodes (13): devDependencies, @electric-sql/pglite, eslint, eslint-config-next, @playwright/test, prettier, tailwindcss, @tailwindcss/postcss (+5 more)
 
-### Community 13 - "Generated Next Types"
+### Community 13 - "next-env.d.ts"
 Cohesion: 0.50
-Nodes (3): NOTE: This file should not be edited, ref_next_types_root_params_d_ts, ref_next_types_routes_d_ts
+Nodes (3): NOTE: This file should not be edited, next_types_root_params_d, next_types_routes_d
 
 ## Knowledge Gaps
 - **109 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `config` (+104 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 137 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **3 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 146 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **7 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `next` connect `Supabase Auth and Server` to `Player Admin and Data`, `Project Scripts and Linting`, `Admin Actions and Validation`, `Forms and UI Components`?**
-  _High betweenness centrality (0.111) - this node is a cross-community bridge._
-- **Why does `dependencies` connect `Runtime Dependencies` to `Project Scripts and Linting`?**
-  _High betweenness centrality (0.061) - this node is a cross-community bridge._
-- **Why does `devDependencies` connect `Development Dependencies` to `Project Scripts and Linting`?**
-  _High betweenness centrality (0.052) - this node is a cross-community bridge._
+- **Why does `next` connect `actions.ts` to `shared.tsx`, `package.json`, `forms.tsx`?**
+  _High betweenness centrality (0.105) - this node is a cross-community bridge._
+- **Why does `dependencies` connect `dependencies` to `package.json`?**
+  _High betweenness centrality (0.057) - this node is a cross-community bridge._
+- **Why does `devDependencies` connect `devDependencies` to `package.json`?**
+  _High betweenness centrality (0.049) - this node is a cross-community bridge._
 - **What connects `$schema`, `style`, `rsc` to the rest of the system?**
   _109 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `Player Admin and Data` be split into smaller, more focused modules?**
-  _Cohesion score 0.11779448621553884 - nodes in this community are weakly interconnected._
-- **Should `Project Scripts and Linting` be split into smaller, more focused modules?**
-  _Cohesion score 0.04878048780487805 - nodes in this community are weakly interconnected._
-- **Should `Tournament Domain and Tests` be split into smaller, more focused modules?**
-  _Cohesion score 0.11363636363636363 - nodes in this community are weakly interconnected._
+- **Should `shared.tsx` be split into smaller, more focused modules?**
+  _Cohesion score 0.10779220779220779 - nodes in this community are weakly interconnected._
+- **Should `package.json` be split into smaller, more focused modules?**
+  _Cohesion score 0.047619047619047616 - nodes in this community are weakly interconnected._
+- **Should `domain.test.ts` be split into smaller, more focused modules?**
+  _Cohesion score 0.1422924901185771 - nodes in this community are weakly interconnected._

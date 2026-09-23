@@ -57,8 +57,12 @@ export type Database = {
         Args: { p_tournament_id: string };
         Returns: undefined;
       };
-      save_match_scores: {
-        Args: { p_match_id: string; p_version: number; p_sets: Json };
+      save_match_round_winners: {
+        Args: { p_match_id: string; p_version: number; p_rounds: Json };
+        Returns: undefined;
+      };
+      delete_match: {
+        Args: { p_match_id: string };
         Returns: undefined;
       };
     };

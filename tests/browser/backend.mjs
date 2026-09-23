@@ -76,8 +76,7 @@ const sets = matches.flatMap((m, i) =>
     id: uuid(500 + i * 3 + s),
     match_id: m.id,
     set_number: s + 1,
-    team1_score: null,
-    team2_score: null,
+    winner_team: null,
   })),
 );
 const results = players.map((p, i) => ({

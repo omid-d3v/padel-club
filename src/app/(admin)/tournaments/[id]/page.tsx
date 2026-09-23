@@ -29,7 +29,7 @@ export default async function Tournament({
       />
       <details className="panel mb-6 p-4">
         <summary className="min-h-7 cursor-pointer text-sm font-medium">
-          اسلات بازیکنان و قوانین امتیاز
+          اسلات بازیکنان و قوانین رتبه‌بندی
         </summary>
         <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
           {data.participants
@@ -42,9 +42,9 @@ export default async function Tournament({
             ))}
         </div>
         <p className="mt-4 text-xs leading-7 text-muted-foreground">
-          هر سه ست اجرا می‌شود، حتی اگر یک تیم دو ست اول را برده باشد. امتیاز ست
-          باید بین ۰ و ۹۹ و بدون تساوی باشد. محدودیت استاندارد ست تنیس اعمال
-          نمی‌شود تا فرمت باشگاهی شما پشتیبانی شود.
+          برای هر بازی، برنده هر سه راند را انتخاب کنید. تیمی که حداقل دو راند
+          ببرد، برنده بازی است. رتبه بازیکنان ابتدا با تعداد برد بازی و سپس با
+          برد و تفاضل راندها تعیین می‌شود.
         </p>
       </details>
       <TournamentBoard data={data} />

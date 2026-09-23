@@ -9,7 +9,7 @@ test.beforeEach(async ({ page }) => {
   await page.getByRole("button", { name: "ورود به پنل مدیریت" }).click();
   await expect(page).toHaveURL("/");
 });
-test("dashboard and score entry render with mobile-safe large controls", async ({
+test("dashboard and round winner entry render with mobile-safe controls", async ({
   page,
 }) => {
   await expect(
@@ -31,14 +31,16 @@ test("dashboard and score entry render with mobile-safe large controls", async (
     path: `test-results/tournament-${test.info().project.name}.png`,
     fullPage: true,
   });
-  const score = page.getByRole("textbox", { name: /زمین 1، ست 1، تیم اول/ });
-  await score.fill("۶");
-  await expect(score).toHaveValue("6");
+  const teamOne = page.getByRole("button", { name: /تیم اول:/ }).first();
+  await teamOne.click();
+  await expect(teamOne).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByRole("button", { name: "دور بعد" })).toBeDisabled();
-  await page.getByRole("button", { name: "ثبت نتیجه" }).first().click();
   await expect(
-    page.getByRole("alert").filter({ hasText: "هر ست باید دو امتیاز" }),
-  ).toContainText("هر ست باید دو امتیاز");
+    page.getByRole("button", { name: "ثبت برنده راندها" }).first(),
+  ).toBeEnabled();
+  await expect(
+    page.getByRole("button", { name: /حذف بازی زمین/ }).first(),
+  ).toBeVisible();
 });
 test("player dialog and exactly eight-player selection are accessible", async ({
   page,

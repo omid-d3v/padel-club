@@ -204,11 +204,11 @@ export function TournamentStandings({
             <tr>
               <th>رتبه</th>
               <th>بازیکن</th>
-              <th>امتیاز</th>
-              <th>برد ست</th>
-              {detailed && <th>باخت ست</th>}
-              <th>تفاضل</th>
-              {detailed && <th>برد بازی</th>}
+              <th>برد بازی</th>
+              <th>برد راند</th>
+              {detailed && <th>باخت راند</th>}
+              <th>تفاضل راند</th>
+              {detailed && <th>باخت بازی</th>}
             </tr>
           </thead>
           <tbody>
@@ -243,7 +243,7 @@ export function TournamentStandings({
                       {number(s.point_difference)}
                     </span>
                   </td>
-                  {detailed && <td>{number(s.matches_won)}</td>}
+                  {detailed && <td>{number(s.matches_lost)}</td>}
                 </tr>
               );
             })}
@@ -272,7 +272,7 @@ export function Podium({ results }: { results: PublicResult[] }) {
           <PlayerAvatar player={r} />
           <p className="mt-3 text-xs font-bold md:text-base">{fullName(r)}</p>
           <p className="mt-2 text-xs text-muted-foreground">
-            {number(r.total_points)} امتیاز
+            {number(r.total_points)} برد بازی
           </p>
         </div>
       ))}
@@ -295,7 +295,7 @@ export function LeaderboardTable({ leaders }: { leaders: Leader[] }) {
             <th>رتبه</th>
             <th>بازیکن</th>
             <th>تورنمنت</th>
-            <th>کل امتیاز</th>
+            <th>کل برد بازی</th>
             <th>درصد برد</th>
             <th>پادشاه زمین</th>
           </tr>

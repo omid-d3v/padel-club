@@ -7,7 +7,7 @@ import {
 import {
   normalizeDigits,
   playerSchema,
-  scoreSchema,
+  roundWinnersSchema,
   tournamentSchema,
 } from "../src/lib/validation";
 import { getBadges } from "../src/lib/tournament/badges";
@@ -34,7 +34,7 @@ describe("tournament format", () => {
       ),
     ).toThrow();
   });
-  it("accepts localized phone digits and rejects invalid sets and dates", () => {
+  it("accepts localized phone digits and rejects invalid round winners and dates", () => {
     expect(normalizeDigits("۱۲٣")).toBe("123");
     expect(
       playerSchema.parse({
@@ -44,8 +44,11 @@ describe("tournament format", () => {
       }),
     ).toEqual({ first_name: "امید", last_name: "حسینی", phone: "09121234567" });
     expect(
-      scoreSchema.safeParse([{ set_number: 1, team1_score: 6, team2_score: 6 }])
-        .success,
+      roundWinnersSchema.safeParse([
+        { set_number: 1, winner_team: 3 },
+        { set_number: 2, winner_team: 1 },
+        { set_number: 3, winner_team: 2 },
+      ]).success,
     ).toBe(false);
     expect(
       tournamentSchema.safeParse({
@@ -80,7 +83,7 @@ describe("tournament format", () => {
     expect(getBadges("p", results, matches, [t], rounds)).toEqual([
       "👑 پادشاه زمین",
       "🔥 روی فرم",
-      "🎯 امتیاززن",
+      "🎯 برنده راند",
     ]);
     matches[4].winner_team = 2;
     expect(getBadges("p", results, matches, [t], rounds)).not.toContain(

@@ -83,7 +83,7 @@ export default async function Profile({
           icon={<Crown size={20} />}
         />
         <StatCard
-          label="میانگین امتیاز مسابقه"
+          label="میانگین برد بازی"
           value={
             results.length
               ? results.reduce((s, r) => s + r.total_points, 0) / results.length
@@ -125,7 +125,7 @@ export default async function Profile({
                 <th>تاریخ</th>
                 <th>وضعیت</th>
                 <th>رتبه</th>
-                <th>امتیاز</th>
+                <th>برد بازی</th>
               </tr>
             </thead>
             <tbody>

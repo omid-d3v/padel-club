@@ -397,7 +397,7 @@ export function CreateTournamentForm({ players }: { players: Player[] }) {
           {[
             "۸ بازیکن با هم‌تیمی‌های چرخشی",
             "۲ زمین هم‌زمان",
-            "۷ دور، ۱۴ بازی و ۴۲ ست",
+            "۷ دور، ۱۴ بازی و ۴۲ راند",
             "تخصیص تصادفی اسلات‌های A تا H",
           ].map((s) => (
             <li key={s} className="flex gap-2">
