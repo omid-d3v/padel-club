@@ -1,28 +1,28 @@
-# Graph Report - padel-club  (2026-09-23)
+# Graph Report - padel-club  (2026-09-24)
 
 ## Corpus Check
-- 56 files · ~16,611 words
+- 57 files · ~17,238 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 4 file(s) not represented in the graph (top: (none) 2, .example 1, .css 1)
 
 ## Summary
-- 330 nodes · 706 edges · 19 communities (12 shown, 7 thin omitted)
+- 334 nodes · 719 edges · 22 communities (13 shown, 9 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 3 edges (avg confidence: 0.92)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `e5c9fd17`
+- Built from commit: `447d9d01`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- shared.tsx
+- players/[id]/page.tsx
 - package.json
 - domain.test.ts
 - actions.ts
 - Next.js App Router Architecture
 - compilerOptions
-- forms.tsx
+- shared.tsx
 - backend.mjs
 - components.json
 - dependencies
@@ -32,15 +32,17 @@
 - public.match_sets
 - ref_next_types_root_params_d_ts
 - ref_next_types_routes_d_ts
+- data.ts
+- app/layout.tsx
 
 ## God Nodes (most connected - your core abstractions)
 1. `next` - 20 edges
 2. `number()` - 20 edges
 3. `fullName()` - 20 edges
-4. `requireAdmin` - 18 edges
+4. `requireAdmin` - 19 edges
 5. `compilerOptions` - 16 edges
 6. `cn()` - 15 edges
-7. `lucide-react` - 13 edges
+7. `lucide-react` - 14 edges
 8. `react` - 12 edges
 9. `Button()` - 12 edges
 10. `getPlayers` - 12 edges
@@ -64,23 +66,23 @@
 - **Supabase Security and Integrity Model** — readme_supabase_backend, readme_admin_authorization, readme_row_level_security, readme_database_integrity_model, readme_optimistic_concurrency_control [EXTRACTED 1.00]
 - **Tournament Scoring and Ranking Model** — readme_tournament_lifecycle, readme_score_entry_rules, readme_ranking_rules, readme_leaderboard_rules [EXTRACTED 1.00]
 
-## Communities (19 total, 7 thin omitted)
+## Communities (22 total, 9 thin omitted)
 
-### Community 0 - "shared.tsx"
-Cohesion: 0.11
-Nodes (40): class-variance-authority, @radix-ui/react-slot, Dashboard(), Profile(), Players(), New(), Tournaments(), LeaderboardPage() (+32 more)
+### Community 0 - "players/[id]/page.tsx"
+Cohesion: 0.16
+Nodes (22): Dashboard(), Profile(), Players(), Tournament(), New(), Tournaments(), LeaderboardPage(), Leaderboard() (+14 more)
 
 ### Community 1 - "package.json"
-Cohesion: 0.05
-Nodes (36): author, description, engines, node, keywords, license, name, private (+28 more)
+Cohesion: 0.04
+Nodes (39): author, description, engines, node, keywords, license, name, private (+31 more)
 
 ### Community 2 - "domain.test.ts"
 Cohesion: 0.14
 Nodes (17): @electric-sql/pglite, ref_node_fs, ref_node_url, vitest, zod, generateMatches(), SCHEDULE, SLOTS (+9 more)
 
 ### Community 3 - "actions.ts"
-Cohesion: 0.10
-Nodes (29): config, next, @supabase/ssr, changeStatus(), createTournament(), deleteMatch(), deletePlayer(), fail() (+21 more)
+Cohesion: 0.20
+Nodes (18): changeStatus(), createTournament(), deleteMatch(), deletePlayer(), deleteTournament(), fail(), logout(), recalculateTournamentStandings() (+10 more)
 
 ### Community 5 - "Next.js App Router Architecture"
 Cohesion: 0.09
@@ -90,9 +92,9 @@ Nodes (22): Project Knowledge Graph, Graphify Codebase Workflow, Next.js Agent R
 Cohesion: 0.11
 Nodes (18): compilerOptions, allowJs, esModuleInterop, incremental, isolatedModules, jsx, lib, module (+10 more)
 
-### Community 7 - "forms.tsx"
-Cohesion: 0.14
-Nodes (27): clsx, lucide-react, react, tailwind-merge, Tournament(), Results(), CreateTournamentForm(), DeletePlayer() (+19 more)
+### Community 7 - "shared.tsx"
+Cohesion: 0.12
+Nodes (32): config, lucide-react, next, react, sonner, Results(), CreateTournamentForm(), DeletePlayer() (+24 more)
 
 ### Community 8 - "backend.mjs"
 Cohesion: 0.16
@@ -114,25 +116,29 @@ Nodes (13): devDependencies, @electric-sql/pglite, eslint, eslint-config-next, @
 Cohesion: 0.50
 Nodes (3): NOTE: This file should not be edited, next_types_root_params_d, next_types_routes_d
 
+### Community 19 - "data.ts"
+Cohesion: 0.17
+Nodes (20): login(), dynamic, Login(), LoginForm(), publicDb(), Database, Json, Table (+12 more)
+
 ## Knowledge Gaps
 - **109 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `config` (+104 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 146 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **7 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 149 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **9 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `next` connect `actions.ts` to `shared.tsx`, `package.json`, `forms.tsx`?**
-  _High betweenness centrality (0.105) - this node is a cross-community bridge._
+- **Why does `next` connect `shared.tsx` to `players/[id]/page.tsx`, `package.json`, `actions.ts`, `data.ts`, `app/layout.tsx`?**
+  _High betweenness centrality (0.102) - this node is a cross-community bridge._
 - **Why does `dependencies` connect `dependencies` to `package.json`?**
-  _High betweenness centrality (0.057) - this node is a cross-community bridge._
+  _High betweenness centrality (0.056) - this node is a cross-community bridge._
 - **Why does `devDependencies` connect `devDependencies` to `package.json`?**
   _High betweenness centrality (0.049) - this node is a cross-community bridge._
 - **What connects `$schema`, `style`, `rsc` to the rest of the system?**
   _109 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `shared.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.10779220779220779 - nodes in this community are weakly interconnected._
 - **Should `package.json` be split into smaller, more focused modules?**
-  _Cohesion score 0.047619047619047616 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.044444444444444446 - nodes in this community are weakly interconnected._
 - **Should `domain.test.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.1422924901185771 - nodes in this community are weakly interconnected._
+- **Should `Next.js App Router Architecture` be split into smaller, more focused modules?**
+  _Cohesion score 0.09090909090909091 - nodes in this community are weakly interconnected._

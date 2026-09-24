@@ -65,6 +65,10 @@ export type Database = {
         Args: { p_match_id: string };
         Returns: undefined;
       };
+      delete_tournament: {
+        Args: { p_tournament_id: string };
+        Returns: undefined;
+      };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;

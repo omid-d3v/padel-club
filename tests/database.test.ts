@@ -1,5 +1,5 @@
 import { PGlite } from "@electric-sql/pglite";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { beforeAll, afterAll, describe, it, expect } from "vitest";
 import { generateMatches } from "../src/lib/tournament/generateMatches";
 import type { Slot } from "../src/lib/types";
@@ -37,21 +37,12 @@ beforeAll(async () => {
   await db.exec(
     `create schema auth; create role anon; create role authenticated; create table auth.users(id uuid primary key); create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$; grant usage on schema auth to authenticated,anon; grant execute on function auth.uid() to authenticated,anon;`,
   );
-  await db.exec(
-    readFileSync(
-      new URL("../supabase/migrations/001_initial.sql", import.meta.url),
-      "utf8",
-    ),
-  );
-  await db.exec(
-    readFileSync(
-      new URL(
-        "../supabase/migrations/20260923143706_round_winners_and_match_deletion.sql",
-        import.meta.url,
-      ),
-      "utf8",
-    ),
-  );
+  const migrations = new URL("../supabase/migrations/", import.meta.url);
+  for (const file of readdirSync(migrations)
+    .filter((name) => name.endsWith(".sql"))
+    .toSorted()) {
+    await db.exec(readFileSync(new URL(file, migrations), "utf8"));
+  }
   await db.query("insert into auth.users(id) values($1),($2)", [admin, user]);
   await db.query("insert into public.admins(user_id) values($1)", [admin]);
   players = (
@@ -272,6 +263,45 @@ describe("database authority and scoring", () => {
       db.query("select finish_tournament($1)", [id]),
     ).resolves.toBeDefined();
   });
+  it("deletes a completed tournament and cascades its schedule, rounds, and results without deleting players", async () => {
+    const id = await tournament();
+    await db.query("select start_tournament($1)", [id]);
+    const matches = await query<{ id: string }>(
+      "select id from matches where tournament_id=$1",
+      [id],
+    );
+    for (const match of matches) await save(match.id, 0, [1, 2, 1]);
+    await db.query("select finish_tournament($1)", [id]);
+    expect(
+      await query("select * from public_results where tournament_id=$1", [id]),
+    ).toHaveLength(8);
+    await db.query("select delete_tournament($1)", [id]);
+    expect(
+      await query("select * from tournaments where id=$1", [id]),
+    ).toHaveLength(0);
+    for (const table of [
+      "tournament_players",
+      "tournament_rounds",
+      "matches",
+      "tournament_results",
+    ]) {
+      expect(
+        await query(`select * from ${table} where tournament_id=$1`, [id]),
+      ).toHaveLength(0);
+    }
+    expect(
+      await query("select id from match_sets where match_id=any($1::uuid[])", [
+        matches.map((match) => match.id),
+      ]),
+    ).toHaveLength(0);
+    expect(await query("select * from players")).toHaveLength(8);
+    expect(
+      await query("select * from public_results where tournament_id=$1", [id]),
+    ).toHaveLength(0);
+    await expect(
+      db.query("select delete_tournament($1)", [id]),
+    ).rejects.toThrow("NOT_FOUND");
+  });
   it("publishes only finalized data, freezes completed results, and exposes no phone column", async () => {
     const id = await tournament();
     await db.query("select start_tournament($1)", [id]);
@@ -354,6 +384,11 @@ describe("database authority and scoring", () => {
         "bad",
         "2026-09-21",
         players,
+      ]),
+    ).rejects.toThrow("ADMIN_REQUIRED");
+    await expect(
+      db.query("select delete_tournament($1)", [
+        "10000000-0000-4000-8000-000000000100",
       ]),
     ).rejects.toThrow("ADMIN_REQUIRED");
     await expect(

@@ -149,41 +149,48 @@ export function PlayerName({
 export function TournamentCard({
   tournament: t,
   publicLink = false,
+  action,
 }: {
   tournament: Tournament;
   publicLink?: boolean;
+  action?: ReactNode;
 }) {
   return (
-    <Link
-      href={`/tournaments/${t.id}${publicLink ? "/results" : ""}`}
-      className="panel group block p-5 transition hover:border-emerald-300 hover:shadow-sm"
-    >
-      <div className="flex justify-between gap-2">
-        <span className="grid size-11 place-items-center rounded-xl bg-muted text-emerald-800">
-          <Trophy size={21} />
-        </span>
-        <StatusBadge status={t.status} />
-      </div>
-      <h3 className="mb-4 mt-5 font-bold">{t.title}</h3>
-      <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
-        <span className="flex items-center gap-1.5">
-          <CalendarDays size={15} />
-          {date(t.date)}
-        </span>
-        <span className="flex items-center gap-1.5">
-          <Users size={15} />۸ بازیکن
-        </span>
-      </div>
-      <div className="mt-5 flex items-center justify-between border-t border-border pt-4 text-xs">
-        <span className="text-muted-foreground">
-          ۲ زمین <span className="mx-2">•</span> ۷ دور
-        </span>
-        <span className="flex items-center gap-2 font-semibold text-emerald-800">
-          {t.status === "completed" ? "مشاهده نتایج" : "مشاهده مسابقه"}
-          <ArrowUpLeft size={16} />
-        </span>
-      </div>
-    </Link>
+    <article className="panel group overflow-hidden transition hover:border-emerald-300 hover:shadow-sm">
+      <Link
+        href={`/tournaments/${t.id}${publicLink ? "/results" : ""}`}
+        className="block p-5"
+      >
+        <div className="flex justify-between gap-2">
+          <span className="grid size-11 place-items-center rounded-xl bg-muted text-emerald-800">
+            <Trophy size={21} />
+          </span>
+          <StatusBadge status={t.status} />
+        </div>
+        <h3 className="mb-4 mt-5 font-bold">{t.title}</h3>
+        <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1.5">
+            <CalendarDays size={15} />
+            {date(t.date)}
+          </span>
+          <span className="flex items-center gap-1.5">
+            <Users size={15} />۸ بازیکن
+          </span>
+        </div>
+        <div className="mt-5 flex items-center justify-between border-t border-border pt-4 text-xs">
+          <span className="text-muted-foreground">
+            ۲ زمین <span className="mx-2">•</span> ۷ دور
+          </span>
+          <span className="flex items-center gap-2 font-semibold text-emerald-800">
+            {t.status === "completed" ? "مشاهده نتایج" : "مشاهده مسابقه"}
+            <ArrowUpLeft size={16} />
+          </span>
+        </div>
+      </Link>
+      {action && (
+        <div className="border-t border-border px-3 py-2">{action}</div>
+      )}
+    </article>
   );
 }
 export function TournamentStandings({

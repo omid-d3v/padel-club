@@ -148,6 +148,17 @@ export async function deleteMatch(
   refresh(tournamentId);
   return { success: true };
 }
+export async function deleteTournament(id: string): Promise<ActionResult> {
+  const db = await requireAdmin();
+  if (!z.uuid().safeParse(id).success)
+    return { success: false, error: "شناسه مچ‌میکینگ معتبر نیست." };
+  const { error } = await db.rpc("delete_tournament", {
+    p_tournament_id: id,
+  });
+  if (error) return fail(error);
+  refresh();
+  return { success: true };
+}
 export async function changeStatus(
   id: string,
   action: "start" | "finish",

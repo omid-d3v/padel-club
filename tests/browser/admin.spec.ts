@@ -69,3 +69,21 @@ test("player dialog and exactly eight-player selection are accessible", async ({
   await boxes.first().uncheck();
   await expect(submit).toBeDisabled();
 });
+test("tournament deletion requires explicit irreversible confirmation", async ({
+  page,
+}) => {
+  await page.goto("/tournaments");
+  await page
+    .getByRole("button", { name: /حذف کامل مچ‌میکینگ پدل پنجشنبه/ })
+    .click();
+  const dialog = page.getByRole("dialog");
+  await expect(
+    dialog.getByRole("heading", { name: "این مچ‌میکینگ کامل حذف شود؟" }),
+  ).toBeVisible();
+  await expect(dialog.getByText("بازیکنان باشگاه حذف نمی‌شوند")).toBeVisible();
+  await expect(
+    dialog.getByRole("button", { name: "حذف برای همیشه" }),
+  ).toBeVisible();
+  await dialog.getByRole("button", { name: "انصراف" }).click();
+  await expect(dialog).not.toBeVisible();
+});

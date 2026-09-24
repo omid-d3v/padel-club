@@ -163,6 +163,12 @@ begin
  delete from public.matches where id=p_match_id;
  perform public.recalculate_tournament_standings(tid);
 end; $$;
+create function public.delete_tournament(p_tournament_id uuid) returns void language plpgsql security definer set search_path = '' as $$
+begin
+ if not public.is_admin() then raise exception 'ADMIN_REQUIRED'; end if;
+ delete from public.tournaments where id=p_tournament_id;
+ if not found then raise exception 'NOT_FOUND'; end if;
+end; $$;
 create function public.finish_tournament(p_tournament_id uuid) returns void language plpgsql security definer set search_path = '' as $$
 declare state text;
 begin
@@ -185,6 +191,6 @@ create view public.public_leaderboard as
  from public.public_results group by player_id,first_name,last_name;
 revoke all on public.public_results,public.public_leaderboard from anon,authenticated;
 grant select on public.public_results,public.public_leaderboard to anon,authenticated;
-revoke all on function public.is_admin(),public.create_tournament(text,date,uuid[]),public.start_tournament(uuid),public.save_match_round_winners(uuid,integer,jsonb),public.delete_match(uuid),public.finish_tournament(uuid),public.recalculate_tournament_standings(uuid) from public,anon,authenticated;
-grant execute on function public.is_admin(),public.create_tournament(text,date,uuid[]),public.start_tournament(uuid),public.save_match_round_winners(uuid,integer,jsonb),public.delete_match(uuid),public.finish_tournament(uuid),public.recalculate_tournament_standings(uuid) to authenticated;
+revoke all on function public.is_admin(),public.create_tournament(text,date,uuid[]),public.start_tournament(uuid),public.save_match_round_winners(uuid,integer,jsonb),public.delete_match(uuid),public.delete_tournament(uuid),public.finish_tournament(uuid),public.recalculate_tournament_standings(uuid) from public,anon,authenticated;
+grant execute on function public.is_admin(),public.create_tournament(text,date,uuid[]),public.start_tournament(uuid),public.save_match_round_winners(uuid,integer,jsonb),public.delete_match(uuid),public.delete_tournament(uuid),public.finish_tournament(uuid),public.recalculate_tournament_standings(uuid) to authenticated;
 commit;
