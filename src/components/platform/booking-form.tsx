@@ -2,9 +2,10 @@
 import { useState } from "react";
 import type { Club, Court, Equipment, Slot } from "@/lib/platform/types";
 import { SKILLS } from "@/lib/platform/types";
-import { money, moment, cancellationText } from "@/lib/platform/format";
+import { money, cancellationText } from "@/lib/platform/format";
 import { ActionForm } from "./action-form";
 import { Field } from "./fields";
+import { AvailabilityPicker } from "./availability-picker";
 export function BookingForm({
   club,
   court,
@@ -13,6 +14,8 @@ export function BookingForm({
   providerReady = false,
   now,
   requestKey,
+  startDay,
+  initialSlotId = "",
 }: {
   club: Club;
   court: Court;
@@ -21,12 +24,14 @@ export function BookingForm({
   providerReady?: boolean;
   now: number;
   requestKey: string;
+  startDay: string;
+  initialSlotId?: string;
 }) {
   const [kind, setKind] = useState("private");
-  const [slotId, setSlotId] = useState("");
+  const [slotId, setSlotId] = useState(initialSlotId);
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [key] = useState(requestKey);
-  const slot = slots.find((s) => s.id === slotId);
+  const slot = slots.find((s) => s.id === slotId && s.available);
   const personal = equipment
     .filter((e) => e.kind === "personal")
     .reduce((s, e) => s + e.price * (quantities[e.id] ?? 0), 0);
@@ -49,12 +54,12 @@ export function BookingForm({
         kind === "private" ? "ارسال درخواست رزرو" : "درخواست زمین و ساخت بازی"
       }
       disabled={
-        !slotId ||
+        !active.some((s) => s.id === slotId) ||
         (club.booking_mode === "EXTERNAL_AUTOMATED" && !providerReady)
       }
       className="content-grid"
     >
-      <div className="space-y-6">
+      <div className="flex min-w-0 flex-col gap-6">
         <div className="platform-card">
           <h2>چه‌جوری بازی می‌کنی؟</h2>
           <div className="flex flex-wrap gap-3">
@@ -88,29 +93,25 @@ export function BookingForm({
             ساعت قبل از شروع تکمیل شود؛ مهلت زودتر نگه‌داشت باشگاه مقدم است.
           </p>
         </div>
-        <div className="platform-card">
-          <h2>سانس‌های {court.name}</h2>
-          <label className="field">
-            تاریخ و ساعت (نمایش جلالی)
-            <select
-              name="slot_id"
-              value={slotId}
-              onChange={(e) => setSlotId(e.target.value)}
-              required
-            >
-              <option value="">یک سانس انتخاب کن</option>
-              {active.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {moment(s.starts_at)} — {money(s.court_price)}
-                </option>
-              ))}
-            </select>
-          </label>
-          {!active.length && (
-            <p className="mt-4 text-sm text-muted-foreground">
-              سانس آزاد و معتبر برای این بازه منتشر نشده است.
-            </p>
-          )}
+        <div className="platform-card -order-1">
+          <p className="mb-4 text-xs text-muted-foreground">
+            سانس‌های {court.name}
+          </p>
+          <input
+            type="hidden"
+            name="slot_id"
+            value={active.some((s) => s.id === slotId) ? slotId : ""}
+          />
+          <AvailabilityPicker
+            slots={slots.map((s) => ({
+              ...s,
+              available: active.some((a) => a.id === s.id),
+            }))}
+            now={now}
+            startDay={startDay}
+            value={slotId}
+            onChange={setSlotId}
+          />
         </div>
         {kind === "open" && (
           <div className="platform-card form-stack">

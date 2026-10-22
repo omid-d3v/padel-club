@@ -39,7 +39,7 @@ export function Pending({
     </>
   );
 }
-export function LoginForm() {
+export function LoginForm({ next }: { next?: string }) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState("");
@@ -58,7 +58,7 @@ export function LoginForm() {
             );
             if (!r.success) setError(r.error);
             else {
-              router.replace(r.id ?? "/account");
+              router.replace(next ?? r.id ?? "/account");
             }
           } catch {
             setError("اتصال برقرار نشد؛ دوباره تلاش کنید.");
