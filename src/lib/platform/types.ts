@@ -252,7 +252,44 @@ type Table<T> = {
   Update: Partial<T>;
   Relationships: [];
 };
+export interface CalendarConnection {
+  id: string;
+  source: "guilan" | "sabaland";
+  club_id: string | null;
+  enabled: boolean;
+  interval_minutes: number;
+  horizon_days: number;
+  status: string;
+  last_attempt_at: string | null;
+  last_success_at: string | null;
+  next_sync_at: string;
+  lease_token: string | null;
+  lease_until: string | null;
+  last_error: string | null;
+  last_slot_count: number;
+  discovered_courts: Json;
+  created_at: string;
+}
 export type PlatformTables = {
+  calendar_connections: Table<CalendarConnection>;
+  calendar_court_mappings: Table<{
+    id: string;
+    connection_id: string;
+    court_id: string;
+    external_ref: string;
+    active: boolean;
+  }>;
+  calendar_sync_runs: Table<{
+    id: string;
+    connection_id: string;
+    started_at: string;
+    finished_at: string | null;
+    status: string;
+    slot_count: number;
+    imported_count: number;
+    conflict_count: number;
+    message: string | null;
+  }>;
   cities: Table<City>;
   clubs: Table<Club>;
   courts: Table<Court>;
@@ -290,6 +327,26 @@ export type PlatformTables = {
 };
 type RPC<A, R = string> = { Args: A; Returns: R };
 export type PlatformFunctions = {
+  configure_calendar: RPC<
+    {
+      p_id: string;
+      p_club: string | null;
+      p_enabled: boolean;
+      p_interval: number;
+      p_horizon: number;
+    },
+    undefined
+  >;
+  map_calendar_court: RPC<
+    { p_connection: string; p_court: string; p_ref: string },
+    undefined
+  >;
+  unmap_calendar_court: RPC<{ p_mapping: string }, undefined>;
+  request_calendar_sync: RPC<{ p_id: string }, undefined>;
+  calendar_scheduler_status: RPC<
+    Record<string, never>,
+    { active: boolean; configured: boolean }
+  >;
   my_booking_locations: RPC<
     Record<string, never>,
     {

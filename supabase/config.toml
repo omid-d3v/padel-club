@@ -1,0 +1,3 @@
+[functions.calendar-sync]
+# The function authenticates its private Vault token before claiming any work.
+verify_jwt = false

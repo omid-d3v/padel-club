@@ -144,6 +144,151 @@ beforeAll(async () => {
   }
 });
 afterAll(async () => db.close());
+describe("calendar import isolation and scheduling", () => {
+  it("fences workers, protects booking prices, closes missing inventory and rejects stale calendars", async () => {
+    await role("postgres");
+    const connection = await id(
+      "select id from calendar_connections where source='guilan'",
+    );
+    await db.exec("update calendar_connections set enabled=false");
+    await role("authenticated", users[1]);
+    await expect(
+      db.query("select configure_calendar($1,$2,true,60,7)", [
+        connection,
+        club,
+      ]),
+    ).rejects.toThrow("ADMIN_REQUIRED");
+    expect(await query("select * from calendar_connections")).toEqual([]);
+    await role("authenticated");
+    await expect(
+      db.query("select configure_calendar($1,$2,true,1,7)", [connection, club]),
+    ).rejects.toThrow();
+    await db.query("select configure_calendar($1,$2,true,60,7)", [
+      connection,
+      club,
+    ]);
+    await role("service_role");
+    async function claim() {
+      return (
+        await query<{ job: { token: string } }>(
+          "select claim_calendar_sync() job",
+        )
+      )[0].job;
+    }
+    const first = await claim();
+    expect(await claim()).toBeNull();
+    const from = new Date(Date.now() + 30 * 86400000).toISOString();
+    const to = new Date(Date.parse(from) + 86400000).toISOString();
+    const external = JSON.stringify([
+      { reference: "court-a", name: "زمین خارجی", price: 10000000 },
+    ]);
+    async function finish(token: string, slots: unknown[], status = "ok") {
+      return query<{ result: { imported: number; conflicts: number } }>(
+        "select finish_calendar_sync($1,$2,$3,$4::jsonb,$5::jsonb,$6,$7) result",
+        [connection, token, status, external, JSON.stringify(slots), from, to],
+      );
+    }
+    await finish(first.token, [], "needs_mapping");
+    await role("authenticated");
+    await db.query("select map_calendar_court($1,$2,'court-a')", [
+      connection,
+      courts[0],
+    ]);
+    await role("service_role");
+    const second = await claim();
+    await expect(finish(first.token, [])).rejects.toThrow("STALE_CALENDAR_RUN");
+    const item = {
+      courtRef: "court-a",
+      startsAt: from,
+      endsAt: new Date(Date.parse(from) + 3600000).toISOString(),
+      price: 10000000,
+      available: true,
+    };
+    expect((await finish(second.token, [item]))[0].result.imported).toBe(1);
+    await role("postgres");
+    const imported = await id(
+      "select id from court_slots where calendar_connection_id=$1",
+      [connection],
+    );
+    expect(
+      (
+        await query<{ fresh: boolean }>(
+          "select private.calendar_slot_fresh($1) fresh",
+          [imported],
+        )
+      )[0].fresh,
+    ).toBe(true);
+    const booking = await request(imported);
+    await role("postgres");
+    await db.query(
+      "update calendar_connections set next_sync_at=now() where id=$1",
+      [connection],
+    );
+    await role("service_role");
+    const third = await claim();
+    expect(
+      (await finish(third.token, [{ ...item, price: 12000000 }]))[0].result
+        .conflicts,
+    ).toBe(1);
+    await role("postgres");
+    expect(
+      (
+        await query<{ court_price: number }>(
+          "select court_price::float8 court_price from bookings where id=$1",
+          [booking],
+        )
+      )[0].court_price,
+    ).toBe(10000000);
+    await db.query(
+      "update calendar_connections set next_sync_at=now() where id=$1",
+      [connection],
+    );
+    await role("service_role");
+    const fourth = await claim();
+    await finish(fourth.token, []);
+    await role("postgres");
+    expect(
+      (
+        await query<{ published: boolean }>(
+          "select published from court_slots where id=$1",
+          [imported],
+        )
+      )[0].published,
+    ).toBe(false);
+    expect(
+      await query("select id from bookings where id=$1", [booking]),
+    ).toHaveLength(1);
+    await db.query(
+      "update calendar_connections set next_sync_at=now() where id=$1",
+      [connection],
+    );
+    await role("service_role");
+    const fifth = await claim();
+    const next = {
+      ...item,
+      startsAt: new Date(Date.parse(from) + 7200000).toISOString(),
+      endsAt: new Date(Date.parse(from) + 10800000).toISOString(),
+    };
+    await finish(fifth.token, [next]);
+    await role("postgres");
+    const stale = await id(
+      "select id from court_slots where calendar_connection_id=$1 and starts_at=$2",
+      [connection, next.startsAt],
+    );
+    await db.query(
+      "update court_slots set calendar_checked_at=now()-interval '66 minutes' where id=$1",
+      [stale],
+    );
+    await expect(
+      request(stale, "private", crypto.randomUUID(), [], users[2]),
+    ).rejects.toThrow("CALENDAR_STALE");
+    await role("authenticated");
+    await db.query("select configure_calendar($1,$2,false,60,7)", [
+      connection,
+      club,
+    ]);
+  });
+});
 describe("platform booking and payment authority", () => {
   it("keeps legacy rankings untouched and all new tables protected by RLS", async () => {
     await role("postgres");

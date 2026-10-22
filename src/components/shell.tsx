@@ -21,6 +21,7 @@ const links = [
     icon: LayoutDashboard,
   },
   { href: "/admin/clubs", label: "باشگاه و سانس‌ها", icon: PanelTop },
+  { href: "/admin/integrations", label: "اتصال تقویم‌ها", icon: PanelTop },
   { href: "/admin/events", label: "رویدادها", icon: Trophy },
   { href: "/tournaments", label: "مسابقات", icon: Trophy },
   { href: "/players", label: "بازیکنان", icon: Users },
@@ -89,8 +90,9 @@ export function Shell({
           <span className="text-sm font-medium">
             مدیریت رالی‌یار <span className="mx-3 text-border">/</span>
             <span className="text-muted-foreground">
-              {links.find((x) => x.href !== "/" && path.startsWith(x.href))
-                ?.label ?? "خانه"}
+              {links.find((x) =>
+                x.href === "/admin" ? path === x.href : path.startsWith(x.href),
+              )?.label ?? "خانه"}
             </span>
           </span>
           <span className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -108,6 +110,31 @@ export function Shell({
             </form>
           )}
         </header>
+        {admin && (
+          <nav
+            aria-label="مدیریت باشگاه"
+            className="flex gap-2 overflow-x-auto border-b border-border bg-white px-4 py-3 lg:hidden"
+          >
+            {links
+              .filter((x) =>
+                [
+                  "/admin/clubs",
+                  "/admin/integrations",
+                  "/admin/events",
+                ].includes(x.href),
+              )
+              .map((x) => (
+                <Link
+                  key={x.href}
+                  href={x.href}
+                  className="shrink-0 rounded-xl border border-border px-3 py-2 text-xs"
+                  aria-current={path.startsWith(x.href) ? "page" : undefined}
+                >
+                  {x.label}
+                </Link>
+              ))}
+          </nav>
+        )}
         <main
           id="main"
           className="mx-auto max-w-[1440px] px-4 pb-28 pt-7 md:px-10 md:pt-10 lg:pb-12"
