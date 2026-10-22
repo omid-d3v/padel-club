@@ -5,7 +5,7 @@ import { LoginForm } from "@/components/forms";
 import { configured } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 export const metadata = {
-  title: "ورود به پدل کلاب",
+  title: "ورود به رالی‌یار",
   robots: { index: false, follow: false },
 };
 export default async function Login({
@@ -26,7 +26,7 @@ export default async function Login({
             <span className="grid size-12 place-items-center rounded-2xl bg-primary">
               <PanelTop />
             </span>
-            پدل کلاب
+            رالی‌یار
           </Link>
           <p className="text-sm text-emerald-700">خوش آمدید</p>
           <h1 className="mb-3 mt-3 text-3xl font-extrabold">زمین آماده است.</h1>

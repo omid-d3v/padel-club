@@ -6,7 +6,7 @@ export default function Setup() {
         <span className="mb-8 grid size-14 place-items-center rounded-2xl bg-primary">
           <PanelTop size={30} />
         </span>
-        <p className="text-sm text-emerald-800">پدل کلاب / راه‌اندازی</p>
+        <p className="text-sm text-emerald-800">رالی‌یار / راه‌اندازی</p>
         <h1 className="mb-4 mt-3 text-3xl font-extrabold">
           یک قدم تا اولین بازی
         </h1>

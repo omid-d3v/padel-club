@@ -76,7 +76,7 @@ export default async function Event({
               },
               organizer: {
                 "@type": "Organization",
-                name: "پدل کلاب",
+                name: "رالی‌یار",
                 url: siteUrl(),
               },
             }),

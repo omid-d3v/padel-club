@@ -7,12 +7,12 @@ test("public SSR, SEO, Persian layout and reduced-motion fallback", async ({
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   const html = await (await request.get("/")).text();
-  expect(html).toContain("زمین پیدا کن");
+  expect(html).toContain("بازی بعدیت");
   expect(html).toContain("application/ld+json");
   expect(html).toContain('rel="canonical"');
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toContainText(
-    "زمین پیدا کن",
+    "بازی بعدیت",
   );
   expect(
     await page.evaluate(
@@ -99,11 +99,9 @@ test("member profile → real SQL booking → admin hold → no fake payment wit
     .click();
   await expect(admin).toHaveURL("/admin");
   await admin.goto("/admin/operations");
-  const card = admin
-    .locator("#approvals article")
-    .filter({
-      has: admin.locator(`input[name="booking_id"][value="${bookingId}"]`),
-    });
+  const card = admin.locator("#approvals article").filter({
+    has: admin.locator(`input[name="booking_id"][value="${bookingId}"]`),
+  });
   await expect(card).toBeVisible();
   await card
     .getByRole("textbox", { name: "نام مسئول و مرجع تأیید باشگاه" })

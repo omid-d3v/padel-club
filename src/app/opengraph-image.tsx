@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-export const alt = "پدل کلاب؛ زمین، هم‌بازی و رقابت";
+export const alt = "رالی‌یار؛ هم‌بازیِ هر رالی";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 export default async function SocialImage() {
@@ -7,6 +7,9 @@ export default async function SocialImage() {
     fs.readFile(
       `${process.cwd()}/node_modules/@fontsource/vazirmatn/files/vazirmatn-arabic-700-normal.woff`,
     ),
+  );
+  const logo = await import("node:fs/promises").then((fs) =>
+    fs.readFile(process.cwd() + "/public/brand/rallyyar-mark.png"),
   );
   return new ImageResponse(
     <div
@@ -16,8 +19,8 @@ export default async function SocialImage() {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        background: "#112d25",
-        color: "#d0f17b",
+        background: "#0B0F0E",
+        color: "#D7FF3F",
         padding: 75,
         direction: "rtl",
         fontFamily: "Vazirmatn",
@@ -31,31 +34,18 @@ export default async function SocialImage() {
           fontWeight: 700,
         }}
       >
-        <span>پدل کلاب</span>
+        <span>رالی‌یار</span>
         <span style={{ color: "#f5f5ee", marginTop: 30, fontSize: 40 }}>
           زمین، هم‌بازی و رقابت
         </span>
       </div>
-      <div
-        style={{
-          width: 260,
-          height: 400,
-          border: "3px solid #b2c6a0",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          transform: "rotate(-12deg)",
-        }}
-      >
-        <div
-          style={{
-            width: 110,
-            height: 110,
-            borderRadius: 100,
-            background: "#d0f17b",
-          }}
-        />
-      </div>
+      <img
+        alt=""
+        src={"data:image/png;base64," + logo.toString("base64")}
+        width={300}
+        height={300}
+        style={{ background: "#F8FAF7", borderRadius: 24 }}
+      />
     </div>,
     {
       ...size,
