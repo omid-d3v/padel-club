@@ -49,7 +49,7 @@ export default async function ManageEvents({
             label="نشانی کوتاه و ثابت"
             name="slug"
             required
-            pattern="[a-z0-9-]+"
+            pattern="[A-Za-z0-9 -]+"
             defaultValue={edit?.slug}
           />
           <label className="field">

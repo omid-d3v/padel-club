@@ -34,7 +34,7 @@ export default async function Account() {
       <h1>
         {m.profile
           ? `${m.profile.display_name}، وقت بازیه.`
-          : "به پدل کلاب خوش آمدی."}
+          : "به رالی‌یار خوش آمدی."}
       </h1>
       <p className="intro">
         {m.profile

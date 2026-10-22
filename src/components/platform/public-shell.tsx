@@ -1,5 +1,6 @@
+import { BrandLogo } from "@/components/brand-logo";
 import Link from "next/link";
-import { ArrowUpLeft, CircleDot, Menu, UserRound } from "lucide-react";
+import { ArrowUpLeft, Menu, UserRound } from "lucide-react";
 import { member } from "@/lib/platform/data";
 import { Button } from "@/components/ui/button";
 export async function PublicShell({ children }: { children: React.ReactNode }) {
@@ -8,10 +9,7 @@ export async function PublicShell({ children }: { children: React.ReactNode }) {
     <div className="public-site">
       <header className="public-header">
         <Link href="/" className="brand">
-          <CircleDot size={31} />
-          <span>
-            پدل کلاب<span className="brand-sub">بازی از اینجا شروع می‌شود</span>
-          </span>
+          <BrandLogo />
         </Link>
         <nav
           aria-label="منوی سایت"
@@ -48,12 +46,11 @@ export async function PublicShell({ children }: { children: React.ReactNode }) {
         <div className="public-container grid gap-9 md:grid-cols-[2fr_1fr_1fr]">
           <div>
             <Link href="/" className="brand">
-              <CircleDot size={30} />
-              پدل کلاب
+              <BrandLogo dark variant="english" />
             </Link>
             <p className="mt-5 max-w-sm text-sm leading-8 text-white/60">
-              زمین، هم‌بازی و رقابت؛ یک تجربه مشترک برای آدم‌هایی که بازی را
-              دوست دارند.
+              رالی‌یار، جایی برای زمین‌های بهتر، هم‌بازی‌های تازه و رالی‌های
+              بیشتر.
             </p>
           </div>
           <nav className="space-y-3 text-sm" aria-label="کاوش">
@@ -75,7 +72,7 @@ export async function PublicShell({ children }: { children: React.ReactNode }) {
           </nav>
         </div>
         <p className="public-container mt-12 border-t border-white/10 pt-6 text-xs text-white/45">
-          پدل کلاب · رزرو قطعی فقط پس از تأیید باشگاه و پرداخت معتبر
+          رالی‌یار · رزرو قطعی فقط پس از تأیید باشگاه و پرداخت معتبر
         </p>
       </footer>
       <nav aria-label="دسترسی سریع موبایل" className="public-bottom md:hidden">

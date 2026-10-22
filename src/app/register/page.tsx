@@ -3,7 +3,7 @@ import { ActionForm } from "@/components/platform/action-form";
 import { Field } from "@/components/platform/fields";
 import { registerAccount } from "@/app/platform-actions";
 export const metadata = {
-  title: "عضویت در پدل کلاب",
+  title: "عضویت در رالی‌یار",
   robots: { index: false },
 };
 export default function Register() {
@@ -13,7 +13,7 @@ export default function Register() {
       className="mx-auto grid min-h-screen max-w-md content-center gap-6 px-6 py-12"
     >
       <Link href="/" className="text-xl font-extrabold">
-        پدل کلاب ↖
+        رالی‌یار ↖
       </Link>
       <h1 className="text-3xl font-extrabold">بازی از عضویت شروع می‌شه.</h1>
       <p className="text-sm leading-7 text-muted-foreground">

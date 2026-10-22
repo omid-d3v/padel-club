@@ -5,7 +5,13 @@ import { requireMember } from "@/lib/platform/data";
 import { requireAdmin } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { siteUrl } from "@/lib/seo";
-import { normalizeDigits } from "@/lib/validation";
+import {
+  formText,
+  formNumber,
+  formSlug,
+  formId,
+  FormValueError,
+} from "@/lib/platform/form-values";
 import type { Json } from "@/lib/supabase/database.types";
 export type PlatformResult = {
   success: boolean;
@@ -52,6 +58,22 @@ const errors: Record<string, string> = {
   RESULT_LOCKED: "نتیجه نهایی شده است و قابل بازگشایی نیست.",
 };
 export async function errorResult(error: unknown): Promise<PlatformResult> {
+  if (error instanceof FormValueError)
+    return { success: false, message: error.message };
+  if (typeof error === "object" && error && "code" in error) {
+    if (error.code === "23505")
+      return {
+        success: false,
+        message:
+          "این نام یا نشانی کوتاه قبلاً ثبت شده؛ مقدار دیگری انتخاب کنید.",
+      };
+    if (error.code === "23503")
+      return {
+        success: false,
+        message:
+          "گزینه وابسته پیدا نشد؛ ابتدا شهر، باشگاه یا زمین را ثبت و سپس انتخاب کنید.",
+      };
+  }
   const message =
     error instanceof Error
       ? error.message
@@ -71,16 +93,10 @@ export async function errorResult(error: unknown): Promise<PlatformResult> {
     message: "عملیات انجام نشد؛ اتصال و اطلاعات واردشده را بررسی کنید.",
   };
 }
-const id = (v: FormDataEntryValue | null) => z.uuid().parse(v);
-const str = (f: FormData, k: string, min = 1, max = 200) =>
-  z.string().trim().min(min).max(max).parse(f.get(k));
+const id = formId;
+const str = formText;
 const int = (f: FormData, k: string, min = 0, max = 100000000000) =>
-  z.coerce
-    .number()
-    .int()
-    .min(min)
-    .max(max)
-    .parse(normalizeDigits(String(f.get(k) ?? "")));
+  formNumber(f, k, min, max);
 const bool = (f: FormData, k: string) => f.get(k) === "on";
 const optionalId = (f: FormData, k: string) => (f.get(k) ? id(f.get(k)) : null);
 function iso(f: FormData, k: string) {
@@ -230,10 +246,7 @@ export async function platformAction(
         out = await db.from("cities").upsert({
           ...(optionalId(form, "id") ? { id: id(form.get("id")) } : {}),
           name: str(form, "name", 2, 80),
-          slug: z
-            .string()
-            .regex(/^[a-z0-9-]+$/)
-            .parse(form.get("slug")),
+          slug: formSlug(form),
           description: String(form.get("description") ?? "").slice(0, 2000),
         });
         break;
@@ -244,17 +257,14 @@ export async function platformAction(
           id: cid,
           name: str(form, "name", 2, 100),
           city_id: id(form.get("city_id")),
-          slug: z
-            .string()
-            .regex(/^[a-z0-9-]+$/)
-            .parse(form.get("slug")),
+          slug: formSlug(form),
           address: str(form, "address", 3, 500),
           description: String(form.get("description") ?? "").slice(0, 5000),
           latitude: form.get("latitude")
-            ? z.coerce.number().min(-90).max(90).parse(form.get("latitude"))
+            ? formNumber(form, "latitude", -90, 90, false)
             : null,
           longitude: form.get("longitude")
-            ? z.coerce.number().min(-180).max(180).parse(form.get("longitude"))
+            ? formNumber(form, "longitude", -180, 180, false)
             : null,
           facilities: String(form.get("facilities") ?? "")
             .split("،")
@@ -364,10 +374,7 @@ export async function platformAction(
         out = await db.from("platform_events").upsert({
           ...(optionalId(form, "id") ? { id: id(form.get("id")) } : {}),
           title: str(form, "title", 2, 100),
-          slug: z
-            .string()
-            .regex(/^[a-z0-9-]+$/)
-            .parse(form.get("slug")),
+          slug: formSlug(form),
           kind: z.enum(["americano", "tournament"]).parse(form.get("kind")),
           club_id: id(form.get("club_id")),
           organizer_id: m.userId,

@@ -76,7 +76,7 @@ export default async function ManageClubs({
               label="نشانی کوتاه؛ حروف لاتین و خط تیره"
               name="slug"
               required
-              pattern="[a-z0-9-]+"
+              pattern="[A-Za-z0-9 -]+"
             />
             <Field
               label="معرفی شهر و پدل در آن"
@@ -114,6 +114,8 @@ export default async function ManageClubs({
               name="name"
               label="نام باشگاه"
               required
+              minLength={2}
+              maxLength={100}
               defaultValue={club?.name}
             />
             <SelectField
@@ -126,13 +128,15 @@ export default async function ManageClubs({
               name="slug"
               label="نشانی کوتاه و ثابت باشگاه"
               required
-              pattern="[a-z0-9-]+"
+              pattern="[A-Za-z0-9 -]+"
               defaultValue={club?.slug}
             />
             <Field
               name="address"
               label="آدرس"
               required
+              minLength={3}
+              maxLength={500}
               defaultValue={club?.address}
             />
             <Field

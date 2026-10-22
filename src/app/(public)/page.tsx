@@ -63,10 +63,10 @@ export default async function Home() {
           __html: jsonLd({
             "@context": "https://schema.org",
             "@graph": [
-              { "@type": "Organization", name: "پدل کلاب", url: siteUrl() },
+              { "@type": "Organization", name: "رالی‌یار", url: siteUrl() },
               {
                 "@type": "WebSite",
-                name: "پدل کلاب",
+                name: "رالی‌یار",
                 url: siteUrl(),
                 inLanguage: "fa-IR",
               },
@@ -80,18 +80,17 @@ export default async function Home() {
           <div className="hero-copy">
             <p className="hero-kicker">
               <span />
-              قرار بعدی، توی زمین.
+              دنیای بازی‌های راکتی
             </p>
             <h1>
-              زمین پیدا کن،
+              بازی بعدیت
               <br />
-              <span>هم‌بازی پیدا کن،</span>
-              <br />
-              بازی کن<em>!</em>
+              <span>همین‌جاست.</span>
             </h1>
             <p className="hero-description">
-              از رزرو زمین تا پیدا کردن بازیکن‌های هم‌سطح و شرکت در مسابقات پدل؛
-              همه‌چیز یک‌جا. فقط تو و بازی بعدی.
+              زمین موردعلاقه‌ت رو رزرو کن، هم‌بازی‌های هم‌سطحت رو پیدا کن و وارد
+              رقابت شو. از بازی دوستانه تا امریکانو، همه‌چیز توی رالی‌یار کنار
+              همه.
             </p>
             <div className="hero-actions">
               <Button asChild>
@@ -213,7 +212,7 @@ export default async function Home() {
         <div className="section-heading">
           <div>
             <p className="eyebrow">جای تو توی این بازی خالیه</p>
-            <h2>بازی بعدی‌ات را پیدا کن.</h2>
+            <h2>یه بازی خوب منتظرته.</h2>
           </div>
           <Link href="/matches">
             همه بازی‌ها
@@ -238,7 +237,7 @@ export default async function Home() {
         <div className="section-heading">
           <div>
             <p className="eyebrow">همین نزدیکی، یک زمین منتظرته</p>
-            <h2>زمین تو. زمان تو. بازی تو.</h2>
+            <h2>زمین خوب، شروع یه بازی خوبه.</h2>
           </div>
           <Link href="/clubs">
             کاوش باشگاه‌ها
@@ -272,7 +271,7 @@ export default async function Home() {
           <div className="section-heading">
             <div>
               <p className="eyebrow">کمتر هماهنگ کن؛ بیشتر بازی کن</p>
-              <h2>سه راه برای رفتن به زمین.</h2>
+              <h2>از تصمیم تا بازی، فقط چند قدم.</h2>
             </div>
           </div>
           <JourneyDemo />
@@ -283,9 +282,9 @@ export default async function Home() {
           <div>
             <p className="eyebrow">هر دور، یک داستان تازه</p>
             <h2>
-              هم‌تیمی‌ها عوض می‌شن.
+              رقابت فقط
               <br />
-              هیجان بازی می‌مونه.
+              یه بازی نیست.
             </h2>
             <p>
               در امریکانو همه با هم بازی می‌کنند. هشت بازیکن، دو زمین، هفت دور؛
@@ -302,7 +301,7 @@ export default async function Home() {
           <div className="rank-illustration">
             <span>نمایش آموزشی پروفایل</span>
             <div className="rank-avatar">🎾</div>
-            <h3>مسیر پیشرفت خودت را ببین.</h3>
+            <h3>هر بازی، یه قدم جلوتر.</h3>
             <p>سطح خوداظهاری · سابقه بازی · نتایج قابل پیگیری</p>
             <div className="flex justify-center gap-2">
               {["بازی کن", "نتیجه ثبت کن", "پیشرفتت را ببین"].map((s) => (
@@ -374,14 +373,28 @@ export default async function Home() {
           ))}
         </div>
       </section>
+      <section
+        className="public-section public-container rally-story"
+        data-reveal
+      >
+        <p className="eyebrow">از گیلان، برای رالی‌های بیشتر</p>
+        <h2>رالی‌یار، فراتر از رزرو زمین.</h2>
+        <p className="intro">
+          ما رالی‌یار رو ساختیم تا هماهنگ کردن بازی راحت‌تر بشه. جایی برای پیدا
+          کردن هم‌بازی، تجربه رقابت‌های تازه و کنار هم قرار گرفتن آدم‌هایی که از
+          بازی لذت می‌برن. شروع ما با پدل در گیلانه؛ زمین‌ها و بازی‌های منتشرشده
+          رو همین‌جا ببین.
+        </p>
+        <Link href="/matches">پیدا کردن هم‌بازی ↖</Link>
+      </section>
       <section className="final-cta">
         <div className="public-container">
           <span aria-hidden>↖</span>
           <p>قرار بعدی، توی زمین.</p>
           <h2>
-            بازی خوب،
+            وقتشه رالی بعدی
             <br />
-            از یک تصمیم شروع می‌شه.
+            رو شروع کنی.
           </h2>
           <Button asChild>
             <Link href="/clubs">

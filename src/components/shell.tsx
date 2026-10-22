@@ -1,4 +1,5 @@
 "use client";
+import { BrandLogo } from "@/components/brand-logo";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -37,18 +38,7 @@ export function Shell({
     <div className="min-h-screen">
       <aside className="fixed inset-y-0 start-0 z-30 hidden w-64 flex-col border-e border-border bg-white p-6 lg:flex">
         <Link href="/" className="flex items-center gap-3">
-          <span className="grid size-11 place-items-center rounded-2xl bg-primary">
-            <PanelTop size={25} />
-          </span>
-          <span>
-            <strong className="block text-lg">پدل کلاب</strong>
-            <span
-              className="text-[10px] tracking-[.25em] text-muted-foreground"
-              lang="en"
-            >
-              PADEL CLUB
-            </span>
-          </span>
+          <BrandLogo />
         </Link>
         <p className="mb-3 mt-12 text-xs text-muted-foreground">
           زمین بازی شما
@@ -97,7 +87,7 @@ export function Shell({
       <div className="lg:ps-64">
         <header className="flex h-20 items-center justify-between border-b border-border bg-white/80 px-5 md:px-10">
           <span className="text-sm font-medium">
-            مدیریت پدل <span className="mx-3 text-border">/</span>
+            مدیریت رالی‌یار <span className="mx-3 text-border">/</span>
             <span className="text-muted-foreground">
               {links.find((x) => x.href !== "/" && path.startsWith(x.href))
                 ?.label ?? "خانه"}
