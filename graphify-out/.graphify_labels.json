@@ -2,7 +2,6 @@
   "0": "Player Admin and Data",
   "1": "Project Scripts and Linting",
   "2": "Tournament Domain and Tests",
-  "3": "Admin Actions and Validation",
   "4": "Round Winner Migration and Match Deletion",
   "5": "Architecture and Product Docs",
   "6": "TypeScript Configuration",
@@ -46,5 +45,8 @@
   "44": "Community 44",
   "45": "Community 45",
   "46": "Community 46",
-  "47": "Community 47"
+  "47": "Community 47",
+  "48": "Community 48",
+  "49": "Community 49",
+  "50": "Community 50"
 }

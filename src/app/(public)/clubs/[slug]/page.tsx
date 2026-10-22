@@ -1,10 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import {
-  SportIcon,
-  EquipmentIcon,
-  SPORTS,
-} from "@/components/platform/sport-icon";
+import { SportIcon, EquipmentIcon } from "@/components/platform/sport-icon";
 import { notFound } from "next/navigation";
 import { catalog } from "@/lib/platform/data";
 import { seo, jsonLd, siteUrl } from "@/lib/seo";
@@ -135,18 +131,20 @@ export default async function Club({
               .filter((x) => x.club_id === c.id)
               .map((court) => (
                 <div key={court.id} className="booking-row">
-                  <div>
-                    <SportIcon sport={court.sport} />
-                    <span className="text-xs text-emerald-800">
-                      {SPORTS.find((s) => s.id === court.sport)?.name ??
-                        "ورزش راکتی"}
+                  <div className="court-card-identity">
+                    <span className="court-sport-mark">
+                      <SportIcon sport={court.sport} />
                     </span>
-                    <b>{court.name}</b>
-                    <p>
-                      {court.indoor ? "سرپوشیده" : "روباز"} ·{" "}
-                      {money(court.hourly_price)} / ساعت
-                    </p>
-                    <p className="text-muted-foreground">{court.description}</p>
+                    <div className="min-w-0">
+                      <h3 className="font-bold">{court.name}</h3>
+                      <p>
+                        {court.indoor ? "سرپوشیده" : "روباز"} ·{" "}
+                        {money(court.hourly_price)} / ساعت
+                      </p>
+                      <p className="text-muted-foreground">
+                        {court.description}
+                      </p>
+                    </div>
                   </div>
                   <Button asChild>
                     <Link href={`/clubs/${c.slug}/book?court=${court.id}`}>

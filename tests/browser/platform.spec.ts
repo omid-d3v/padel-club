@@ -105,9 +105,11 @@ test("member profile → real SQL booking → admin hold → no fake payment wit
     .click();
   await expect(admin).toHaveURL("/admin");
   await admin.goto("/admin/operations");
-  const card = admin.locator("#approvals article").filter({
-    has: admin.locator(`input[name="booking_id"][value="${bookingId}"]`),
-  });
+  await admin
+    .locator(`[data-record-id="${bookingId}"]`)
+    .getByRole("button", { name: /جزئیات/ })
+    .click();
+  const card = admin.getByRole("dialog").first();
   await expect(card).toBeVisible();
   await card
     .getByRole("textbox", { name: "نام مسئول و مرجع تأیید باشگاه" })
@@ -124,18 +126,26 @@ test("member profile → real SQL booking → admin hold → no fake payment wit
     .click();
   // Closing the dialog precedes the asynchronous database write; wait for the
   // specific approval card to disappear before reloading the player's receipt.
-  await expect(card).toHaveCount(0);
+  await expect(
+    card.getByRole("button", {
+      name: "ثبت نگه‌داشت باشگاه و فعال‌کردن پرداخت",
+      exact: true,
+    }),
+  ).toHaveCount(0);
+  await card.getByRole("button", { name: "بستن", exact: true }).click();
   await page.reload();
-  const receipt = page
-    .locator("article")
-    .filter({
-      has: page.locator(`input[name="booking_id"][value="${bookingId}"]`),
-    });
+  const receipt = page.locator("article").filter({
+    has: page.locator(`input[name="booking_id"][value="${bookingId}"]`),
+  });
   await expect(
     page.getByRole("button", { name: "پرداخت در زرین‌پال" }).first(),
   ).toBeDisabled();
   await expect(receipt.getByText("رزرو قطعی", { exact: true })).toHaveCount(0);
   const code = `BROWSER_${test.info().project.name.toUpperCase()}`;
+  await admin.goto("/admin/operations?tab=discounts");
+  await admin
+    .getByRole("button", { name: "ساخت کد تخفیف", exact: true })
+    .click();
   const discountForm = admin.locator("form").filter({
     has: admin.getByRole("button", { name: "ساخت کد تخفیف", exact: true }),
   });
@@ -154,7 +164,17 @@ test("member profile → real SQL booking → admin hold → no fake payment wit
     .getByRole("button", { name: "ساخت کد تخفیف", exact: true })
     .click();
   await expect(
-    admin.locator("summary").filter({ hasText: code }),
+    discountForm.getByRole("status").filter({ hasText: "با موفقیت" }),
+  ).toBeVisible();
+  await admin
+    .getByRole("dialog")
+    .getByRole("button", { name: "بستن", exact: true })
+    .click();
+  await admin
+    .getByRole("textbox", { name: "جست‌وجو در کدهای تخفیف" })
+    .fill(code);
+  await expect(
+    admin.getByRole("heading", { name: code, exact: true }),
   ).toBeVisible();
   const coupon = page
     .locator("form")
@@ -172,7 +192,16 @@ test("member profile → real SQL booking → admin hold → no fake payment wit
   await expect(
     page.getByText(`کد تخفیف: ${code}`, { exact: false }),
   ).toBeVisible();
-  await admin.reload();
+  await admin.goto("/admin/operations");
+  await admin
+    .locator(`[data-record-id="${bookingId}"]`)
+    .getByRole("button", { name: /جزئیات/ })
+    .click();
+  await admin
+    .getByRole("dialog")
+    .first()
+    .getByText("معافیت مانده و رزرو بدون پرداخت", { exact: true })
+    .click();
   const waiver = admin.locator("form").filter({
     has: admin.locator(
       `input[name="participant_id"][value="${participantId}"]`,
@@ -191,6 +220,11 @@ test("member profile → real SQL booking → admin hold → no fake payment wit
     .getByRole("button", { name: "تأیید و ادامه", exact: true })
     .click();
   await expect(waiver).toHaveCount(0);
+  await admin
+    .getByRole("dialog")
+    .first()
+    .getByRole("button", { name: "بستن", exact: true })
+    .click();
   await page.reload();
   await expect(
     receipt.getByText("تسویه بدون پرداخت", { exact: true }),
@@ -243,24 +277,35 @@ test("admin calendar interval and pause persist through real SQL", async ({
   const card = page
     .locator("section")
     .filter({ has: page.getByRole("heading", { name: source, exact: true }) });
+  await card
+    .getByRole("button", { name: `مدیریت اتصال ${source}`, exact: true })
+    .click();
+  const settings = page.getByRole("dialog");
   await expect(
-    card.getByLabel("فاصله همگام‌سازی (دقیقه، ۱۵ تا ۱۴۴۰)"),
+    settings.getByLabel("فاصله همگام‌سازی (دقیقه، ۱۵ تا ۱۴۴۰)"),
   ).toHaveValue("60");
-  await card.getByLabel("فاصله همگام‌سازی (دقیقه، ۱۵ تا ۱۴۴۰)").fill("90");
-  await card.getByRole("checkbox", { name: "همگام‌سازی فعال باشد" }).uncheck();
-  await card.getByRole("button", { name: "ذخیره تنظیمات اتصال" }).click();
+  await settings.getByLabel("فاصله همگام‌سازی (دقیقه، ۱۵ تا ۱۴۴۰)").fill("90");
+  await settings
+    .getByRole("checkbox", { name: "همگام‌سازی فعال باشد" })
+    .uncheck();
+  await settings.getByRole("button", { name: "ذخیره تنظیمات اتصال" }).click();
   await expect(
-    card.getByRole("status").filter({ hasText: "اطلاعات با موفقیت ثبت شد." }),
+    settings
+      .getByRole("status")
+      .filter({ hasText: "اطلاعات با موفقیت ثبت شد." }),
   ).toBeVisible();
   await page.reload();
+  await card
+    .getByRole("button", { name: `مدیریت اتصال ${source}`, exact: true })
+    .click();
   await expect(
-    card.getByLabel("فاصله همگام‌سازی (دقیقه، ۱۵ تا ۱۴۴۰)"),
+    settings.getByLabel("فاصله همگام‌سازی (دقیقه، ۱۵ تا ۱۴۴۰)"),
   ).toHaveValue("90");
   await expect(
-    card.getByRole("checkbox", { name: "همگام‌سازی فعال باشد" }),
+    settings.getByRole("checkbox", { name: "همگام‌سازی فعال باشد" }),
   ).not.toBeChecked();
   await expect(
-    card.getByRole("button", { name: "درخواست همگام‌سازی اکنون" }),
+    settings.getByRole("button", { name: "درخواست همگام‌سازی اکنون" }),
   ).toBeDisabled();
   expect(
     await page.evaluate(

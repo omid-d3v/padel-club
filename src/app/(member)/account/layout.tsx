@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { MemberNav } from "@/components/platform/member-nav";
 import { requireMember } from "@/lib/platform/data";
 import { PublicShell } from "@/components/platform/public-shell";
 import { logout } from "@/app/actions";
@@ -16,21 +16,13 @@ export default async function AccountLayout({
   return (
     <PublicShell>
       <div className="public-container pt-6">
-        <nav aria-label="حساب من" className="account-nav">
-          <Link href="/account">خانه حساب</Link>
-          <Link href="/account/profile">پروفایل</Link>
-          <Link href="/account/bookings">رزرو و بازی‌ها</Link>
-          <Link href="/account/events">رویدادها</Link>
-          <Link href="/account/payments">پرداخت و استرداد</Link>
-          <Link href="/account/results">نتایج و اعتراض‌ها</Link>
-          <Link href="/account/notifications">اعلان‌ها</Link>
-          {m.admin && <Link href="/admin">مدیریت</Link>}
+        <MemberNav admin={m.admin}>
           <form action={logout}>
             <button className="min-h-11 px-3 text-sm text-red-700">
               خروج از حساب
             </button>
           </form>
-        </nav>
+        </MemberNav>
       </div>
       {children}
     </PublicShell>

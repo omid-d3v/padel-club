@@ -1,19 +1,23 @@
 "use client";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
-import type { ReactNode } from "react";
+import type { ReactNode, RefObject } from "react";
 export function Dialog({
   open,
   onOpenChange,
   title,
   description,
   children,
+  className = "",
+  returnFocusRef,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
   description: string;
   children: ReactNode;
+  className?: string;
+  returnFocusRef?: RefObject<HTMLElement | null>;
 }) {
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
@@ -21,7 +25,13 @@ export function Dialog({
         <DialogPrimitive.Overlay className="dialog-overlay fixed inset-0 z-50 bg-black/35 backdrop-blur-sm" />
         <DialogPrimitive.Content
           dir="rtl"
-          className="dialog-content fixed start-1/2 top-1/2 z-50 max-h-[90dvh] w-[calc(100%-2rem)] max-w-md -translate-y-1/2 translate-x-1/2 overflow-y-auto rounded-3xl bg-white p-6 shadow-xl"
+          onCloseAutoFocus={(event) => {
+            if (returnFocusRef?.current) {
+              event.preventDefault();
+              returnFocusRef.current.focus();
+            }
+          }}
+          className={`dialog-content fixed start-1/2 top-1/2 z-50 max-h-[90dvh] w-[calc(100%-2rem)] -translate-y-1/2 translate-x-1/2 overflow-y-auto overscroll-contain rounded-3xl bg-white p-6 shadow-xl ${className || "max-w-md"}`}
         >
           <DialogPrimitive.Title className="pe-9 text-xl font-bold">
             {title}

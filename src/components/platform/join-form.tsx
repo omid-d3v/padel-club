@@ -4,6 +4,7 @@ import type { Equipment } from "@/lib/platform/types";
 import { money } from "@/lib/platform/format";
 import { ActionForm } from "./action-form";
 import { EquipmentIcon } from "./sport-icon";
+import { QuantityStepper } from "@/components/ui/quantity-stepper";
 export function JoinForm({
   matchId,
   equipment,
@@ -38,22 +39,21 @@ export function JoinForm({
             تجهیزات شخصی؛ اختیاری
           </legend>
           {equipment.map((e) => (
-            <label key={e.id} className="field">
-              <EquipmentIcon name={e.name} />
-              {e.name} · {money(e.price)}
-              <input
-                type="number"
-                min={0}
-                max={Math.min(e.stock, 20)}
+            <div key={e.id} className="equipment-choice">
+              <span className="flex items-center gap-3">
+                <EquipmentIcon name={e.name} />
+                {e.name} · {money(e.price)}
+              </span>
+              <QuantityStepper
+                label={e.name}
                 value={quantities[e.id] ?? 0}
-                onChange={(ev) =>
-                  setQuantities({
-                    ...quantities,
-                    [e.id]: Number(ev.target.value),
-                  })
+                max={Math.min(e.stock, 20)}
+                disabled={disabled}
+                onChange={(value) =>
+                  setQuantities((p) => ({ ...p, [e.id]: value }))
                 }
               />
-            </label>
+            </div>
           ))}
         </fieldset>
       )}

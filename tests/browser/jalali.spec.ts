@@ -7,7 +7,7 @@ test("public Persian calendar handles leap Esfand and submits the matching civil
   await page.goto("/matches");
   const input = page.getByRole("textbox", { name: "روز بازی؛ شمسی" });
   await page.getByRole("button", { name: "باز کردن تقویم شمسی" }).click();
-  const dialog = page.getByRole("dialog");
+  const dialog = page.getByRole("dialog").last();
   await dialog.getByRole("combobox", { name: "سال شمسی" }).selectOption("1403");
   await dialog.getByRole("combobox", { name: "ماه شمسی" }).selectOption("12");
   await dialog
@@ -64,8 +64,9 @@ test("admin creates an exact Tehran slot using Persian date/time from a foreign 
   await page.getByLabel("رمز عبور").fill("browser-test-password");
   await page.getByRole("button", { name: "ورود به حساب", exact: true }).click();
   await expect(page).toHaveURL("/admin");
-  await page.goto("/admin/clubs");
-  const section = page.locator("#calendar");
+  await page.goto("/admin/clubs?view=calendar");
+  await page.getByRole("button", { name: "انتشار سانس", exact: true }).click();
+  const section = page.getByRole("dialog").first();
   const form = section.locator("form").filter({
     has: page.getByRole("button", { name: "انتشار سانس", exact: true }),
   });
@@ -81,7 +82,7 @@ test("admin creates an exact Tehran slot using Persian date/time from a foreign 
     .getByRole("button", { name: "باز کردن تقویم شمسی" })
     .first()
     .click();
-  const dialog = page.getByRole("dialog");
+  const dialog = page.getByRole("dialog").last();
   await dialog
     .getByRole("combobox", { name: "ساعت", exact: true })
     .selectOption("14");
@@ -106,10 +107,13 @@ test("admin creates an exact Tehran slot using Persian date/time from a foreign 
     form.getByRole("status").filter({ hasText: "اطلاعات با موفقیت ثبت شد." }),
   ).toBeVisible();
   await page.reload();
-  await section.getByText(/سانس‌های منتشرشده/).click();
+  await page
+    .getByRole("textbox", { name: "جست‌وجو در سانس‌های منتشرشده" })
+    .fill("۱۴۱۰");
   await expect(
-    section
-      .locator("details p")
+    page
+      .locator("#calendar")
+      .locator(".admin-record p")
       .filter({ hasText: "۱۴۱۰" })
       .filter({ hasText: "۱۴:۳۰" }),
   ).not.toHaveCount(0);
