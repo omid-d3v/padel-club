@@ -1,16 +1,16 @@
 # Graph Report - padel-club  (2026-10-22)
 
 ## Corpus Check
-- 168 files · ~187,645 words
+- 169 files · ~188,731 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 712 nodes · 1748 edges · 50 communities (35 shown, 15 thin omitted)
+- 717 nodes · 1757 edges · 50 communities (35 shown, 15 thin omitted)
 - Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 59 edges (avg confidence: 0.81)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `65914273`
+- Built from commit: `28eac48c`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -70,14 +70,14 @@
 ## Surprising Connections (you probably didn't know these)
 - `openCalendar()` --calls--> `post()`  [INFERRED]
   supabase/functions/_shared/calendar-sources.ts → src/lib/payments/zarinpal.ts
+- `AccountEvents()` --calls--> `ownRows()`  [INFERRED]
+  src/app/(member)/account/events/page.tsx → src/lib/platform/data.ts
 - `Next.js Agent Rules` --conceptually_related_to--> `Next.js App Router Architecture`  [INFERRED]
   AGENTS.md → README.md
 - `ManageClubs()` --calls--> `adminRows()`  [INFERRED]
   src/app/(admin)/admin/clubs/page.tsx → src/lib/platform/admin-data.ts
 - `ManageEvents()` --calls--> `tehranDateTime()`  [INFERRED]
   src/app/(admin)/admin/events/page.tsx → src/lib/date-time.ts
-- `Profile()` --calls--> `NotFound()`  [INFERRED]
-  src/app/(admin)/players/[id]/page.tsx → src/app/not-found.tsx
 
 ## Import Cycles
 - None detected.
@@ -90,7 +90,7 @@
 
 ### Community 0 - "Player Admin and Data"
 Cohesion: 0.08
-Nodes (60): Dashboard(), CreateTournamentForm(), DeletePlayer(), Pending(), PlayerForm(), Leaderboard(), PlayerList(), BackLink() (+52 more)
+Nodes (61): Dashboard(), CreateTournamentForm(), DeletePlayer(), Pending(), PlayerForm(), Leaderboard(), PlayerList(), BackLink() (+53 more)
 
 ### Community 1 - "Project Scripts and Linting"
 Cohesion: 0.04
@@ -118,7 +118,7 @@ Nodes (16): aliases, components, hooks, lib, ui, utils, iconLibrary, rsc (+8 mor
 
 ### Community 10 - "Runtime Dependencies"
 Cohesion: 0.10
-Nodes (23): Audit, AvailabilityRule, Booking, BookingItem, CalendarConnection, City, MatchPreview, Notice (+15 more)
+Nodes (25): Audit, AvailabilityRule, Booking, BookingItem, CalendarConnection, City, Club, Court (+17 more)
 
 ### Community 11 - "Development Dependencies"
 Cohesion: 0.09
@@ -129,8 +129,8 @@ Cohesion: 0.14
 Nodes (14): SQL موردنیاز Supabase, اجرای پروژه, انتشار و حدود عملیاتی, تخفیف، رزرو رایگان و معرفی باشگاه, تست, تقویم شمسی و زمان تهران, رالی‌یار — پلتفرم فارسی رزرو و هم‌بازی, ساختار و مسیرها (+6 more)
 
 ### Community 15 - "Loading Interface"
-Cohesion: 0.13
-Nodes (11): AuthorizedBridge, BookingProvider, bookingSchema, configSchema, iso, ProviderBooking, ProviderCapabilities, ProviderSlot (+3 more)
+Cohesion: 0.09
+Nodes (28): beginPayment(), retryVerifyPayment(), AuthorizedBridge, BookingProvider, bookingSchema, configSchema, iso, ProviderBooking (+20 more)
 
 ### Community 16 - "Match Set Round Winners"
 Cohesion: 0.12
@@ -146,19 +146,19 @@ Nodes (10): approve(), db, finish(), participant(), paySeat(), query(), request(
 
 ### Community 26 - "Community 26"
 Cohesion: 0.13
-Nodes (33): Book(), metadata, providerConfigured(), providerFor(), asciiDigits(), formatJalaliInput(), formatPersianDate(), formatTehranTime() (+25 more)
+Nodes (32): Book(), metadata, asciiDigits(), formatJalaliInput(), formatTehranTime(), gregorianParts, instant(), isGregorianDate() (+24 more)
 
 ### Community 37 - "Community 37"
-Cohesion: 0.05
-Nodes (84): Account(), NotFound(), sitemap(), Bookings(), Clubs(), ManageClubs(), AccountEvents(), Events() (+76 more)
+Cohesion: 0.07
+Nodes (55): Account(), Bookings(), ManageClubs(), ManageEvents(), metadata, generateMetadata(), Match(), errors (+47 more)
 
 ### Community 38 - "Community 38"
 Cohesion: 0.33
 Nodes (5): Club calendar integration — 2026-10-22, Integrity and failure behavior, Supabase advisory review, Validation, Verified production setup
 
 ### Community 43 - "Community 43"
-Cohesion: 0.18
-Nodes (11): RallyYar | رالی‌یار, اجزا و حالات, اعتماد، دسترس‌پذیری و SEO, تایپوگرافی و شبکه, جایگاه و وعده, حرکت, دارایی‌های اصلی, ساختار صفحه (+3 more)
+Cohesion: 0.17
+Nodes (12): RallyYar | رالی‌یار, اجزا و حالات, اعتماد، دسترس‌پذیری و SEO, تایپوگرافی و شبکه, تب‌های تغییر مسیر رزرو, جایگاه و وعده, حرکت, دارایی‌های اصلی (+4 more)
 
 ### Community 44 - "Community 44"
 Cohesion: 0.15
@@ -173,8 +173,8 @@ Cohesion: 0.40
 Nodes (4): برنامه مهاجرت و بازیابی, تصمیم‌های سازگاری, توسعه پدل کلاب — ممیزی و طرح انتشار, ممیزی، ۳۰ مهر ۱۴۰۵
 
 ### Community 47 - "Community 47"
-Cohesion: 0.12
-Nodes (20): metadata, beginPayment(), retryVerifyPayment(), robots(), runWorker(), GET(), metadata, GET() (+12 more)
+Cohesion: 0.08
+Nodes (33): metadata, NotFound(), robots(), sitemap(), Clubs(), Events(), metadata, metadata (+25 more)
 
 ### Community 48 - "Community 48"
 Cohesion: 0.10
@@ -185,19 +185,17 @@ Cohesion: 0.50
 Nodes (4): انتخاب تعداد: QuantityStepper, حساب، آیکون و حرکت, قواعد مشترک محصول و پنل, پنل: AdminList و DetailPanel
 
 ## Knowledge Gaps
-- **221 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `config` (+216 more)
+- **222 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `config` (+217 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **15 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `post()` connect `Community 47` to `Round Winner Migration and Match Deletion`?**
+- **Why does `post()` connect `Loading Interface` to `Round Winner Migration and Match Deletion`?**
   _High betweenness centrality (0.032) - this node is a cross-community bridge._
-- **Why does `openCalendar()` connect `Round Winner Migration and Match Deletion` to `Community 47`?**
+- **Why does `openCalendar()` connect `Round Winner Migration and Match Deletion` to `Loading Interface`?**
   _High betweenness centrality (0.031) - this node is a cross-community bridge._
-- **Why does `AuthorizedBridge` connect `Loading Interface` to `Community 47`?**
-  _High betweenness centrality (0.018) - this node is a cross-community bridge._
 - **Are the 3 inferred relationships involving `number()` (e.g. with `Profile()` and `Event()`) actually correct?**
   _`number()` has 3 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 2 inferred relationships involving `requireMember()` (e.g. with `ManageEvents()` and `Results()`) actually correct?**
@@ -206,3 +204,5 @@ _Questions this graph is uniquely positioned to answer:_
   _`catalog` has 6 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 3 inferred relationships involving `money()` (e.g. with `generateMetadata()` and `Match()`) actually correct?**
   _`money()` has 3 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 2 inferred relationships involving `siteUrl()` (e.g. with `Club()` and `Event()`) actually correct?**
+  _`siteUrl()` has 2 INFERRED edges - model-reasoned connections that need verification._
