@@ -144,6 +144,166 @@ beforeAll(async () => {
   }
 });
 afterAll(async () => db.close());
+describe("discounts and administrator waivers", () => {
+  it("settles the discounted bank amount and allows admin waiver of a discounted balance", async () => {
+    await role("postgres");
+    await db.exec(
+      "insert into discount_codes(code,kind,value,max_uses,expires_at) values('HALF50','percent',50,10,now()+interval '1 day')",
+    );
+    const b = await request(await slot());
+    await approve(b);
+    const p = await participant(b);
+    await role("authenticated", users[1]);
+    await expect(
+      db.query("select apply_booking_benefit($1,'HALF50',null)", [p]),
+    ).rejects.toThrow("NOT_ALLOWED");
+    expect(await query("select * from discount_codes")).toHaveLength(0);
+    await role("authenticated", users[0]);
+    await db.query("select apply_booking_benefit($1,'HALF50',null)", [p]);
+    const { amount } = await paySeat(b);
+    expect(amount).toBe(Math.ceil((4000001 + 50000) / 2));
+    await role("postgres");
+    expect(
+      (
+        await query<{ status: string }>(
+          "select status from bookings where id=$1",
+          [b],
+        )
+      )[0].status,
+    ).toBe("confirmed");
+    const b2 = await request(
+      await slot(),
+      "private",
+      crypto.randomUUID(),
+      [],
+      users[1],
+    );
+    await approve(b2);
+    const p2 = await participant(b2, users[1]);
+    await role("authenticated", users[1]);
+    await db.query("select apply_booking_benefit($1,'HALF50',null)", [p2]);
+    await role("authenticated");
+    await db.query(
+      "select apply_booking_benefit($1,null,'تکمیل هدیه باشگاه')",
+      [p2],
+    );
+    await role("postgres");
+    expect(
+      (
+        await query<{ status: string }>(
+          "select status from bookings where id=$1",
+          [b2],
+        )
+      )[0].status,
+    ).toBe("confirmed");
+    expect(
+      await query("select * from payments where participant_id=$1", [p2]),
+    ).toHaveLength(0);
+    const benefit = (
+      await query<{
+        discount: number;
+        original: { court_share: number; fee: number };
+      }>(
+        "select discount::float8 discount,original from booking_benefits where participant_id=$1",
+        [p2],
+      )
+    )[0];
+    expect(benefit.discount).toBe(4050001);
+    expect(
+      Number(benefit.original.court_share) + Number(benefit.original.fee),
+    ).toBe(4050001);
+  });
+  it("blocks adjustments while a bank payment is pending and rejects expired coupons", async () => {
+    const b = await request(
+      await slot(),
+      "private",
+      crypto.randomUUID(),
+      [],
+      users[3],
+    );
+    await approve(b);
+    const p = await participant(b, users[3]);
+    await role("postgres");
+    await db.exec(
+      "insert into discount_codes(code,kind,value,max_uses,expires_at) values('OLD10','fixed',1000,10,now()-interval '1 day')",
+    );
+    await role("authenticated", users[3]);
+    await expect(
+      db.query("select apply_booking_benefit($1,'OLD10',null)", [p]),
+    ).rejects.toThrow("INVALID_DISCOUNT");
+    await db.query("select start_checkout($1,null)", [p]);
+    await role("authenticated");
+    await expect(
+      db.query("select apply_booking_benefit($1,null,'هدیه باشگاه')", [p]),
+    ).rejects.toThrow("PAYMENT_CONFLICT");
+  });
+  it("requires a hold, never fabricates bank receipts and enforces coupon limits", async () => {
+    const b = await request(await slot());
+    await role("postgres");
+    const p = await participant(b);
+    await role("authenticated", users[0]);
+    await expect(
+      db.query("select apply_booking_benefit($1,null,'هدیه باشگاه')", [p]),
+    ).rejects.toThrow("NOT_ALLOWED");
+    await role("authenticated");
+    await expect(
+      db.query("select apply_booking_benefit($1,null,'هدیه باشگاه')", [p]),
+    ).rejects.toThrow("NOT_PAYABLE");
+    await approve(b);
+    await db.query("select apply_booking_benefit($1,null,'هدیه باشگاه')", [p]);
+    await role("postgres");
+    expect(
+      (
+        await query<{ status: string }>(
+          "select status from bookings where id=$1",
+          [b],
+        )
+      )[0].status,
+    ).toBe("confirmed");
+    expect(
+      await query("select * from payments where participant_id=$1", [p]),
+    ).toHaveLength(0);
+    const b2 = await request(
+      await slot(),
+      "private",
+      crypto.randomUUID(),
+      [],
+      users[1],
+    );
+    await approve(b2);
+    await role("postgres");
+    const p2 = await participant(b2, users[1]);
+    await db.exec(
+      "insert into discount_codes(code,kind,value,max_uses,expires_at) values('FREE100','percent',100,1,now()+interval '1 day')",
+    );
+    await role("authenticated", users[1]);
+    await db.query("select apply_booking_benefit($1,'free100',null)", [p2]);
+    await db.query("select apply_booking_benefit($1,'free100',null)", [p2]);
+    await role("postgres");
+    expect(
+      (
+        await query<{ status: string }>(
+          "select status from bookings where id=$1",
+          [b2],
+        )
+      )[0].status,
+    ).toBe("confirmed");
+    const b3 = await request(
+      await slot(),
+      "private",
+      crypto.randomUUID(),
+      [],
+      users[2],
+    );
+    await approve(b3);
+    await role("postgres");
+    const p3 = await participant(b3, users[2]);
+    await role("authenticated", users[2]);
+    await expect(
+      db.query("select apply_booking_benefit($1,'FREE100',null)", [p3]),
+    ).rejects.toThrow("INVALID_DISCOUNT");
+  });
+});
 describe("calendar import isolation and scheduling", () => {
   it("fences workers, protects booking prices, closes missing inventory and rejects stale calendars", async () => {
     await role("postgres");

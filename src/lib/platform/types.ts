@@ -27,6 +27,7 @@ export interface Club {
   updated_at: string;
 }
 export interface Court {
+  sport: string;
   id: string;
   club_id: string;
   name: string;
@@ -271,6 +272,26 @@ export interface CalendarConnection {
   created_at: string;
 }
 export type PlatformTables = {
+  discount_codes: Table<{
+    id: string;
+    code: string;
+    kind: "percent" | "fixed";
+    value: number;
+    max_uses: number;
+    expires_at: string;
+    active: boolean;
+  }>;
+  booking_benefits: Table<{
+    id: string;
+    participant_id: string;
+    user_id: string;
+    code_id: string | null;
+    actor_id: string;
+    reason: string;
+    original: Json;
+    discount: number;
+    created_at: string;
+  }>;
   calendar_connections: Table<CalendarConnection>;
   calendar_court_mappings: Table<{
     id: string;
@@ -327,6 +348,11 @@ export type PlatformTables = {
 };
 type RPC<A, R = string> = { Args: A; Returns: R };
 export type PlatformFunctions = {
+  apply_booking_benefit: RPC<{
+    p_participant: string;
+    p_code?: string | null;
+    p_reason?: string | null;
+  }>;
   configure_calendar: RPC<
     {
       p_id: string;

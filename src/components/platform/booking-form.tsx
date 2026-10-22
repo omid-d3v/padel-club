@@ -5,6 +5,7 @@ import { SKILLS } from "@/lib/platform/types";
 import { money, cancellationText } from "@/lib/platform/format";
 import { ActionForm } from "./action-form";
 import { Field } from "./fields";
+import { EquipmentIcon } from "./sport-icon";
 import { AvailabilityPicker } from "./availability-picker";
 export function BookingForm({
   club,
@@ -165,6 +166,7 @@ export function BookingForm({
                 key={e.id}
               >
                 <span>
+                  <EquipmentIcon name={e.name} />
                   {e.name}
                   <small className="mt-1 block text-muted-foreground">
                     {e.kind === "shared"
