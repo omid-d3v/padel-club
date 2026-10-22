@@ -8,6 +8,7 @@ import { Field } from "./fields";
 import { EquipmentIcon } from "./sport-icon";
 import { QuantityStepper } from "@/components/ui/quantity-stepper";
 import { AvailabilityPicker } from "./availability-picker";
+import { BookingModeTabs, type BookingMode } from "./booking-mode-tabs";
 export function BookingForm({
   club,
   court,
@@ -29,7 +30,7 @@ export function BookingForm({
   startDay: string;
   initialSlotId?: string;
 }) {
-  const [kind, setKind] = useState("private");
+  const [kind, setKind] = useState<BookingMode>("private");
   const [slotId, setSlotId] = useState(initialSlotId);
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [key] = useState(requestKey);
@@ -62,40 +63,25 @@ export function BookingForm({
       className="content-grid"
     >
       <div className="flex min-w-0 flex-col gap-6">
+        <BookingModeTabs
+          value={kind}
+          cutoffHours={club.completion_cutoff_hours}
+          onChange={(mode) => {
+            if (mode === kind) return;
+            setKind(mode);
+            if (
+              mode === "open" &&
+              slot &&
+              Date.parse(slot.starts_at) <=
+                now + club.completion_cutoff_hours * 3600000
+            )
+              setSlotId("");
+          }}
+        />
         <div className="platform-card">
-          <h2>چه‌جوری بازی می‌کنی؟</h2>
-          <div className="flex flex-wrap gap-3">
-            {[
-              ["private", "رزرو خصوصی زمین"],
-              ["open", "بازی باز چهار نفره"],
-            ].map(([value, label]) => (
-              <label
-                className="flex min-h-12 items-center gap-2 text-sm"
-                key={value}
-              >
-                <input
-                  type="radio"
-                  name="kind"
-                  value={value}
-                  checked={kind === value}
-                  onChange={() => {
-                    setKind(value);
-                    setSlotId("");
-                  }}
-                />
-                {label}
-              </label>
-            ))}
-          </div>
-          <p className="mt-3 text-xs text-muted-foreground">
-            در بازی باز فقط سهم خودت را می‌پردازی. ظرفیت باید تا{" "}
-            {new Intl.NumberFormat("fa-IR").format(
-              club.completion_cutoff_hours,
-            )}{" "}
-            ساعت قبل از شروع تکمیل شود؛ مهلت زودتر نگه‌داشت باشگاه مقدم است.
-          </p>
-        </div>
-        <div className="platform-card -order-1">
+          <h2>
+            {kind === "private" ? "زمان بازی گروهت" : "سانس بازی چهار نفره"}
+          </h2>
           <p className="mb-4 text-xs text-muted-foreground">
             سانس‌های {court.name}
           </p>
@@ -117,7 +103,11 @@ export function BookingForm({
         </div>
         {kind === "open" && (
           <div className="platform-card form-stack">
-            <h2>قرار بازی</h2>
+            <h2>بازی‌ات را به هم‌بازی‌ها معرفی کن</h2>
+            <p className="text-sm leading-7 text-muted-foreground">
+              این عنوان و توضیح در صفحه بازی نمایش داده می‌شود؛ سطح بازیکن‌های
+              دلخواهت را هم مشخص کن.
+            </p>
             <Field
               label="عنوان بازی"
               name="title"
@@ -168,8 +158,12 @@ export function BookingForm({
                   {e.name}
                   <small className="mt-1 block text-muted-foreground">
                     {e.kind === "shared"
-                      ? "بین چهار نفر تقسیم می‌شود"
-                      : "مخصوص خودت"}{" "}
+                      ? kind === "open"
+                        ? "هزینه بین چهار نفر تقسیم می‌شود"
+                        : "برای کل رزرو؛ یک بار محاسبه می‌شود"
+                      : kind === "open"
+                        ? "مخصوص خودت"
+                        : "تجهیزات انتخابی گروه"}{" "}
                     · {e.price ? money(e.price) : "رایگان"}
                   </small>
                 </span>
@@ -191,7 +185,12 @@ export function BookingForm({
         </div>
       </div>
       <aside className="platform-card sticky-card">
-        <h2>قبل از ثبت، همه‌چیز روشن</h2>
+        <span className="booking-summary-mode">
+          {kind === "private" ? "رزرو خصوصی زمین" : "بازی باز چهار نفره"}
+        </span>
+        <h2>
+          {kind === "private" ? "خلاصه رزرو گروهت" : "برآورد سهم من در بازی"}
+        </h2>
         <input type="hidden" name="idempotency_key" value={key} />
         <input
           type="hidden"
@@ -214,19 +213,25 @@ export function BookingForm({
             <span>{slot ? money(share(slot.court_price)) : "—"}</span>
           </div>
           <div>
-            <span>تجهیزات مشترک</span>
+            <span>
+              {kind === "open" ? "سهم تجهیزات مشترک" : "تجهیزات مشترک گروه"}
+            </span>
             <span>{money(share(shared))}</span>
           </div>
           <div>
-            <span>تجهیزات شخصی</span>
+            <span>
+              {kind === "open" ? "تجهیزات شخصی من" : "راکت و لوازم انتخابی"}
+            </span>
             <span>{money(personal)}</span>
           </div>
           <div>
-            <span>کارمزد هر نفر</span>
+            <span>{kind === "open" ? "کارمزد سهم من" : "کارمزد رزرو"}</span>
             <span>{money(court.platform_fee)}</span>
           </div>
           <div>
-            <span>برآورد سهم شما</span>
+            <span>
+              {kind === "private" ? "مبلغ کل رزرو شما" : "برآورد سهم شما"}
+            </span>
             <span>
               {slot
                 ? money(
@@ -245,18 +250,24 @@ export function BookingForm({
         </p>
         <div className="rounded-xl bg-muted p-4 text-xs leading-7">
           {cancellationText(club.cancellation_policy)}
-          <br />
-          بازی باز ناقص در مهلت تکمیل لغو و درخواست استرداد کامل ثبت می‌شود.
+          {kind === "open" && (
+            <>
+              <br />
+              بازی باز ناقص در مهلت تکمیل لغو و درخواست استرداد کامل ثبت می‌شود.
+            </>
+          )}
         </div>
         <label className="mt-5 flex min-h-12 items-start gap-3 text-xs leading-7">
           <input
+            key={kind}
             type="checkbox"
             name="accept_terms"
             required
             className="mt-1 size-5 shrink-0"
           />
-          شرایط لغو، تقسیم هزینه و غیرقطعی‌بودن زمین تا تأیید را خواندم و
-          می‌پذیرم.
+          {kind === "private"
+            ? "شرایط لغو، پرداخت کل رزرو و لزوم تأیید باشگاه را خواندم و می‌پذیرم."
+            : "شرایط لغو، تقسیم هزینه، مهلت تکمیل چهار نفر و لزوم تأیید باشگاه را خواندم و می‌پذیرم."}
         </label>
         {club.booking_mode === "EXTERNAL_AUTOMATED" && !providerReady && (
           <p role="status" className="mt-4 text-sm text-amber-800">
