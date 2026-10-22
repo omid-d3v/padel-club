@@ -1,0 +1,684 @@
+import { PGlite } from "@electric-sql/pglite";
+import { readFileSync, readdirSync } from "node:fs";
+import { beforeAll, afterAll, describe, it, expect } from "vitest";
+const db = new PGlite();
+const admin = "20000000-0000-4000-8000-000000000001";
+const users = Array.from(
+  { length: 12 },
+  (_, i) => `20000000-0000-4000-8000-${String(i + 10).padStart(12, "0")}`,
+);
+let club: string, courts: string[], racket: string, balls: string;
+let serial = 0;
+async function query<T = Record<string, unknown>>(
+  sql: string,
+  args: unknown[] = [],
+) {
+  return (await db.query<T>(sql, args)).rows;
+}
+async function role(
+  name: "postgres" | "anon" | "authenticated" | "service_role",
+  uid = admin,
+) {
+  await db.exec(`reset role;set role ${name}`);
+  await db.query("select set_config('request.jwt.claim.sub',$1,false)", [uid]);
+}
+async function id(sql: string, args: unknown[] = []) {
+  return (await query<{ id: string }>(sql, args))[0].id;
+}
+async function slot(court = courts[0], price = 4000001, day = 2) {
+  await role("postgres");
+  serial++;
+  return id(
+    "insert into court_slots(court_id,starts_at,ends_at,court_price) values($1,now()+make_interval(days=>$2,mins=>$3),now()+make_interval(days=>$2,mins=>$3)+interval '90 minutes',$4) returning id",
+    [court, day, serial * 120, price],
+  );
+}
+async function request(
+  s: string,
+  kind = "private",
+  key = crypto.randomUUID(),
+  eq: unknown[] = [],
+  user = users[0],
+  min: number | null = null,
+  max: number | null = null,
+) {
+  await role("authenticated", user);
+  return id(
+    "select request_booking($1,$2,$3,'بازی تست','', $4,$5,$6::jsonb) id",
+    [s, kind, key, min, max, JSON.stringify(eq)],
+  );
+}
+async function approve(b: string, minutes = 60) {
+  await role("authenticated");
+  await db.query(
+    "select approve_booking($1,'club-confirmed',now()+make_interval(mins=>$2))",
+    [b, minutes],
+  );
+}
+async function participant(b: string, user = users[0]) {
+  return id(
+    "select id from booking_participants where booking_id=$1 and user_id=$2",
+    [b, user],
+  );
+}
+async function paySeat(b: string, user = users[0], ref = crypto.randomUUID()) {
+  await role("authenticated", user);
+  const bp = await participant(b, user);
+  const pid = await id("select start_checkout($1,null) id", [bp]);
+  await role("service_role");
+  await db.query("select attach_payment_authority($1,$2)", [
+    pid,
+    `A${pid.replaceAll("-", "")}`,
+  ]);
+  const p = (
+    await query<{ amount: number }>(
+      "select amount::float8 amount from payments where id=$1",
+      [pid],
+    )
+  )[0];
+  await db.query("select settle_payment($1,$2,$3)", [pid, ref, p.amount]);
+  return { pid, ref, amount: p.amount };
+}
+beforeAll(async () => {
+  await db.exec(
+    "create schema auth;create role anon;create role authenticated;create role service_role bypassrls;create table auth.users(id uuid primary key);create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;grant usage on schema auth to anon,authenticated,service_role;grant execute on function auth.uid() to anon,authenticated,service_role;",
+  );
+  const directory = new URL("../supabase/migrations/", import.meta.url);
+  const migrations = readdirSync(directory)
+    .filter((f) => f.endsWith(".sql"))
+    .sort();
+  for (const f of migrations.filter((f) => !f.startsWith("202610")))
+    await db.exec(readFileSync(new URL(f, directory), "utf8"));
+  await db.query("insert into auth.users(id) select unnest($1::uuid[])", [
+    [admin, ...users],
+  ]);
+  await db.query("insert into admins(user_id) values($1)", [admin]);
+  const historical = await query<{ id: string }>(
+    "insert into players(first_name,last_name) select 'تاریخی',n::text from generate_series(1,8)n returning id",
+  );
+  await role("authenticated");
+  const tid = await id(
+    "select create_tournament('سابقه حفظ‌شونده',current_date,$1::uuid[]) id",
+    [historical.map((p) => p.id)],
+  );
+  const before = await query(
+    "select * from tournament_results where tournament_id=$1 order by player_id",
+    [tid],
+  );
+  await role("postgres");
+  for (const f of migrations.filter((f) => f.startsWith("202610")))
+    await db.exec(readFileSync(new URL(f, directory), "utf8"));
+  expect(
+    await query(
+      "select * from tournament_results where tournament_id=$1 order by player_id",
+      [tid],
+    ),
+  ).toEqual(before);
+  const city = await id(
+    "insert into cities(slug,name) values('test-city','شهر آزمون') returning id",
+  );
+  club = await id(
+    "insert into clubs(city_id,slug,name,address,published) values($1,'test-club','باشگاه آزمون','آدرس واقعی آزمون',true) returning id",
+    [city],
+  );
+  courts = (
+    await query<{ id: string }>(
+      "insert into courts(club_id,name,hourly_price,platform_fee) values($1,'یک',2000000,50000),($1,'دو',2000000,50000) returning id",
+      [club],
+    )
+  ).map((c) => c.id);
+  racket = await id(
+    "insert into equipment(club_id,name,kind,stock,price) values($1,'راکت','personal',2,300000) returning id",
+    [club],
+  );
+  balls = await id(
+    "insert into equipment(club_id,name,kind,stock,price) values($1,'توپ','shared',2,100001) returning id",
+    [club],
+  );
+  for (let i = 0; i < users.length; i++) {
+    await role("authenticated", users[i]);
+    await db.query("select save_my_profile($1,$2)", [
+      `بازیکن شماره ${i + 1}`,
+      i === 11 ? 5 : 1,
+    ]);
+  }
+});
+afterAll(async () => db.close());
+describe("platform booking and payment authority", () => {
+  it("keeps legacy rankings untouched and all new tables protected by RLS", async () => {
+    await role("postgres");
+    const rows = await query<{ table: string }>(
+      "select c.relname as table from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind='r' and not c.relrowsecurity",
+    );
+    expect(rows).toEqual([]);
+    expect(
+      await query("select * from tournaments where title='سابقه حفظ‌شونده'"),
+    ).toHaveLength(1);
+  });
+  it("uses server prices, preserves cancellation snapshots and rejects unpaid confirmation", async () => {
+    const s = await slot();
+    const key = crypto.randomUUID();
+    const b = await request(s, "private", key, [
+      { id: racket, quantity: 1 },
+      { id: balls, quantity: 1 },
+    ]);
+    expect(await request(s, "private", key)).toBe(b);
+    await role("authenticated", users[0]);
+    const bp = await participant(b);
+    await expect(
+      db.query("select start_checkout($1,null)", [bp]),
+    ).rejects.toThrow("NOT_PAYABLE");
+    await expect(
+      db.query("update bookings set status='confirmed' where id=$1", [b]),
+    ).rejects.toThrow("permission denied");
+    await approve(b, 30);
+    const deadline = (
+      await query<{ mins: number }>(
+        "select extract(epoch from(payment_deadline-now()))/60 mins from bookings where id=$1",
+        [b],
+      )
+    )[0];
+    expect(Number(deadline.mins)).toBeLessThanOrEqual(30);
+    const payment = await paySeat(b);
+    expect(payment.amount).toBe(4000001 + 300000 + 100001 + 50000);
+    expect(
+      (
+        await query<{ status: string }>(
+          "select status from bookings where id=$1",
+          [b],
+        )
+      )[0].status,
+    ).toBe("confirmed");
+    await db.query("select settle_payment($1,$2,$3)", [
+      payment.pid,
+      payment.ref,
+      payment.amount,
+    ]);
+    await expect(
+      db.query("select settle_payment($1,$2,$3)", [
+        payment.pid,
+        payment.ref,
+        payment.amount + 1,
+      ]),
+    ).rejects.toThrow("PAYMENT_MISMATCH");
+    expect(
+      await query("select * from payments where id=$1", [payment.pid]),
+    ).toHaveLength(1);
+    await role("authenticated", users[0]);
+    await expect(
+      db.query("select settle_payment($1,$2,$3)", [
+        payment.pid,
+        payment.ref,
+        payment.amount,
+      ]),
+    ).rejects.toThrow("permission denied");
+  });
+  it("cannot double-book a slot or allocate overlapping equipment across courts", async () => {
+    const s = await slot();
+    await request(s, "private", crypto.randomUUID(), [
+      { id: racket, quantity: 2 },
+    ]);
+    await expect(
+      request(s, "private", crypto.randomUUID(), [], users[1]),
+    ).rejects.toThrow("SLOT_UNAVAILABLE");
+    await role("postgres");
+    const t = (
+      await query<{ starts_at: string; ends_at: string }>(
+        "select * from court_slots where id=$1",
+        [s],
+      )
+    )[0];
+    const other = await id(
+      "insert into court_slots(court_id,starts_at,ends_at,court_price) values($1,$2,$3,4000000) returning id",
+      [courts[1], t.starts_at, t.ends_at],
+    );
+    await expect(
+      request(
+        other,
+        "private",
+        crypto.randomUUID(),
+        [{ id: racket, quantity: 1 }],
+        users[2],
+      ),
+    ).rejects.toThrow("EQUIPMENT_UNAVAILABLE");
+    await role("postgres");
+    await expect(
+      db.query(
+        "insert into court_slots(court_id,starts_at,ends_at,court_price) values($1,$2,$3,1)",
+        [courts[0], t.starts_at, t.ends_at],
+      ),
+    ).rejects.toThrow("SLOT_OVERLAP");
+  });
+  it("enforces four seats, skill restrictions, separate shares and authoritative completion", async () => {
+    const s = await slot();
+    const b = await request(s, "open", crypto.randomUUID(), [], users[0], 1, 2);
+    await approve(b);
+    const mid = await id("select id from open_matches where booking_id=$1", [
+      b,
+    ]);
+    await role("authenticated", users[11]);
+    await expect(db.query("select join_open_match($1)", [mid])).rejects.toThrow(
+      "SKILL_MISMATCH",
+    );
+    for (const u of users.slice(1, 4)) {
+      await role("authenticated", u);
+      await db.query("select join_open_match($1)", [mid]);
+      await db.query("select join_open_match($1)", [mid]);
+    }
+    await role("authenticated", users[4]);
+    await expect(db.query("select join_open_match($1)", [mid])).rejects.toThrow(
+      "MATCH_FULL",
+    );
+    await role("postgres");
+    const totals = (
+      await query<{ total: number }>(
+        "select sum(court_share)::float8 total from booking_participants where booking_id=$1",
+        [b],
+      )
+    )[0];
+    expect(totals.total).toBe(4000001);
+    for (const u of users.slice(0, 3)) await paySeat(b, u);
+    expect(
+      (
+        await query<{ status: string }>(
+          "select status from bookings where id=$1",
+          [b],
+        )
+      )[0].status,
+    ).toBe("collecting");
+    await paySeat(b, users[3]);
+    expect(
+      (
+        await query<{ status: string }>(
+          "select status from bookings where id=$1",
+          [b],
+        )
+      )[0].status,
+    ).toBe("confirmed");
+  });
+  it("idempotently cancels incomplete games at cutoff and queues full refunds", async () => {
+    const b = await request(await slot(), "open");
+    await approve(b);
+    const p = await paySeat(b);
+    await role("postgres");
+    await db.query(
+      "update open_matches set cutoff_at=now()-interval '1 second' where booking_id=$1",
+      [b],
+    );
+    await role("service_role");
+    await db.query("select run_platform_jobs()");
+    await db.query("select run_platform_jobs()");
+    expect(
+      (
+        await query<{ status: string }>(
+          "select status from bookings where id=$1",
+          [b],
+        )
+      )[0].status,
+    ).toBe("cancelled");
+    const refunds = await query<{ amount: number }>(
+      "select amount::float8 amount from refunds where payment_id=$1",
+      [p.pid],
+    );
+    expect(refunds).toHaveLength(1);
+    expect(refunds[0].amount).toBe(p.amount);
+  });
+  it("never confirms a late but genuinely verified payment; tracks compensation separately", async () => {
+    const b = await request(await slot());
+    await approve(b);
+    await role("authenticated", users[0]);
+    const bp = await participant(b);
+    const pid = await id("select start_checkout($1,null) id", [bp]);
+    await role("postgres");
+    await db.query(
+      "update booking_participants set lock_expires_at=now()-interval '1 second' where id=$1",
+      [bp],
+    );
+    await role("service_role");
+    await db.query("select attach_payment_authority($1,$2)", [
+      pid,
+      `A${pid.replaceAll("-", "")}`,
+    ]);
+    const p = (
+      await query<{ amount: number }>(
+        "select amount::float8 amount from payments where id=$1",
+        [pid],
+      )
+    )[0];
+    await db.query("select settle_payment($1,$2,$3)", [
+      pid,
+      "late-" + pid,
+      p.amount,
+    ]);
+    expect(
+      (
+        await query<{ status: string }>(
+          "select status from bookings where id=$1",
+          [b],
+        )
+      )[0].status,
+    ).not.toBe("confirmed");
+    expect(
+      (
+        await query<{ status: string }>(
+          "select status from payments where id=$1",
+          [pid],
+        )
+      )[0].status,
+    ).toBe("needs_attention");
+    expect(
+      await query("select * from refunds where payment_id=$1", [pid]),
+    ).toHaveLength(1);
+  });
+  it("uses a single payment-request lease and prevents repeated gateway requests", async () => {
+    const b = await request(await slot());
+    await approve(b);
+    await role("authenticated", users[0]);
+    const bp = await participant(b);
+    const pid = await id("select start_checkout($1,null) id", [bp]);
+    await role("service_role");
+    expect(
+      (
+        await query<{ ok: boolean }>("select claim_payment_request($1) ok", [
+          pid,
+        ])
+      )[0].ok,
+    ).toBe(true);
+    expect(
+      (
+        await query<{ ok: boolean }>("select claim_payment_request($1) ok", [
+          pid,
+        ])
+      )[0].ok,
+    ).toBe(false);
+  });
+  it("limits public projections and blocks access to other users financial records", async () => {
+    await role("anon");
+    expect(await query("select * from clubs")).toHaveLength(1);
+    await expect(db.query("select * from payments")).rejects.toThrow(
+      "permission denied",
+    );
+    await expect(db.query("select * from user_profiles")).rejects.toThrow(
+      "permission denied",
+    );
+    const payload = (
+      await query<{ rows: Record<string, unknown>[] }>(
+        "select discover_matches(null,100,0) rows",
+      )
+    )[0].rows;
+    for (const game of payload) {
+      expect(game).not.toHaveProperty("club_reference");
+      expect(game).not.toHaveProperty("authority");
+      expect(game).not.toHaveProperty("cancellation_snapshot");
+    }
+    await role("authenticated", users[10]);
+    expect(await query("select * from payments")).toEqual([]);
+    expect(await query("select * from refunds")).toEqual([]);
+    await expect(db.query("select run_platform_jobs()")).rejects.toThrow(
+      "permission denied",
+    );
+  });
+  it("requires secured event courts, enforces eight registrations and reuses the seven-round format", async () => {
+    const first = await slot(courts[0], 4000000, 20);
+    await role("postgres");
+    const s = (
+      await query<{ starts_at: string; ends_at: string }>(
+        "select * from court_slots where id=$1",
+        [first],
+      )
+    )[0];
+    const second = await id(
+      "insert into court_slots(court_id,starts_at,ends_at,court_price) values($1,$2,$3,4000000) returning id",
+      [courts[1], s.starts_at, s.ends_at],
+    );
+    const eid = await id(
+      "insert into platform_events(slug,title,kind,club_id,organizer_id,starts_at,registration_deadline,capacity,entry_fee,published) values('test-americano','امریکانو آزمون','americano',$1,$2,$3,now()+interval '10 days',8,0,true) returning id",
+      [club, users[9], s.starts_at],
+    );
+    await role("authenticated", users[0]);
+    await expect(db.query("select register_event($1)", [eid])).rejects.toThrow(
+      "EVENT_COURTS_UNSECURED",
+    );
+    await role("authenticated");
+    await db.query("select secure_event_courts($1,$2::uuid[],$3)", [
+      eid,
+      [first, second],
+      "confirmed-event",
+    ]);
+    for (const u of users.slice(0, 8)) {
+      await role("authenticated", u);
+      await db.query("select register_event($1)", [eid]);
+    }
+    await role("authenticated", users[8]);
+    await expect(db.query("select register_event($1)", [eid])).rejects.toThrow(
+      "EVENT_FULL",
+    );
+    await role("authenticated", users[9]);
+    const tid = await id("select activate_event($1) id", [eid]);
+    expect(
+      await query("select * from matches where tournament_id=$1", [tid]),
+    ).toHaveLength(14);
+    const game = (
+      await query<{ id: string }>(
+        "select id from matches where tournament_id=$1 limit 1",
+        [tid],
+      )
+    )[0];
+    await db.query("select save_match_round_winners($1,0,$2::jsonb)", [
+      game.id,
+      JSON.stringify([1, 2, 3].map((n) => ({ set_number: n, winner_team: 1 }))),
+    ]);
+    const standings = await query<{ total_points: number }>(
+      "select * from tournament_results where tournament_id=$1",
+      [tid],
+    );
+    expect(standings.some((r) => r.total_points === 1)).toBe(true);
+    await role("authenticated", users[10]);
+    await expect(
+      db.query("select save_match_round_winners($1,1,$2::jsonb)", [
+        game.id,
+        JSON.stringify(
+          [1, 2, 3].map((n) => ({ set_number: n, winner_team: 2 })),
+        ),
+      ]),
+    ).rejects.toThrow("ADMIN_REQUIRED");
+  });
+  it("does not reuse an old bank intent after withdrawal or let late failed intents refund a newly paid seat", async () => {
+    const s = await slot();
+    const b = await request(s, "open");
+    await approve(b);
+    const mid = await id("select id from open_matches where booking_id=$1", [
+      b,
+    ]);
+    await role("authenticated", users[1]);
+    const bp = await id("select join_open_match($1) id", [mid]);
+    const old = await id("select start_checkout($1,null) id", [bp]);
+    await role("service_role");
+    await db.query("select attach_payment_authority($1,$2)", [
+      old,
+      "A" + old.replaceAll("-", ""),
+    ]);
+    const amount = (
+      await query<{ amount: number }>(
+        "select amount from payments where id=$1",
+        [old],
+      )
+    )[0].amount;
+    await role("authenticated", users[1]);
+    await db.query("select withdraw_match($1)", [mid]);
+    await expect(
+      db.query("select join_open_match($1,$2::jsonb)", [
+        mid,
+        JSON.stringify([{ id: racket, quantity: 1 }]),
+      ]),
+    ).rejects.toThrow("ADMIN_REVIEW_REQUIRED");
+    await role("service_role");
+    await db.query("select fail_payment($1)", [old]);
+    await role("authenticated", users[1]);
+    await db.query("select join_open_match($1,$2::jsonb)", [
+      mid,
+      JSON.stringify([{ id: racket, quantity: 1 }]),
+    ]);
+    const current = await paySeat(b, users[1]);
+    await db.query("select settle_payment($1,'late-after-failure',$2)", [
+      old,
+      amount,
+    ]);
+    expect(
+      (
+        await query<{ status: string }>(
+          "select status from booking_participants where id=$1",
+          [bp],
+        )
+      )[0].status,
+    ).toBe("paid");
+    expect(
+      await query("select * from refunds where payment_id=$1", [old]),
+    ).toHaveLength(1);
+    expect(
+      await query("select * from refunds where payment_id=$1", [current.pid]),
+    ).toHaveLength(0);
+  });
+  it("requires both teams and verified profiles for auditable rating changes; friendlies do not change ratings", async () => {
+    for (const competitive of [false, true]) {
+      const s = await slot(courts[0], 4000000, -20);
+      const b = await id(
+        "insert into bookings(user_id,slot_id,kind,status,mode,court_price,cancellation_snapshot,idempotency_key,club_reference) values($1,$2,'open','completed','MANUAL_APPROVAL',4000000,'{}',gen_random_uuid(),'historical-test-fixture') returning id",
+        [users[0], s],
+      );
+      const mid = await id(
+        "insert into open_matches(booking_id,organizer_id,title,cutoff_at) values($1,$2,'بازی انجام‌شده آزمون',now()-interval '20 days') returning id",
+        [b, users[0]],
+      );
+      for (let i = 0; i < 4; i++)
+        await db.query(
+          "insert into booking_participants(booking_id,user_id,seat,status,court_share,shared_share,personal_price,fee) values($1,$2,$3,'paid',1000000,0,0,0)",
+          [b, users[i], i + 1],
+        );
+      await role("authenticated", users[0]);
+      const rid = await id(
+        "select submit_match_result($1,$2::uuid[],$3::uuid[],2,1,$4) id",
+        [mid, users.slice(0, 2), users.slice(2, 4), competitive],
+      );
+      const changes = JSON.stringify([
+        { user_id: users[0], rating_after: 1020 },
+      ]);
+      await role("authenticated");
+      await expect(
+        db.query(
+          "select resolve_match_result($1,true,'نتیجه بررسی شد',$2::jsonb)",
+          [rid, changes],
+        ),
+      ).rejects.toThrow(
+        competitive ? "BOTH_TEAMS_MUST_CONFIRM" : "FRIENDLY_RESULT_NO_RATING",
+      );
+      await role("authenticated", users[2]);
+      await db.query(
+        "select confirm_match_result($1,'dispute','نیاز به بررسی')",
+        [rid],
+      );
+      await role("authenticated", users[10]);
+      await expect(
+        db.query("select confirm_match_result($1,'confirm')", [rid]),
+      ).rejects.toThrow("FORBIDDEN");
+      await role("authenticated", users[2]);
+      await db.query("select confirm_match_result($1,'confirm')", [rid]);
+      if (competitive) {
+        await role("authenticated");
+        await expect(
+          db.query(
+            "select resolve_match_result($1,true,'نتیجه بررسی شد',$2::jsonb)",
+            [rid, changes],
+          ),
+        ).rejects.toThrow("VERIFIED_PLAYERS_REQUIRED");
+        await db.query(
+          "update user_profiles set skill_verified=true where user_id=any($1::uuid[])",
+          [users.slice(0, 4)],
+        );
+        await db.query(
+          "select resolve_match_result($1,true,'نتیجه بررسی شد',$2::jsonb)",
+          [rid, changes],
+        );
+        await db.query(
+          "select resolve_match_result($1,true,'تکرار بدون اثر مالی',$2::jsonb)",
+          [rid, changes],
+        );
+        expect(
+          await query("select * from rating_history where result_id=$1", [rid]),
+        ).toHaveLength(1);
+        await expect(
+          db.query(
+            "select resolve_match_result($1,false,'رد پس از اعمال رتبه')",
+            [rid],
+          ),
+        ).rejects.toThrow("RATING_RESULT_LOCKED");
+      } else {
+        await role("authenticated");
+        await db.query(
+          "select resolve_match_result($1,true,'بازی دوستانه معتبر')",
+          [rid],
+        );
+        expect(
+          await query("select * from rating_history where result_id=$1", [rid]),
+        ).toHaveLength(0);
+      }
+      await role("authenticated", users[10]);
+      expect(
+        (
+          await query<{ locations: unknown[] }>(
+            "select my_booking_locations() locations",
+          )
+        )[0].locations,
+      ).not.toContainEqual(expect.objectContaining({ booking_id: b }));
+    }
+  });
+  it("does not confuse external payment with a confirmed external reservation", async () => {
+    const s = await slot();
+    await role("postgres");
+    await db.query(
+      "update clubs set booking_mode='EXTERNAL_AUTOMATED',provider_key='test-bridge' where id=$1",
+      [club],
+    );
+    const b = await request(s);
+    await role("service_role");
+    await db.query(
+      "select apply_external_quote($1,'live-quote',4000000,now()+interval '60 minutes','provider-hold')",
+      [b],
+    );
+    const payment = await paySeat(b);
+    expect(
+      (
+        await query<{ status: string }>(
+          "select status from bookings where id=$1",
+          [b],
+        )
+      )[0].status,
+    ).toBe("booking_in_progress");
+    const a = (
+      await query<{ id: string }>(
+        "select * from provider_attempts where booking_id=$1 and operation='confirm'",
+        [b],
+      )
+    )[0];
+    await db.query(
+      "select record_provider_result($1,'failed',null,'EXTERNAL_UNAVAILABLE')",
+      [a.id],
+    );
+    expect(
+      (
+        await query<{ status: string }>(
+          "select status from bookings where id=$1",
+          [b],
+        )
+      )[0].status,
+    ).toBe("cancelled");
+    expect(
+      await query("select * from refunds where payment_id=$1", [payment.pid]),
+    ).toHaveLength(1);
+    await role("postgres");
+    await db.query(
+      "update clubs set booking_mode='MANUAL_APPROVAL',provider_key=null where id=$1",
+      [club],
+    );
+  });
+});

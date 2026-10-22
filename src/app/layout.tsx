@@ -1,9 +1,22 @@
 import type { Metadata } from "next";
 import { Toaster } from "sonner";
 import "./globals.css";
+import { siteUrl } from "@/lib/seo";
 export const metadata: Metadata = {
-  title: { default: "پدل کلاب | مدیریت پدل", template: "%s | پدل کلاب" },
-  description: "مدیریت مسابقات پدل، ثبت نتیجه و رتبه‌بندی بازیکنان",
+  metadataBase: new URL(siteUrl()),
+  title: {
+    default: "پدل کلاب | زمین، هم‌بازی و رقابت",
+    template: "%s | پدل کلاب",
+  },
+  description:
+    "رزرو زمین پدل، پیدا کردن هم‌بازی هم‌سطح، امریکانو و مسابقات با قیمت شفاف و تأیید واقعی باشگاه.",
+  openGraph: {
+    locale: "fa_IR",
+    siteName: "پدل کلاب",
+    type: "website",
+    images: ["/opengraph-image"],
+  },
+  twitter: { card: "summary_large_image" },
 };
 export default function RootLayout({
   children,

@@ -1,0 +1,523 @@
+"use server";
+import { revalidatePath } from "next/cache";
+import { z } from "zod";
+import { requireMember } from "@/lib/platform/data";
+import { requireAdmin } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
+import { siteUrl } from "@/lib/seo";
+import { normalizeDigits } from "@/lib/validation";
+import type { Json } from "@/lib/supabase/database.types";
+export type PlatformResult = {
+  success: boolean;
+  message: string;
+  id?: string;
+  redirect?: string;
+};
+const errors: Record<string, string> = {
+  LOGIN_REQUIRED: "ابتدا وارد حساب شوید.",
+  PROFILE_REQUIRED: "ابتدا نام و سطح بازی را در پروفایل تکمیل کنید.",
+  SLOT_UNAVAILABLE: "این سانس دیگر در دسترس نیست؛ سانس دیگری انتخاب کنید.",
+  SLOT_OVERLAP: "این بازه با سانس دیگری تداخل دارد.",
+  SLOT_HAS_BOOKINGS:
+    "سانس دارای سابقه رزرو است؛ زمان یا قیمت آن قابل تغییر نیست.",
+  INVALID_HOLD: "مرجع تأیید و مهلت معتبر نگه‌داشت باشگاه را وارد کنید.",
+  INVALID_STATUS: "وضعیت تغییر کرده است؛ صفحه را تازه کنید.",
+  MATCH_FULL: "ظرفیت بازی تکمیل شده است.",
+  MATCH_CLOSED: "مهلت پیوستن به بازی تمام شده است.",
+  SKILL_MISMATCH: "سطح پروفایل با محدوده این بازی سازگار نیست.",
+  HOLD_EXPIRED: "اعتبار نگه‌داشت باشگاه تمام شده است.",
+  PAYMENT_EXPIRED: "مهلت پرداخت تمام شده است.",
+  NOT_PAYABLE: "این سفارش هنوز آماده پرداخت نیست.",
+  EVENT_FULL: "ظرفیت رویداد تکمیل شده است.",
+  EVENT_CLOSED: "ثبت‌نام رویداد بسته است.",
+  EVENT_COURTS_UNSECURED: "دو زمین رویداد هنوز تأیید نشده‌اند.",
+  COURTS_ALREADY_SECURED: "زمین‌های رویداد قبلاً ثبت شده‌اند.",
+  EQUIPMENT_UNAVAILABLE: "تجهیزات انتخاب‌شده در این زمان موجود نیست.",
+  ADMIN_REVIEW_REQUIRED:
+    "این درخواست به بررسی مدیر نیاز دارد؛ از بخش پیگیری رزرو اقدام کنید.",
+  PROVIDER_REQUIRES_LIVE_QUOTE:
+    "رزرو خودکار این باشگاه تا پیکربندی اتصال معتبر فعال نیست.",
+  EIGHT_PAID_PLAYERS_REQUIRED: "ابتدا ثبت‌نام هشت بازیکن باید قطعی شود.",
+  VERIFIED_PLAYERS_REQUIRED:
+    "برای تغییر رتبه رقابتی، سطح هر چهار بازیکن باید تأیید شده باشد.",
+  BOTH_TEAMS_MUST_CONFIRM: "برای نتیجه رقابتی، تأیید هر دو تیم لازم است.",
+  INVALID_RESULT:
+    "نتیجه فقط پس از پایان بازی و برای چهار شرکت‌کننده معتبر قابل ثبت است.",
+  FORBIDDEN: "دسترسی به این عملیات ندارید.",
+  ADMIN_REQUIRED: "دسترسی مدیریت لازم است.",
+  PAYMENT_CONFLICT: "درخواست پرداخت در حال بررسی است؛ دوباره پرداخت نکنید.",
+  FRIENDLY_RESULT_NO_RATING: "نتیجه دوستانه رتبه رقابتی را تغییر نمی‌دهد.",
+  RATING_RESULT_LOCKED:
+    "این نتیجه در ریتینگ اثر داشته است؛ اصلاح نیازمند بررسی مستقل تاریخچه رتبه است.",
+  RESULT_LOCKED: "نتیجه نهایی شده است و قابل بازگشایی نیست.",
+};
+export async function errorResult(error: unknown): Promise<PlatformResult> {
+  const message =
+    error instanceof Error
+      ? error.message
+      : typeof error === "object" && error && "message" in error
+        ? String(error.message)
+        : "";
+  for (const [code, fa] of Object.entries(errors))
+    if (message.includes(code)) return { success: false, message: fa };
+  if (error instanceof z.ZodError)
+    return {
+      success: false,
+      message: "اطلاعات فرم کامل یا معتبر نیست؛ مقدارها را بررسی کنید.",
+    };
+  console.error("Platform operation failed", message);
+  return {
+    success: false,
+    message: "عملیات انجام نشد؛ اتصال و اطلاعات واردشده را بررسی کنید.",
+  };
+}
+const id = (v: FormDataEntryValue | null) => z.uuid().parse(v);
+const str = (f: FormData, k: string, min = 1, max = 200) =>
+  z.string().trim().min(min).max(max).parse(f.get(k));
+const int = (f: FormData, k: string, min = 0, max = 100000000000) =>
+  z.coerce
+    .number()
+    .int()
+    .min(min)
+    .max(max)
+    .parse(normalizeDigits(String(f.get(k) ?? "")));
+const bool = (f: FormData, k: string) => f.get(k) === "on";
+const optionalId = (f: FormData, k: string) => (f.get(k) ? id(f.get(k)) : null);
+function iso(f: FormData, k: string) {
+  const value = str(f, k);
+  const date = new Date(
+    /(Z|[+-]\d\d:\d\d)$/.test(value) ? value : `${value}+03:30`,
+  );
+  if (Number.isNaN(date.getTime())) throw new Error("INVALID_DATE");
+  return date.toISOString();
+}
+async function upload(
+  f: FormData,
+  bucket: string,
+  prefix: string,
+  db: Awaited<ReturnType<typeof createClient>>,
+) {
+  const file = f.get("photo");
+  if (!(file instanceof File) || !file.size) return null;
+  const types: Record<string, string> = {
+    "image/jpeg": "jpg",
+    "image/png": "png",
+    "image/webp": "webp",
+  };
+  if (
+    !types[file.type] ||
+    file.size > (bucket === "avatars" ? 2097152 : 3145728)
+  )
+    throw new Error("INVALID_IMAGE");
+  const path = `${prefix}/${crypto.randomUUID()}.${types[file.type]}`;
+  const { error } = await db.storage
+    .from(bucket)
+    .upload(path, file, { contentType: file.type, upsert: false });
+  if (error) throw error;
+  return path;
+}
+export async function platformAction(
+  operation: string,
+  form: FormData,
+): Promise<PlatformResult> {
+  const m = await requireMember();
+  const db = operation.startsWith("admin:") ? await requireAdmin() : m.db;
+  try {
+    let out: { data?: unknown; error?: { message: string } | null } = {};
+    let redirect: string | undefined;
+    const equip = () => {
+      const raw = form.get("equipment");
+      if (typeof raw !== "string") return [] as Json;
+      return z
+        .array(
+          z.object({ id: z.uuid(), quantity: z.number().int().min(1).max(20) }),
+        )
+        .max(20)
+        .parse(JSON.parse(raw));
+    };
+    switch (operation) {
+      case "profile": {
+        const photo = await upload(form, "avatars", m.userId, db);
+        out = await db.rpc("save_my_profile", {
+          p_name: str(form, "display_name", 2, 100),
+          p_skill: int(form, "skill_level", 0, 5),
+          p_city: optionalId(form, "city_id"),
+          p_avatar: photo ?? m.profile?.avatar_path ?? null,
+        });
+        break;
+      }
+      case "request": {
+        if (form.get("accept_terms") !== "on")
+          return {
+            success: false,
+            message: "پیش از درخواست، شرایط رزرو را بپذیرید.",
+          };
+        const key = id(form.get("idempotency_key"));
+        out = await db.rpc("request_booking", {
+          p_slot: id(form.get("slot_id")),
+          p_kind: z.enum(["private", "open"]).parse(form.get("kind")),
+          p_key: key,
+          p_title: String(form.get("title") ?? ""),
+          p_description: String(form.get("description") ?? "").slice(0, 2000),
+          p_min_skill:
+            form.get("min_skill") !== "" ? int(form, "min_skill", 0, 5) : null,
+          p_max_skill:
+            form.get("max_skill") !== "" ? int(form, "max_skill", 0, 5) : null,
+          p_equipment: equip(),
+        });
+        redirect = "/account/bookings";
+        break;
+      }
+      case "join":
+        out = await db.rpc("join_open_match", {
+          p_match: id(form.get("match_id")),
+          p_equipment: equip(),
+        });
+        redirect = "/account/bookings";
+        break;
+      case "withdraw":
+        out = await db.rpc("withdraw_match", {
+          p_match: id(form.get("match_id")),
+        });
+        break;
+      case "cancel":
+        out = await db.rpc("cancel_booking", {
+          p_booking: id(form.get("booking_id")),
+          p_reason: str(form, "reason", 2, 500),
+        });
+        break;
+      case "register-event":
+        out = await db.rpc("register_event", {
+          p_event: id(form.get("event_id")),
+        });
+        redirect = "/account/events";
+        break;
+      case "notifications":
+        out = await db.rpc("mark_notifications_read");
+        break;
+      case "event-score":
+        out = await db.rpc("save_match_round_winners", {
+          p_match_id: id(form.get("match_id")),
+          p_version: int(form, "version", 0, 1000000),
+          p_rounds: [1, 2, 3].map((n) => ({
+            set_number: n,
+            winner_team: form.get(`set${n}`)
+              ? int(form, `set${n}`, 1, 2)
+              : null,
+          })),
+        });
+        break;
+      case "submit-result":
+        out = await db.rpc("submit_match_result", {
+          p_match: id(form.get("match_id")),
+          p_team1: [id(form.get("team1a")), id(form.get("team1b"))],
+          p_team2: [id(form.get("team2a")), id(form.get("team2b"))],
+          p_sets1: int(form, "sets1", 0, 3),
+          p_sets2: int(form, "sets2", 0, 3),
+          p_competitive: bool(form, "competitive"),
+        });
+        break;
+      case "confirm-result":
+        out = await db.rpc("confirm_match_result", {
+          p_result: id(form.get("result_id")),
+          p_decision: z
+            .enum(["confirm", "dispute"])
+            .parse(form.get("decision")),
+          p_reason: String(form.get("reason") ?? "").slice(0, 1000),
+        });
+        break;
+      case "admin:city":
+        out = await db.from("cities").upsert({
+          ...(optionalId(form, "id") ? { id: id(form.get("id")) } : {}),
+          name: str(form, "name", 2, 80),
+          slug: z
+            .string()
+            .regex(/^[a-z0-9-]+$/)
+            .parse(form.get("slug")),
+          description: String(form.get("description") ?? "").slice(0, 2000),
+        });
+        break;
+      case "admin:club": {
+        const cid = optionalId(form, "id") ?? crypto.randomUUID();
+        const photo = await upload(form, "club-images", cid, db);
+        const values = {
+          id: cid,
+          name: str(form, "name", 2, 100),
+          city_id: id(form.get("city_id")),
+          slug: z
+            .string()
+            .regex(/^[a-z0-9-]+$/)
+            .parse(form.get("slug")),
+          address: str(form, "address", 3, 500),
+          description: String(form.get("description") ?? "").slice(0, 5000),
+          latitude: form.get("latitude")
+            ? z.coerce.number().min(-90).max(90).parse(form.get("latitude"))
+            : null,
+          longitude: form.get("longitude")
+            ? z.coerce.number().min(-180).max(180).parse(form.get("longitude"))
+            : null,
+          facilities: String(form.get("facilities") ?? "")
+            .split("،")
+            .map((s) => s.trim())
+            .filter(Boolean)
+            .slice(0, 20),
+          published: bool(form, "published"),
+          featured: bool(form, "featured"),
+          booking_mode: z
+            .enum(["MANUAL_APPROVAL", "EXTERNAL_AUTOMATED"])
+            .parse(form.get("booking_mode")),
+          provider_key: form.get("provider_key")
+            ? str(form, "provider_key", 2, 80)
+            : null,
+          completion_cutoff_hours: int(form, "completion_cutoff_hours", 4, 72),
+          cancellation_policy: {
+            full_refund_hours: int(form, "refund_hours", 0, 720),
+            late_refund_percent: int(form, "late_refund_percent", 0, 100),
+          },
+          updated_at: new Date().toISOString(),
+          ...(photo ? { photo_path: photo } : {}),
+        };
+        out = await db.from("clubs").upsert(values);
+        break;
+      }
+      case "admin:court":
+        out = await db.from("courts").upsert({
+          ...(optionalId(form, "id") ? { id: id(form.get("id")) } : {}),
+          club_id: id(form.get("club_id")),
+          name: str(form, "name", 2, 100),
+          description: String(form.get("description") ?? "").slice(0, 1000),
+          hourly_price: int(form, "hourly_price") * 10,
+          platform_fee: int(form, "platform_fee", 0, 100000000) * 10,
+          active: bool(form, "active"),
+          indoor: bool(form, "indoor"),
+          external_court_ref: form.get("external_court_ref")
+            ? str(form, "external_court_ref", 1, 100)
+            : null,
+        });
+        break;
+      case "admin:equipment":
+        out = await db.from("equipment").upsert({
+          ...(optionalId(form, "id") ? { id: id(form.get("id")) } : {}),
+          club_id: id(form.get("club_id")),
+          name: str(form, "name", 2, 100),
+          kind: z.enum(["personal", "shared"]).parse(form.get("kind")),
+          stock: int(form, "stock", 0, 10000),
+          price: int(form, "price", 0, 1000000000) * 10,
+          active: bool(form, "active"),
+        });
+        break;
+      case "admin:slot":
+        out = await db.from("court_slots").insert({
+          court_id: id(form.get("court_id")),
+          starts_at: iso(form, "starts_at"),
+          ends_at: iso(form, "ends_at"),
+          court_price: int(form, "court_price") * 10,
+          published: true,
+        });
+        break;
+      case "admin:rule":
+        out = await db.from("availability_rules").upsert({
+          ...(optionalId(form, "id") ? { id: id(form.get("id")) } : {}),
+          court_id: id(form.get("court_id")),
+          weekday: int(form, "weekday", 0, 6),
+          start_minute: int(form, "start_minute", 0, 1439),
+          end_minute: int(form, "end_minute", 1, 1440),
+          slot_minutes: int(form, "slot_minutes", 60, 120),
+          price: int(form, "price") * 10,
+        });
+        break;
+      case "admin:generate":
+        out = await db.rpc("generate_court_slots", {
+          p_court: id(form.get("court_id")),
+          p_date: z
+            .string()
+            .regex(/^\d{4}-\d{2}-\d{2}$/)
+            .parse(form.get("date")),
+        });
+        break;
+      case "admin:approve":
+        out = await db.rpc("approve_booking", {
+          p_booking: id(form.get("booking_id")),
+          p_reference: str(form, "reference", 2, 200),
+          p_hold_until: iso(form, "hold_until"),
+        });
+        break;
+      case "admin:refund":
+        out = await db.rpc("record_refund", {
+          p_refund: id(form.get("refund_id")),
+          p_reference: str(form, "reference", 3, 200),
+        });
+        break;
+      case "admin:link-player":
+        out = await db.rpc("link_historical_player", {
+          p_user: id(form.get("user_id")),
+          p_player: id(form.get("player_id")),
+        });
+        break;
+      case "admin:verify-skill":
+        out = await db
+          .from("user_profiles")
+          .update({ skill_verified: bool(form, "verified") })
+          .eq("user_id", id(form.get("user_id")));
+        break;
+      case "admin:event":
+        out = await db.from("platform_events").upsert({
+          ...(optionalId(form, "id") ? { id: id(form.get("id")) } : {}),
+          title: str(form, "title", 2, 100),
+          slug: z
+            .string()
+            .regex(/^[a-z0-9-]+$/)
+            .parse(form.get("slug")),
+          kind: z.enum(["americano", "tournament"]).parse(form.get("kind")),
+          club_id: id(form.get("club_id")),
+          organizer_id: m.userId,
+          starts_at: iso(form, "starts_at"),
+          registration_deadline: iso(form, "deadline"),
+          capacity: int(form, "capacity", 4, 128),
+          entry_fee: int(form, "entry_fee") * 10,
+          published: bool(form, "published"),
+          description: String(form.get("description") ?? "").slice(0, 5000),
+        });
+        break;
+      case "admin:event-courts":
+        out = await db.rpc("secure_event_courts", {
+          p_event: id(form.get("event_id")),
+          p_slots: [id(form.get("slot1")), id(form.get("slot2"))],
+          p_reference: str(form, "reference", 2, 200),
+        });
+        break;
+      case "admin:activate-event":
+        out = await db.rpc("activate_event", {
+          p_event: id(form.get("event_id")),
+        });
+        break;
+      case "admin:event-state":
+        out = await db.rpc("change_event_state", {
+          p_event: id(form.get("event_id")),
+          p_status: z
+            .enum(["completed", "cancelled"])
+            .parse(form.get("status")),
+        });
+        break;
+      case "admin:placement":
+        out = await db.rpc("save_event_placement", {
+          p_registration: id(form.get("registration_id")),
+          p_rank: int(form, "rank", 1, 128),
+          p_points: int(form, "points", 0, 1000000),
+        });
+        break;
+      case "admin:resolve-result":
+        out = await db.rpc("resolve_match_result", {
+          p_result: id(form.get("result_id")),
+          p_accept: form.get("decision") === "accept",
+          p_reason: str(form, "reason", 3, 1000),
+          p_rating_changes: z
+            .array(
+              z.object({
+                user_id: z.uuid(),
+                rating_after: z.number().int().min(0).max(10000),
+              }),
+            )
+            .max(4)
+            .parse(
+              Array.from(form.entries())
+                .filter(
+                  ([k, v]) =>
+                    k.startsWith("rating_") && String(v).trim() !== "",
+                )
+                .map(([k, v]) => ({
+                  user_id: k.slice(7),
+                  rating_after: Number(v),
+                })),
+            ),
+        });
+        break;
+      case "admin:retry-provider":
+        out = await db.rpc("retry_provider_attempt", {
+          p_attempt: id(form.get("attempt_id")),
+        });
+        break;
+      default:
+        return { success: false, message: "عملیات پشتیبانی نمی‌شود." };
+    }
+    if (out.error) return errorResult(out.error);
+    revalidatePath("/", "layout");
+    return {
+      success: true,
+      message: "اطلاعات با موفقیت ثبت شد.",
+      id: typeof out.data === "string" ? out.data : undefined,
+      redirect,
+    };
+  } catch (error) {
+    return errorResult(error);
+  }
+}
+export async function registerAccount(form: FormData): Promise<PlatformResult> {
+  try {
+    const db = await createClient();
+    const email = z.email().parse(form.get("email"));
+    const password = z.string().min(10).max(128).parse(form.get("password"));
+    const { data, error } = await db.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: `${siteUrl()}/auth/confirm` },
+    });
+    if (error)
+      return {
+        success: false,
+        message:
+          "ثبت‌نام انجام نشد؛ ایمیل، شرایط رمز و امکان ثبت‌نام پروژه را بررسی کنید.",
+      };
+    return {
+      success: true,
+      message: data.session
+        ? "حساب ایجاد شد. پروفایل بازی را تکمیل کنید."
+        : "درخواست ثبت‌نام ثبت شد. برای فعال‌سازی، ایمیل تأیید را بررسی کنید.",
+      redirect: data.session ? "/account/profile" : undefined,
+    };
+  } catch (error) {
+    return errorResult(error);
+  }
+}
+export async function requestPasswordReset(
+  form: FormData,
+): Promise<PlatformResult> {
+  try {
+    const db = await createClient();
+    const email = z.email().parse(form.get("email"));
+    const { error } = await db.auth.resetPasswordForEmail(email, {
+      redirectTo: `${siteUrl()}/auth/confirm?next=/reset-password`,
+    });
+    if (error)
+      return {
+        success: false,
+        message: "درخواست بازیابی ارسال نشد؛ دوباره تلاش کنید.",
+      };
+    return {
+      success: true,
+      message:
+        "اگر حسابی با این ایمیل وجود داشته باشد، راهنمای بازیابی برای آن ارسال می‌شود.",
+    };
+  } catch (error) {
+    return errorResult(error);
+  }
+}
+export async function updatePassword(form: FormData): Promise<PlatformResult> {
+  try {
+    const { db } = await requireMember();
+    const password = z.string().min(10).max(128).parse(form.get("password"));
+    const { error } = await db.auth.updateUser({ password });
+    if (error)
+      return {
+        success: false,
+        message: "تغییر رمز انجام نشد؛ لینک بازیابی تازه دریافت کنید.",
+      };
+    return {
+      success: true,
+      message: "رمز جدید ذخیره شد.",
+      redirect: "/account",
+    };
+  } catch (error) {
+    return errorResult(error);
+  }
+}

@@ -6,3 +6,7 @@ node_modules/
 playwright-report/
 test-results/
 .next-e2e/
+.vercel/
+supabase/.temp/
+backups/
+graphify-out/20??-??-??/

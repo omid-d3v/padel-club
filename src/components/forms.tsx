@@ -56,7 +56,7 @@ export function LoginForm() {
             );
             if (!r.success) setError(r.error);
             else {
-              router.replace("/");
+              router.replace(r.id ?? "/account");
             }
           } catch {
             setError("اتصال برقرار نشد؛ دوباره تلاش کنید.");
@@ -65,7 +65,7 @@ export function LoginForm() {
       }}
     >
       <label className="block text-sm">
-        ایمیل مدیر
+        ایمیل
         <Input
           className="mt-2 text-left"
           dir="ltr"
@@ -93,7 +93,7 @@ export function LoginForm() {
         </p>
       )}
       <Button disabled={pending} className="w-full">
-        <Pending pending={pending} label="ورود به پنل مدیریت" />
+        <Pending pending={pending} label="ورود به حساب" />
       </Button>
     </form>
   );

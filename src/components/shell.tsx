@@ -13,7 +13,14 @@ import {
 import { cn } from "@/lib/utils";
 import { logout } from "@/app/actions";
 const links = [
-  { href: "/", label: "داشبورد", icon: LayoutDashboard },
+  { href: "/admin", label: "داشبورد", icon: LayoutDashboard },
+  {
+    href: "/admin/operations",
+    label: "عملیات و رزروها",
+    icon: LayoutDashboard,
+  },
+  { href: "/admin/clubs", label: "باشگاه و سانس‌ها", icon: PanelTop },
+  { href: "/admin/events", label: "رویدادها", icon: Trophy },
   { href: "/tournaments", label: "مسابقات", icon: Trophy },
   { href: "/players", label: "بازیکنان", icon: Users },
   { href: "/leaderboard", label: "لیدربرد", icon: ChartNoAxesColumnIncreasing },
@@ -46,14 +53,14 @@ export function Shell({
         <p className="mb-3 mt-12 text-xs text-muted-foreground">
           زمین بازی شما
         </p>
-        <nav className="space-y-2">
+        <nav className="max-h-[55vh] space-y-1 overflow-y-auto">
           {links.map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
               href={href}
               className={cn(
                 "flex min-h-12 items-center gap-3 rounded-xl px-4 text-sm",
-                (href === "/" ? path === href : path.startsWith(href))
+                (href === "/admin" ? path === href : path.startsWith(href))
                   ? "bg-[#edf4df] font-bold text-[#355a16]"
                   : "text-muted-foreground hover:bg-muted",
               )}
@@ -122,21 +129,30 @@ export function Shell({
         aria-label="ناوبری اصلی"
         className="fixed inset-x-0 bottom-0 z-40 flex justify-around border-t border-border bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
       >
-        {links.map(({ href, label, icon: Icon }) => (
-          <Link
-            key={href}
-            href={href}
-            className={cn(
-              "flex min-h-18 flex-1 flex-col items-center justify-center gap-1 text-[11px]",
-              (href === "/" ? path === href : path.startsWith(href))
-                ? "font-bold text-emerald-800"
-                : "text-muted-foreground",
-            )}
-          >
-            <Icon size={21} />
-            {label}
-          </Link>
-        ))}
+        {links
+          .filter((x) =>
+            [
+              "/admin",
+              "/admin/operations",
+              "/tournaments",
+              "/players",
+            ].includes(x.href),
+          )
+          .map(({ href, label, icon: Icon }) => (
+            <Link
+              key={href}
+              href={href}
+              className={cn(
+                "flex min-h-18 flex-1 flex-col items-center justify-center gap-1 text-[11px]",
+                (href === "/admin" ? path === href : path.startsWith(href))
+                  ? "font-bold text-emerald-800"
+                  : "text-muted-foreground",
+              )}
+            >
+              <Icon size={21} />
+              {label}
+            </Link>
+          ))}
       </nav>
     </div>
   );

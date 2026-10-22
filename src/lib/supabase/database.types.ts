@@ -9,6 +9,7 @@ import type {
   PublicResult,
   Leader,
 } from "@/lib/types";
+import type { PlatformTables, PlatformFunctions } from "@/lib/platform/types";
 export type Json =
   | string
   | number
@@ -25,7 +26,7 @@ type Table<T> = {
 type View<T> = { Row: { [K in keyof T]: T[K] }; Relationships: [] };
 export type Database = {
   public: {
-    Tables: {
+    Tables: PlatformTables & {
       admins: Table<{ user_id: string; created_at: string }>;
       players: Table<Player>;
       tournaments: Table<Tournament>;
@@ -39,7 +40,7 @@ export type Database = {
       public_results: View<PublicResult>;
       public_leaderboard: View<Leader>;
     };
-    Functions: {
+    Functions: PlatformFunctions & {
       is_admin: { Args: Record<string, never>; Returns: boolean };
       create_tournament: {
         Args: { p_title: string; p_date: string; p_player_ids: string[] };

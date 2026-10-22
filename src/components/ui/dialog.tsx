@@ -18,10 +18,10 @@ export function Dialog({
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/35 backdrop-blur-sm" />
+        <DialogPrimitive.Overlay className="dialog-overlay fixed inset-0 z-50 bg-black/35 backdrop-blur-sm" />
         <DialogPrimitive.Content
           dir="rtl"
-          className="fixed start-1/2 top-1/2 z-50 max-h-[90dvh] w-[calc(100%-2rem)] max-w-md -translate-y-1/2 translate-x-1/2 overflow-y-auto rounded-3xl bg-white p-6 shadow-xl"
+          className="dialog-content fixed start-1/2 top-1/2 z-50 max-h-[90dvh] w-[calc(100%-2rem)] max-w-md -translate-y-1/2 translate-x-1/2 overflow-y-auto rounded-3xl bg-white p-6 shadow-xl"
         >
           <DialogPrimitive.Title className="pe-9 text-xl font-bold">
             {title}

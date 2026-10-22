@@ -19,7 +19,7 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: "node tests/browser/backend.mjs",
+      command: "node tests/browser/postgres-backend.mjs",
       url: "http://127.0.0.1:54321/health",
       reuseExistingServer: false,
     },
@@ -31,6 +31,7 @@ export default defineConfig({
       timeout: 240000,
       env: {
         NEXT_DIST_DIR: ".next-e2e",
+        NEXT_PUBLIC_SITE_URL: "http://127.0.0.1:3100",
         NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321",
         NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:
           "sb_publishable_browser_test_only",

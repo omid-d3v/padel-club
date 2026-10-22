@@ -53,11 +53,7 @@ export async function login(
       error: "ایمیل یا رمز عبور درست نیست، یا اتصال برقرار نشد.",
     };
   const { data: admin } = await db.rpc("is_admin");
-  if (!admin) {
-    await db.auth.signOut();
-    return { success: false, error: "این حساب دسترسی مدیریت ندارد." };
-  }
-  return { success: true };
+  return { success: true, id: admin ? "/admin" : "/account" };
 }
 export async function logout() {
   const db = await createClient();

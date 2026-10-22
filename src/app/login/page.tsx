@@ -4,6 +4,10 @@ import { PanelTop, ArrowUpLeft } from "lucide-react";
 import { LoginForm } from "@/components/forms";
 import { configured } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
+export const metadata = {
+  title: "ورود به پدل کلاب",
+  robots: { index: false, follow: false },
+};
 export default async function Login({
   searchParams,
 }: {
@@ -27,7 +31,7 @@ export default async function Login({
           <p className="text-sm text-emerald-700">خوش آمدید</p>
           <h1 className="mb-3 mt-3 text-3xl font-extrabold">زمین آماده است.</h1>
           <p className="mb-8 text-sm leading-7 text-muted-foreground">
-            وارد شوید و جریان مسابقه را در دست بگیرید.
+            وارد شوید؛ زمین و هم‌بازی بعدی منتظر شماست.
           </p>
           {error === "admin" && (
             <p role="alert" className="mb-4 rounded-xl bg-amber-50 p-3 text-sm">
@@ -35,6 +39,14 @@ export default async function Login({
             </p>
           )}
           <LoginForm />
+          <div className="mt-5 flex justify-between text-sm">
+            <Link href="/register" className="text-emerald-800 underline">
+              هنوز حساب ندارم
+            </Link>
+            <Link href="/forgot-password" className="text-muted-foreground">
+              رمز را فراموش کردم
+            </Link>
+          </div>
           <Link
             className="mt-8 flex min-h-11 items-center justify-center gap-2 text-sm text-muted-foreground"
             href="/leaderboard"
