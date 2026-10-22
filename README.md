@@ -41,12 +41,12 @@ npm start
 
 مرجع تغییرات فایل‌های version-controlled در `supabase/migrations/` هستند:
 
-1. `001_initial.sql` — مدل اولیه.
-2. `20260923143706_round_winners_and_match_deletion.sql` — برد راند و حذف بازی.
-3. `20260923220511_delete_tournament.sql` — حذف تورنمنت.
-4. `20261022095200_platform_expansion.sql` — شهر، باشگاه، سانس، تجهیزات، پروفایل، رزرو، پرداخت و RLS.
-5. `20261022095557_booking_transactions.sql` — تراکنش رزرو، ظرفیت، پرداخت و استرداد.
-6. `20261022095927_events_results_and_jobs.sql` — رویداد، نتایج، job و Storage.
+1. `20260921094951_initial_padel_club_schema.sql` — مدل اولیه.
+2. `20260923154020_round_winners_and_match_deletion.sql` — برد راند و حذف بازی.
+3. `20260923221728_delete_tournament.sql` — حذف تورنمنت.
+4. `20261022111028_platform_expansion.sql` — شهر، باشگاه، سانس، تجهیزات، پروفایل، رزرو، پرداخت و RLS.
+5. `20261022111116_booking_transactions.sql` — تراکنش رزرو، ظرفیت، پرداخت و استرداد.
+6. `20261022111120_events_results_and_jobs.sql` — رویداد، نتایج، job و Storage.
 
 در دیتابیس **آزمایشی خالی** تمام فایل‌ها به ترتیب اجرا می‌شوند:
 

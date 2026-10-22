@@ -25,9 +25,9 @@ supabase db dump --linked --role-only --file /SECURE_BACKUP/roles.sql
 
 | نسخه remote    | فایل متناظر محلی                                    |
 | -------------- | --------------------------------------------------- |
-| 20260921094951 | 001_initial.sql                                     |
-| 20260923154020 | 20260923143706_round_winners_and_match_deletion.sql |
-| 20260923221728 | 20260923220511_delete_tournament.sql                |
+| 20260921094951 | 20260921094951_initial_padel_club_schema.sql                                     |
+| 20260923154020 | 20260923154020_round_winners_and_match_deletion.sql |
+| 20260923221728 | 20260923221728_delete_tournament.sql                |
 
 این اختلاف باید پیش از `db push` حل شود. پس از مقایسه SQL واقعی، فهرست migration و پشتیبان جدول `supabase_migrations.schema_migrations`، تنها وضعیت تاریخچه با `supabase migration repair --status applied/reverted VERSION` هم‌تراز می‌شود؛ این دستور schema را اجرا نمی‌کند. بدون بررسی، نسخه‌ای را repair یا حذف نکنید و `--include-all` نزنید. سه migration جدید را جداگانه و با تاریخچه رسمی اعمال کنید. SQL اولیه قبلاً اجرا شده و نباید دوباره اجرا شود.
 
