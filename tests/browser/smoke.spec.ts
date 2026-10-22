@@ -8,12 +8,10 @@ test("login is Persian RTL, usable on mobile, and has no horizontal overflow", a
   await expect(
     page.getByRole("heading", { name: "زمین آماده است." }),
   ).toBeVisible();
-  await page
-    .getByRole("textbox", { name: "ایمیل مدیر" })
-    .fill("admin@example.com");
+  await page.getByRole("textbox", { name: "ایمیل" }).fill("admin@example.com");
   await page.getByLabel("رمز عبور").fill("example-password");
   await expect(
-    page.getByRole("button", { name: "ورود به پنل مدیریت" }),
+    page.getByRole("button", { name: "ورود به حساب" }),
   ).toBeEnabled();
   expect(
     await page.evaluate(
@@ -27,7 +25,7 @@ test("login is Persian RTL, usable on mobile, and has no horizontal overflow", a
 });
 test("protected routes redirect anonymous users to login", async ({ page }) => {
   for (const route of [
-    "/",
+    "/admin",
     "/players",
     "/players/00000000-0000-4000-8000-000000000001",
     "/tournaments",

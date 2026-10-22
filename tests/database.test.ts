@@ -35,7 +35,7 @@ async function save(match: string, version: number, winners: (1 | 2 | null)[]) {
 }
 beforeAll(async () => {
   await db.exec(
-    `create schema auth; create role anon; create role authenticated; create table auth.users(id uuid primary key); create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$; grant usage on schema auth to authenticated,anon; grant execute on function auth.uid() to authenticated,anon;`,
+    `create schema auth; create role anon; create role authenticated; create role service_role bypassrls; create table auth.users(id uuid primary key); create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$; grant usage on schema auth to authenticated,anon,service_role; grant execute on function auth.uid() to authenticated,anon,service_role;`,
   );
   const migrations = new URL("../supabase/migrations/", import.meta.url);
   for (const file of readdirSync(migrations)
