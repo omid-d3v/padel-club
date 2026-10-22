@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Timer } from "lucide-react";
 import { persianDigits } from "@/lib/date-time";
@@ -13,20 +13,20 @@ export function Countdown({
   label: string;
 }) {
   const router = useRouter();
+  const refreshedDeadline = useRef<string | null>(null);
   const [left, setLeft] = useState(() =>
     Math.max(0, Date.parse(deadline) - now),
   );
   useEffect(() => {
     const start = performance.now();
-    let refreshed = false;
     const tick = () => {
       const remaining = Math.max(
         0,
         Date.parse(deadline) - now - (performance.now() - start),
       );
       setLeft(remaining);
-      if (!remaining && !refreshed) {
-        refreshed = true;
+      if (!remaining && refreshedDeadline.current !== deadline) {
+        refreshedDeadline.current = deadline;
         router.refresh();
       }
     };

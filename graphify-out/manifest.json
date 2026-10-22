@@ -260,7 +260,7 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1792679547.3471432,
+    "mtime": 1792679873.8951843,
     "ast_hash": "792665a565b200d4fa5101fbd456ee79",
     "semantic_hash": ""
   },
@@ -275,8 +275,8 @@
     "semantic_hash": ""
   },
   "src/app/(admin)/admin/clubs/page.tsx": {
-    "mtime": 1792679070.6427553,
-    "ast_hash": "db4b78a0a3a2a52924e33ba54b19ace8",
+    "mtime": 1792679873.9074318,
+    "ast_hash": "351f85f7c2d462a8a67549e412595b74",
     "semantic_hash": ""
   },
   "src/app/(admin)/admin/events/page.tsx": {
@@ -285,8 +285,8 @@
     "semantic_hash": ""
   },
   "src/app/(admin)/admin/operations/page.tsx": {
-    "mtime": 1792679070.7430449,
-    "ast_hash": "b735c96757aad8021853bc125c2a984c",
+    "mtime": 1792679873.9080923,
+    "ast_hash": "8a0f906d757ec466d2f6139ac9b7d0ea",
     "semantic_hash": ""
   },
   "src/app/(admin)/admin/page.tsx": {
@@ -295,8 +295,8 @@
     "semantic_hash": ""
   },
   "src/app/(member)/account/bookings/page.tsx": {
-    "mtime": 1792679323.9567142,
-    "ast_hash": "42524b42e4dbb243a5cb3533419fd108",
+    "mtime": 1792679873.9085648,
+    "ast_hash": "cd81587a8d46023336277e8e08afca02",
     "semantic_hash": ""
   },
   "src/app/(member)/account/events/page.tsx": {
@@ -345,8 +345,8 @@
     "semantic_hash": ""
   },
   "src/app/(public)/clubs/[slug]/page.tsx": {
-    "mtime": 1792679203.4985816,
-    "ast_hash": "e7872ee27f22b399c8ce965f22b2bfc1",
+    "mtime": 1792679873.908811,
+    "ast_hash": "12ff9a85b9fe89c317e94d12a59c9b69",
     "semantic_hash": ""
   },
   "src/app/(public)/clubs/page.tsx": {
@@ -430,8 +430,8 @@
     "semantic_hash": ""
   },
   "src/app/platform-actions.ts": {
-    "mtime": 1792679287.1687176,
-    "ast_hash": "cfb07d76480825e4c0cd71ca32ff093b",
+    "mtime": 1792679873.9090898,
+    "ast_hash": "b9204f2f4978bede09e202ad632ec4a3",
     "semantic_hash": ""
   },
   "src/app/register/page.tsx": {
@@ -460,8 +460,8 @@
     "semantic_hash": ""
   },
   "src/components/platform/booking-form.tsx": {
-    "mtime": 1792679071.14154,
-    "ast_hash": "20cfee60fcbbda0576aa018f5d1d28d5",
+    "mtime": 1792679873.9094057,
+    "ast_hash": "5129e4673a63856cf0acf8952c2dbec1",
     "semantic_hash": ""
   },
   "src/components/platform/cards.tsx": {
@@ -480,8 +480,8 @@
     "semantic_hash": ""
   },
   "src/components/platform/join-form.tsx": {
-    "mtime": 1792679071.1662889,
-    "ast_hash": "15322b9843860c2502a76452ce472489",
+    "mtime": 1792679873.9099567,
+    "ast_hash": "dca774a284e6fd7dff1c04104cf2675f",
     "semantic_hash": ""
   },
   "src/components/platform/landing-motion.tsx": {
@@ -515,8 +515,8 @@
     "semantic_hash": ""
   },
   "src/lib/platform/data.ts": {
-    "mtime": 1792679139.7963505,
-    "ast_hash": "b9dbc42a7e85e327647e1ebe52a4608c",
+    "mtime": 1792679873.910599,
+    "ast_hash": "0cacdd123502b39f3ff6892f33fb294f",
     "semantic_hash": ""
   },
   "src/lib/platform/format.ts": {
@@ -530,8 +530,8 @@
     "semantic_hash": ""
   },
   "src/lib/platform/types.ts": {
-    "mtime": 1792679071.2073143,
-    "ast_hash": "810ba43d436de38349191d3b14805056",
+    "mtime": 1792679873.9112265,
+    "ast_hash": "4f3f9296da52bddd09f585300ef2f884",
     "semantic_hash": ""
   },
   "src/lib/seo.ts": {
@@ -545,8 +545,8 @@
     "semantic_hash": ""
   },
   "tests/browser/platform.spec.ts": {
-    "mtime": 1792679716.1028287,
-    "ast_hash": "98114dd004c1c5babf520f86ea9e0304",
+    "mtime": 1792679873.9121056,
+    "ast_hash": "acddb46aec29b39e875310c525250714",
     "semantic_hash": ""
   },
   "tests/browser/postgres-backend.mjs": {
@@ -555,8 +555,8 @@
     "semantic_hash": ""
   },
   "tests/platform.test.ts": {
-    "mtime": 1792679488.4908059,
-    "ast_hash": "78de821fd9cd3df4628f7747e2f4e0a4",
+    "mtime": 1792679873.9127395,
+    "ast_hash": "8150bc7657c270b3599cebea1c5ad5ae",
     "semantic_hash": ""
   },
   "tests/providers.test.ts": {
@@ -795,23 +795,23 @@
     "semantic_hash": ""
   },
   "src/components/platform/countdown.tsx": {
-    "mtime": 1792679071.1556578,
-    "ast_hash": "126ec630f0fe21b1fd638d04d45780f8",
+    "mtime": 1792679982.6210623,
+    "ast_hash": "102d9120f63e225283e606c9e1584e05",
     "semantic_hash": ""
   },
   "src/components/platform/sport-icon.tsx": {
-    "mtime": 1792679617.499485,
-    "ast_hash": "e0cbf017c26a7ad886d613286fb51e16",
+    "mtime": 1792679873.9101691,
+    "ast_hash": "fe2a0021b8f30f4b5d7a298335d2a574",
     "semantic_hash": ""
   },
   "supabase/migrations/20261022143309_booking_benefits.sql": {
-    "mtime": 1792679457.2910979,
-    "ast_hash": "f29b4566a25d90d6ba3c22af9376ca66",
+    "mtime": 1792679873.911737,
+    "ast_hash": "05d84c6234ee9214a60d5f4dddbaf230",
     "semantic_hash": ""
   },
   "docs/BOOKING-BENEFITS.md": {
-    "mtime": 1792679687.5449193,
-    "ast_hash": "33467d1332a9c8febcb19c3e0c264042",
+    "mtime": 1792679873.89541,
+    "ast_hash": "c642441958fe5134021dd4c7180a6a64",
     "semantic_hash": ""
   }
 }
