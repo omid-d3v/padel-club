@@ -7,5 +7,5 @@ PR شماره ۱ در main مرج شد؛ commit مرج ee6bf3b.
 
 Snapshot داده public، تعریف توابع و تاریخچه قبل از تغییر در backups/pre-expansion-20261022.json نگهداری شد؛ وارد Git نشده است. این snapshot جای بکاپ کامل Auth/Storage/PITR یا restore آزمایشی را نمی‌گیرد.
 NEXT_PUBLIC_SITE_URL در Vercel production تنظیم شد. اطلاعات پذیرنده زرین‌پال، secret کلاینت سرور و اتصال باشگاه هنوز تنظیم نشده‌اند.
-اجرای عملیاتی run_platform_jobs توسط بازبینی خودکار مجوز رد شد و انجام نشد؛ scheduler هنوز فعال نیست.
+اجرای اولیه job توسط بازبینی خودکار رد شد؛ پس از تأیید صریح کاربر، migration enable_expiry_cron اعمال و job با نام padel-expiry هر دقیقه فعال شد. وضعیت active=true در cron.job بررسی شد. worker شبکه‌ای باشگاه/درگاه همچنان به secret سرور و تنظیمات واقعی اتصال نیاز دارد.
 مستندات ممیزی/QA قبلی گزارش مرحله پیش از انتشار هستند؛ این فایل وضعیت جدید را ثبت می‌کند.

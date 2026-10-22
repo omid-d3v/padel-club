@@ -55,7 +55,7 @@ supabase start
 supabase migration up
 ```
 
-روی پروژه موجود **SQL قدیمی را دوباره اجرا نکنید و reset نزنید**. timestamp سه migration ثبت‌شده remote با فایل‌های قدیمی محلی متفاوت است. قبل از db push، پشتیبان و تطبیق تاریخچه طبق [راهنمای عملیات](docs/OPERATIONS.md) لازم است. سه فایل جدید هنوز روی دیتابیس زنده اعمال نشده‌اند. تغییر schema بعدی با `supabase migration new descriptive_name` ساخته شود؛ فایل اجراشده را تغییر ندهید.
+روی پروژه موجود **SQL قدیمی را دوباره اجرا نکنید و reset نزنید**. migrationهای توسعه و فعال‌سازی cron با تأیید کاربر روی production اعمال شده‌اند؛ نام فایل‌ها با تاریخچه واقعی هم‌تراز است. پیش از تغییر بعدی پشتیبان بگیرید. تغییر schema بعدی با `supabase migration new descriptive_name` ساخته شود؛ فایل اجراشده را تغییر ندهید. [گزارش انتشار](docs/DEPLOYMENT-20261022.md) وضعیت جدید را ثبت می‌کند.
 
 ## نحوه ساخت Admin
 

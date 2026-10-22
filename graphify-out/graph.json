@@ -982,7 +982,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "bookings_page",
-      "community": 3,
+      "community": 4,
       "norm_label": "page.tsx"
     },
     {
@@ -1022,7 +1022,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "account_layout",
-      "community": 4,
+      "community": 2,
       "norm_label": "layout.tsx"
     },
     {
@@ -1032,7 +1032,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "account_layout_metadata",
-      "community": 4,
+      "community": 2,
       "norm_label": "metadata"
     },
     {
@@ -1042,7 +1042,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "account_layout_accountlayout",
-      "community": 4,
+      "community": 2,
       "norm_label": "accountlayout()"
     },
     {
@@ -1092,7 +1092,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "payments_page",
-      "community": 3,
+      "community": 4,
       "norm_label": "page.tsx"
     },
     {
@@ -1182,7 +1182,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "book_page",
-      "community": 11,
+      "community": 15,
       "norm_label": "page.tsx"
     },
     {
@@ -1192,7 +1192,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "book_page_metadata",
-      "community": 11,
+      "community": 15,
       "norm_label": "metadata"
     },
     {
@@ -1202,7 +1202,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "book_page_book",
-      "community": 11,
+      "community": 15,
       "norm_label": "book()"
     },
     {
@@ -1392,7 +1392,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "public_layout",
-      "community": 4,
+      "community": 2,
       "norm_label": "layout.tsx"
     },
     {
@@ -1402,7 +1402,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "public_layout_publiclayout",
-      "community": 4,
+      "community": 2,
       "norm_label": "publiclayout()"
     },
     {
@@ -1432,7 +1432,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_app_public_matches_id_page_tsx_id_page",
-      "community": 3,
+      "community": 4,
       "norm_label": "page.tsx"
     },
     {
@@ -1442,7 +1442,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "id_page_generatemetadata",
-      "community": 3,
+      "community": 4,
       "norm_label": "generatemetadata()"
     },
     {
@@ -1452,7 +1452,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "id_page_match",
-      "community": 3,
+      "community": 4,
       "norm_label": "match()"
     },
     {
@@ -1642,7 +1642,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "app_actions_login",
-      "community": 11,
+      "community": 2,
       "norm_label": "login()"
     },
     {
@@ -1782,7 +1782,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "confirm_route",
-      "community": 11,
+      "community": 4,
       "norm_label": "route.ts"
     },
     {
@@ -1792,7 +1792,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "confirm_route_get",
-      "community": 11,
+      "community": 4,
       "norm_label": "get()"
     },
     {
@@ -1902,7 +1902,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "login_page",
-      "community": 11,
+      "community": 2,
       "norm_label": "page.tsx"
     },
     {
@@ -1912,7 +1912,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "login_page_metadata",
-      "community": 11,
+      "community": 2,
       "norm_label": "metadata"
     },
     {
@@ -1922,7 +1922,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "login_page_login",
-      "community": 11,
+      "community": 2,
       "norm_label": "login()"
     },
     {
@@ -2012,7 +2012,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_platform_actions",
-      "community": 11,
+      "community": 3,
       "norm_label": "platform-actions.ts"
     },
     {
@@ -2022,7 +2022,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "app_platform_actions_platformresult",
-      "community": 11,
+      "community": 3,
       "norm_label": "platformresult"
     },
     {
@@ -2032,7 +2032,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "app_platform_actions_errors",
-      "community": 11,
+      "community": 3,
       "norm_label": "errors"
     },
     {
@@ -2042,7 +2042,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "app_platform_actions_errorresult",
-      "community": 11,
+      "community": 3,
       "norm_label": "errorresult()"
     },
     {
@@ -2052,7 +2052,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "app_platform_actions_id",
-      "community": 11,
+      "community": 3,
       "norm_label": "id()"
     },
     {
@@ -2062,7 +2062,7 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "app_platform_actions_str",
-      "community": 11,
+      "community": 3,
       "norm_label": "str()"
     },
     {
@@ -2082,7 +2082,7 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "app_platform_actions_bool",
-      "community": 11,
+      "community": 3,
       "norm_label": "bool()"
     },
     {
@@ -2092,7 +2092,7 @@
       "source_location": "L85",
       "_origin": "ast",
       "id": "app_platform_actions_optionalid",
-      "community": 11,
+      "community": 3,
       "norm_label": "optionalid()"
     },
     {
@@ -2102,7 +2102,7 @@
       "source_location": "L86",
       "_origin": "ast",
       "id": "app_platform_actions_iso",
-      "community": 11,
+      "community": 3,
       "norm_label": "iso()"
     },
     {
@@ -2112,7 +2112,7 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "app_platform_actions_upload",
-      "community": 11,
+      "community": 3,
       "norm_label": "upload()"
     },
     {
@@ -2122,7 +2122,7 @@
       "source_location": "L119",
       "_origin": "ast",
       "id": "app_platform_actions_platformaction",
-      "community": 11,
+      "community": 3,
       "norm_label": "platformaction()"
     },
     {
@@ -2132,7 +2132,7 @@
       "source_location": "L455",
       "_origin": "ast",
       "id": "app_platform_actions_registeraccount",
-      "community": 11,
+      "community": 3,
       "norm_label": "registeraccount()"
     },
     {
@@ -2142,7 +2142,7 @@
       "source_location": "L482",
       "_origin": "ast",
       "id": "app_platform_actions_requestpasswordreset",
-      "community": 11,
+      "community": 3,
       "norm_label": "requestpasswordreset()"
     },
     {
@@ -2302,7 +2302,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "components_forms_loginform",
-      "community": 11,
+      "community": 2,
       "norm_label": "loginform()"
     },
     {
@@ -2382,7 +2382,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "platform_booking_form",
-      "community": 3,
+      "community": 35,
       "norm_label": "booking-form.tsx"
     },
     {
@@ -2392,7 +2392,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "platform_booking_form_bookingform",
-      "community": 3,
+      "community": 35,
       "norm_label": "bookingform()"
     },
     {
@@ -2402,7 +2402,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "platform_cards",
-      "community": 3,
+      "community": 4,
       "norm_label": "cards.tsx"
     },
     {
@@ -2442,7 +2442,7 @@
       "source_location": "L91",
       "_origin": "ast",
       "id": "platform_cards_matchcardpublic",
-      "community": 3,
+      "community": 4,
       "norm_label": "matchcardpublic()"
     },
     {
@@ -2452,7 +2452,7 @@
       "source_location": "L139",
       "_origin": "ast",
       "id": "platform_cards_eventcard",
-      "community": 3,
+      "community": 4,
       "norm_label": "eventcard()"
     },
     {
@@ -2502,7 +2502,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "platform_invite_button",
-      "community": 3,
+      "community": 4,
       "norm_label": "invite-button.tsx"
     },
     {
@@ -2512,7 +2512,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "platform_invite_button_invitebutton",
-      "community": 3,
+      "community": 4,
       "norm_label": "invitebutton()"
     },
     {
@@ -2522,7 +2522,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "platform_join_form",
-      "community": 3,
+      "community": 4,
       "norm_label": "join-form.tsx"
     },
     {
@@ -2532,7 +2532,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "platform_join_form_joinform",
-      "community": 3,
+      "community": 4,
       "norm_label": "joinform()"
     },
     {
@@ -2572,7 +2572,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "platform_public_shell",
-      "community": 4,
+      "community": 2,
       "norm_label": "public-shell.tsx"
     },
     {
@@ -2582,7 +2582,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "platform_public_shell_publicshell",
-      "community": 4,
+      "community": 2,
       "norm_label": "publicshell()"
     },
     {
@@ -2912,7 +2912,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_auth",
-      "community": 11,
+      "community": 2,
       "norm_label": "auth.ts"
     },
     {
@@ -2932,7 +2932,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "booking_providers",
-      "community": 11,
+      "community": 15,
       "norm_label": "providers.ts"
     },
     {
@@ -2942,7 +2942,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "booking_providers_providercapabilities",
-      "community": 11,
+      "community": 15,
       "norm_label": "providercapabilities"
     },
     {
@@ -2952,7 +2952,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "booking_providers_providerslot",
-      "community": 11,
+      "community": 15,
       "norm_label": "providerslot"
     },
     {
@@ -2962,7 +2962,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "booking_providers_quote",
-      "community": 11,
+      "community": 15,
       "norm_label": "quote"
     },
     {
@@ -2972,7 +2972,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "booking_providers_providerbooking",
-      "community": 11,
+      "community": 15,
       "norm_label": "providerbooking"
     },
     {
@@ -2982,7 +2982,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "booking_providers_bookingprovider",
-      "community": 11,
+      "community": 15,
       "norm_label": "bookingprovider"
     },
     {
@@ -2992,7 +2992,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "booking_providers_iso",
-      "community": 11,
+      "community": 15,
       "norm_label": "iso"
     },
     {
@@ -3002,7 +3002,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "booking_providers_slotschema",
-      "community": 11,
+      "community": 15,
       "norm_label": "slotschema"
     },
     {
@@ -3012,7 +3012,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "booking_providers_quoteschema",
-      "community": 11,
+      "community": 15,
       "norm_label": "quoteschema"
     },
     {
@@ -3022,7 +3022,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "booking_providers_bookingschema",
-      "community": 11,
+      "community": 15,
       "norm_label": "bookingschema"
     },
     {
@@ -3032,7 +3032,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "booking_providers_configschema",
-      "community": 11,
+      "community": 15,
       "norm_label": "configschema"
     },
     {
@@ -3042,7 +3042,7 @@
       "source_location": "L82",
       "_origin": "ast",
       "id": "booking_providers_authorizedbridge",
-      "community": 10,
+      "community": 15,
       "norm_label": "authorizedbridge"
     },
     {
@@ -3052,7 +3052,7 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "booking_providers_authorizedbridge_constructor",
-      "community": 10,
+      "community": 15,
       "norm_label": ".constructor()"
     },
     {
@@ -3062,7 +3062,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "booking_providers_authorizedbridge_capabilities",
-      "community": 10,
+      "community": 15,
       "norm_label": ".capabilities()"
     },
     {
@@ -3072,7 +3072,7 @@
       "source_location": "L93",
       "_origin": "ast",
       "id": "booking_providers_authorizedbridge_call",
-      "community": 10,
+      "community": 15,
       "norm_label": ".call()"
     },
     {
@@ -3082,7 +3082,7 @@
       "source_location": "L112",
       "_origin": "ast",
       "id": "booking_providers_authorizedbridge_getavailability",
-      "community": 10,
+      "community": 15,
       "norm_label": ".getavailability()"
     },
     {
@@ -3092,7 +3092,7 @@
       "source_location": "L117",
       "_origin": "ast",
       "id": "booking_providers_authorizedbridge_getquote",
-      "community": 10,
+      "community": 15,
       "norm_label": ".getquote()"
     },
     {
@@ -3102,7 +3102,7 @@
       "source_location": "L122",
       "_origin": "ast",
       "id": "booking_providers_authorizedbridge_createhold",
-      "community": 10,
+      "community": 15,
       "norm_label": ".createhold()"
     },
     {
@@ -3112,7 +3112,7 @@
       "source_location": "L128",
       "_origin": "ast",
       "id": "booking_providers_authorizedbridge_confirmbooking",
-      "community": 10,
+      "community": 15,
       "norm_label": ".confirmbooking()"
     },
     {
@@ -3122,7 +3122,7 @@
       "source_location": "L133",
       "_origin": "ast",
       "id": "booking_providers_authorizedbridge_getbookingstatus",
-      "community": 10,
+      "community": 15,
       "norm_label": ".getbookingstatus()"
     },
     {
@@ -3132,7 +3132,7 @@
       "source_location": "L138",
       "_origin": "ast",
       "id": "booking_providers_authorizedbridge_cancelbooking",
-      "community": 10,
+      "community": 15,
       "norm_label": ".cancelbooking()"
     },
     {
@@ -3142,7 +3142,7 @@
       "source_location": "L145",
       "_origin": "ast",
       "id": "booking_providers_authorizedbridge_getcancellationpolicy",
-      "community": 10,
+      "community": 15,
       "norm_label": ".getcancellationpolicy()"
     },
     {
@@ -3152,7 +3152,7 @@
       "source_location": "L149",
       "_origin": "ast",
       "id": "booking_providers_providerfor",
-      "community": 11,
+      "community": 15,
       "norm_label": "providerfor()"
     },
     {
@@ -3162,7 +3162,7 @@
       "source_location": "L158",
       "_origin": "ast",
       "id": "booking_providers_providerconfigured",
-      "community": 11,
+      "community": 15,
       "norm_label": "providerconfigured()"
     },
     {
@@ -3262,7 +3262,7 @@
       "source_location": "L134",
       "_origin": "ast",
       "id": "lib_data_publicdb",
-      "community": 11,
+      "community": 2,
       "norm_label": "publicdb()"
     },
     {
@@ -3442,7 +3442,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "platform_data_publicrows",
-      "community": 11,
+      "community": 2,
       "norm_label": "publicrows()"
     },
     {
@@ -3512,7 +3512,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "platform_format",
-      "community": 3,
+      "community": 4,
       "norm_label": "format.ts"
     },
     {
@@ -3522,7 +3522,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "platform_format_money",
-      "community": 3,
+      "community": 4,
       "norm_label": "money()"
     },
     {
@@ -3532,7 +3532,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "platform_format_moment",
-      "community": 3,
+      "community": 4,
       "norm_label": "moment()"
     },
     {
@@ -3542,7 +3542,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "platform_format_time",
-      "community": 3,
+      "community": 4,
       "norm_label": "time()"
     },
     {
@@ -3552,7 +3552,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "platform_format_bookinglabels",
-      "community": 3,
+      "community": 4,
       "norm_label": "bookinglabels"
     },
     {
@@ -3562,7 +3562,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "platform_format_cancellationtext",
-      "community": 3,
+      "community": 35,
       "norm_label": "cancellationtext()"
     },
     {
@@ -3572,7 +3572,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "platform_format_safenext",
-      "community": 11,
+      "community": 4,
       "norm_label": "safenext()"
     },
     {
@@ -3582,7 +3582,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "platform_request_time",
-      "community": 3,
+      "community": 4,
       "norm_label": "request-time.ts"
     },
     {
@@ -3592,7 +3592,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "platform_request_time_requesttime",
-      "community": 3,
+      "community": 4,
       "norm_label": "requesttime"
     },
     {
@@ -3612,7 +3612,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "platform_types_skills",
-      "community": 3,
+      "community": 4,
       "norm_label": "skills"
     },
     {
@@ -3632,7 +3632,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "platform_types_club",
-      "community": 3,
+      "community": 35,
       "norm_label": "club"
     },
     {
@@ -3642,7 +3642,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "platform_types_court",
-      "community": 3,
+      "community": 35,
       "norm_label": "court"
     },
     {
@@ -3672,7 +3672,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "platform_types_equipment",
-      "community": 3,
+      "community": 35,
       "norm_label": "equipment"
     },
     {
@@ -3832,7 +3832,7 @@
       "source_location": "L255",
       "_origin": "ast",
       "id": "platform_types_platformtables",
-      "community": 35,
+      "community": 0,
       "norm_label": "platformtables"
     },
     {
@@ -3852,7 +3852,7 @@
       "source_location": "L292",
       "_origin": "ast",
       "id": "platform_types_platformfunctions",
-      "community": 35,
+      "community": 0,
       "norm_label": "platformfunctions"
     },
     {
@@ -3952,7 +3952,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "supabase_server",
-      "community": 11,
+      "community": 2,
       "norm_label": "server.ts"
     },
     {
@@ -3962,7 +3962,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "supabase_server_configured",
-      "community": 11,
+      "community": 2,
       "norm_label": "configured()"
     },
     {
@@ -3972,7 +3972,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "supabase_server_createclient",
-      "community": 11,
+      "community": 2,
       "norm_label": "createclient()"
     },
     {
@@ -4022,7 +4022,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tournament_generatematches",
-      "community": 2,
+      "community": 11,
       "norm_label": "generatematches.ts"
     },
     {
@@ -4032,7 +4032,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "tournament_generatematches_slots",
-      "community": 2,
+      "community": 11,
       "norm_label": "slots"
     },
     {
@@ -4042,7 +4042,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "tournament_generatematches_schedule",
-      "community": 2,
+      "community": 11,
       "norm_label": "schedule"
     },
     {
@@ -4052,7 +4052,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "tournament_generatematches_generatematches",
-      "community": 2,
+      "community": 11,
       "norm_label": "generatematches()"
     },
     {
@@ -4082,7 +4082,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "lib_types_slot",
-      "community": 2,
+      "community": 11,
       "norm_label": "slot"
     },
     {
@@ -4192,7 +4192,7 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "lib_types_actionresult",
-      "community": 2,
+      "community": 0,
       "norm_label": "actionresult"
     },
     {
@@ -4252,7 +4252,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_validation",
-      "community": 2,
+      "community": 11,
       "norm_label": "validation.ts"
     },
     {
@@ -4272,7 +4272,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "lib_validation_playerschema",
-      "community": 2,
+      "community": 11,
       "norm_label": "playerschema"
     },
     {
@@ -4282,7 +4282,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "lib_validation_tournamentschema",
-      "community": 2,
+      "community": 11,
       "norm_label": "tournamentschema"
     },
     {
@@ -4292,7 +4292,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "lib_validation_roundwinnersschema",
-      "community": 2,
+      "community": 11,
       "norm_label": "roundwinnersschema"
     },
     {
@@ -4702,7 +4702,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_database_test",
-      "community": 2,
+      "community": 11,
       "norm_label": "database.test.ts"
     },
     {
@@ -4712,7 +4712,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "tests_database_test_db",
-      "community": 2,
+      "community": 11,
       "norm_label": "db"
     },
     {
@@ -4722,7 +4722,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "tests_database_test_query",
-      "community": 2,
+      "community": 11,
       "norm_label": "query()"
     },
     {
@@ -4732,7 +4732,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "tests_database_test_role",
-      "community": 2,
+      "community": 11,
       "norm_label": "role()"
     },
     {
@@ -4742,7 +4742,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "tests_database_test_tournament",
-      "community": 2,
+      "community": 11,
       "norm_label": "tournament()"
     },
     {
@@ -4752,7 +4752,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "tests_database_test_save",
-      "community": 2,
+      "community": 11,
       "norm_label": "save()"
     },
     {
@@ -4762,7 +4762,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_domain_test",
-      "community": 2,
+      "community": 11,
       "norm_label": "domain.test.ts"
     },
     {
@@ -5244,6 +5244,26 @@
       "id": "readme_\u0646\u062a\u06cc\u062c\u0647_\u0628\u0631\u0631\u0633\u06cc_\u0645\u062d\u0644\u06cc_\u0627\u06cc\u0646_\u062a\u062d\u0648\u06cc\u0644",
       "community": 12,
       "norm_label": "\u0646\u062a\u06cc\u062c\u0647 \u0628\u0631\u0631\u0633\u06cc \u0645\u062d\u0644\u06cc \u0627\u06cc\u0646 \u062a\u062d\u0648\u06cc\u0644"
+    },
+    {
+      "label": "DEPLOYMENT-20261022.md",
+      "file_type": "document",
+      "source_file": "docs/DEPLOYMENT-20261022.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "docs_deployment_20261022",
+      "community": 10,
+      "norm_label": "deployment-20261022.md"
+    },
+    {
+      "label": "\u0627\u0646\u062a\u0634\u0627\u0631 \u06f3\u06f0 \u0645\u0647\u0631 \u06f1\u06f4\u06f0\u06f5",
+      "file_type": "document",
+      "source_file": "docs/DEPLOYMENT-20261022.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "docs_deployment_20261022_\u0627\u0646\u062a\u0634\u0627\u0631_\u06f3\u06f0_\u0645\u0647\u0631_\u06f1\u06f4\u06f0\u06f5",
+      "community": 10,
+      "norm_label": "\u0627\u0646\u062a\u0634\u0627\u0631 \u06f3\u06f0 \u0645\u0647\u0631 \u06f1\u06f4\u06f0\u06f5"
     },
     {
       "label": "EXPANSION.md",
@@ -5811,7 +5831,7 @@
     {
       "label": "ref_node_fs",
       "_origin": "semantic",
-      "community": 2,
+      "community": 11,
       "community_name": "domain.test.ts",
       "external": true,
       "file_type": "concept",
@@ -20104,9 +20124,9 @@
       "source_file": "README.md",
       "source_location": "L143",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme",
-      "target": "docs_qa",
-      "confidence_score": 1.0
+      "target": "docs_qa"
     },
     {
       "relation": "contains",
@@ -20194,9 +20214,9 @@
       "source_file": "README.md",
       "source_location": "L141",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_\u067e\u062f\u0644_\u06a9\u0644\u0627\u0628_\u067e\u0644\u062a\u0641\u0631\u0645_\u0641\u0627\u0631\u0633\u06cc_\u0631\u0632\u0631\u0648_\u0648_\u0647\u0645_\u0628\u0627\u0632\u06cc",
-      "target": "readme_\u0646\u062a\u06cc\u062c\u0647_\u0628\u0631\u0631\u0633\u06cc_\u0645\u062d\u0644\u06cc_\u0627\u06cc\u0646_\u062a\u062d\u0648\u06cc\u0644",
-      "confidence_score": 1.0
+      "target": "readme_\u0646\u062a\u06cc\u062c\u0647_\u0628\u0631\u0631\u0633\u06cc_\u0645\u062d\u0644\u06cc_\u0627\u06cc\u0646_\u062a\u062d\u0648\u06cc\u0644"
     },
     {
       "relation": "contains",
@@ -20207,6 +20227,16 @@
       "confidence_score": 1.0,
       "source": "readme_\u067e\u062f\u0644_\u06a9\u0644\u0627\u0628_\u067e\u0644\u062a\u0641\u0631\u0645_\u0641\u0627\u0631\u0633\u06cc_\u0631\u0632\u0631\u0648_\u0648_\u0647\u0645_\u0628\u0627\u0632\u06cc",
       "target": "readme_\u0646\u062d\u0648\u0647_\u0633\u0627\u062e\u062a_admin"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/DEPLOYMENT-20261022.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "docs_deployment_20261022",
+      "target": "docs_deployment_20261022_\u0627\u0646\u062a\u0634\u0627\u0631_\u06f3\u06f0_\u0645\u0647\u0631_\u06f1\u06f4\u06f0\u06f5",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -20611,5 +20641,5 @@
       "source_file": "README.md"
     }
   ],
-  "built_at_commit": "44789f57ca1a1d660a72fa5607de6a5c7f551daf"
+  "built_at_commit": "62a2c7d5505cdffff42d88ff81d0f412cd102fb5"
 }
