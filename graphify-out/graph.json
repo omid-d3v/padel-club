@@ -799,7 +799,7 @@
       "label": "ManageEvents()",
       "file_type": "code",
       "source_file": "src/app/(admin)/admin/events/page.tsx",
-      "source_location": "L9",
+      "source_location": "L10",
       "_origin": "ast",
       "id": "events_page_manageevents",
       "community": 3,
@@ -1252,27 +1252,27 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "book_page",
-      "community": 15,
+      "community": 26,
       "norm_label": "page.tsx"
     },
     {
       "label": "metadata",
       "file_type": "code",
       "source_file": "src/app/(public)/clubs/[slug]/book/page.tsx",
-      "source_location": "L8",
+      "source_location": "L14",
       "_origin": "ast",
       "id": "book_page_metadata",
-      "community": 15,
+      "community": 26,
       "norm_label": "metadata"
     },
     {
       "label": "Book()",
       "file_type": "code",
       "source_file": "src/app/(public)/clubs/[slug]/book/page.tsx",
-      "source_location": "L12",
+      "source_location": "L18",
       "_origin": "ast",
       "id": "book_page_book",
-      "community": 15,
+      "community": 26,
       "norm_label": "book()"
     },
     {
@@ -1342,7 +1342,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_app_public_events_slug_page_tsx_slug_page",
-      "community": 37,
+      "community": 3,
       "norm_label": "page.tsx"
     },
     {
@@ -1352,7 +1352,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_app_public_events_slug_page_tsx_slug_page_generatemetadata",
-      "community": 37,
+      "community": 3,
       "norm_label": "generatemetadata()"
     },
     {
@@ -1362,7 +1362,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "slug_page_event",
-      "community": 37,
+      "community": 3,
       "norm_label": "event()"
     },
     {
@@ -1392,7 +1392,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "rounds_page_rounds",
-      "community": 37,
+      "community": 3,
       "norm_label": "rounds()"
     },
     {
@@ -1532,27 +1532,27 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "matches_page",
-      "community": 37,
+      "community": 26,
       "norm_label": "page.tsx"
     },
     {
       "label": "metadata",
       "file_type": "code",
       "source_file": "src/app/(public)/matches/page.tsx",
-      "source_location": "L11",
+      "source_location": "L13",
       "_origin": "ast",
       "id": "matches_page_metadata",
-      "community": 37,
+      "community": 26,
       "norm_label": "metadata"
     },
     {
       "label": "Matches()",
       "file_type": "code",
       "source_file": "src/app/(public)/matches/page.tsx",
-      "source_location": "L16",
+      "source_location": "L18",
       "_origin": "ast",
       "id": "matches_page_matches",
-      "community": 37,
+      "community": 26,
       "norm_label": "matches()"
     },
     {
@@ -2119,7 +2119,7 @@
       "label": "PlatformResult",
       "file_type": "code",
       "source_file": "src/app/platform-actions.ts",
-      "source_location": "L16",
+      "source_location": "L17",
       "_origin": "ast",
       "id": "app_platform_actions_platformresult",
       "community": 11,
@@ -2129,7 +2129,7 @@
       "label": "errors",
       "file_type": "code",
       "source_file": "src/app/platform-actions.ts",
-      "source_location": "L22",
+      "source_location": "L23",
       "_origin": "ast",
       "id": "app_platform_actions_errors",
       "community": 11,
@@ -2139,17 +2139,17 @@
       "label": "errorResult()",
       "file_type": "code",
       "source_file": "src/app/platform-actions.ts",
-      "source_location": "L67",
+      "source_location": "L70",
       "_origin": "ast",
       "id": "app_platform_actions_errorresult",
-      "community": 15,
+      "community": 11,
       "norm_label": "errorresult()"
     },
     {
       "label": "int()",
       "file_type": "code",
       "source_file": "src/app/platform-actions.ts",
-      "source_location": "L105",
+      "source_location": "L108",
       "_origin": "ast",
       "id": "app_platform_actions_int",
       "community": 11,
@@ -2159,7 +2159,7 @@
       "label": "bool()",
       "file_type": "code",
       "source_file": "src/app/platform-actions.ts",
-      "source_location": "L107",
+      "source_location": "L110",
       "_origin": "ast",
       "id": "app_platform_actions_bool",
       "community": 11,
@@ -2169,7 +2169,7 @@
       "label": "optionalId()",
       "file_type": "code",
       "source_file": "src/app/platform-actions.ts",
-      "source_location": "L108",
+      "source_location": "L111",
       "_origin": "ast",
       "id": "app_platform_actions_optionalid",
       "community": 11,
@@ -2179,7 +2179,7 @@
       "label": "iso()",
       "file_type": "code",
       "source_file": "src/app/platform-actions.ts",
-      "source_location": "L109",
+      "source_location": "L112",
       "_origin": "ast",
       "id": "app_platform_actions_iso",
       "community": 11,
@@ -2189,7 +2189,7 @@
       "label": "upload()",
       "file_type": "code",
       "source_file": "src/app/platform-actions.ts",
-      "source_location": "L117",
+      "source_location": "L115",
       "_origin": "ast",
       "id": "app_platform_actions_upload",
       "community": 11,
@@ -2199,7 +2199,7 @@
       "label": "platformAction()",
       "file_type": "code",
       "source_file": "src/app/platform-actions.ts",
-      "source_location": "L142",
+      "source_location": "L140",
       "_origin": "ast",
       "id": "app_platform_actions_platformaction",
       "community": 11,
@@ -2209,7 +2209,7 @@
       "label": "registerAccount()",
       "file_type": "code",
       "source_file": "src/app/platform-actions.ts",
-      "source_location": "L495",
+      "source_location": "L494",
       "_origin": "ast",
       "id": "app_platform_actions_registeraccount",
       "community": 11,
@@ -2219,20 +2219,20 @@
       "label": "requestPasswordReset()",
       "file_type": "code",
       "source_file": "src/app/platform-actions.ts",
-      "source_location": "L522",
+      "source_location": "L521",
       "_origin": "ast",
       "id": "app_platform_actions_requestpasswordreset",
-      "community": 15,
+      "community": 11,
       "norm_label": "requestpasswordreset()"
     },
     {
       "label": "updatePassword()",
       "file_type": "code",
       "source_file": "src/app/platform-actions.ts",
-      "source_location": "L545",
+      "source_location": "L544",
       "_origin": "ast",
       "id": "app_platform_actions_updatepassword",
-      "community": 3,
+      "community": 11,
       "norm_label": "updatepassword()"
     },
     {
@@ -2242,7 +2242,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "register_page",
-      "community": 11,
+      "community": 3,
       "norm_label": "page.tsx"
     },
     {
@@ -2252,7 +2252,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "register_page_metadata",
-      "community": 11,
+      "community": 3,
       "norm_label": "metadata"
     },
     {
@@ -2262,7 +2262,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "register_page_register",
-      "community": 11,
+      "community": 3,
       "norm_label": "register()"
     },
     {
@@ -2389,7 +2389,7 @@
       "label": "Pending()",
       "file_type": "code",
       "source_file": "src/components/forms.tsx",
-      "source_location": "L26",
+      "source_location": "L28",
       "_origin": "ast",
       "id": "components_forms_pending",
       "community": 0,
@@ -2399,7 +2399,7 @@
       "label": "LoginForm()",
       "file_type": "code",
       "source_file": "src/components/forms.tsx",
-      "source_location": "L40",
+      "source_location": "L42",
       "_origin": "ast",
       "id": "components_forms_loginform",
       "community": 2,
@@ -2409,7 +2409,7 @@
       "label": "PlayerForm()",
       "file_type": "code",
       "source_file": "src/components/forms.tsx",
-      "source_location": "L101",
+      "source_location": "L103",
       "_origin": "ast",
       "id": "components_forms_playerform",
       "community": 0,
@@ -2419,7 +2419,7 @@
       "label": "DeletePlayer()",
       "file_type": "code",
       "source_file": "src/components/forms.tsx",
-      "source_location": "L205",
+      "source_location": "L207",
       "_origin": "ast",
       "id": "components_forms_deleteplayer",
       "community": 0,
@@ -2429,7 +2429,7 @@
       "label": "CreateTournamentForm()",
       "file_type": "code",
       "source_file": "src/components/forms.tsx",
-      "source_location": "L259",
+      "source_location": "L261",
       "_origin": "ast",
       "id": "components_forms_createtournamentform",
       "community": 0,
@@ -2522,7 +2522,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "platform_cards",
-      "community": 37,
+      "community": 3,
       "norm_label": "cards.tsx"
     },
     {
@@ -2542,7 +2542,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "platform_cards_publicempty",
-      "community": 37,
+      "community": 3,
       "norm_label": "publicempty()"
     },
     {
@@ -2562,7 +2562,7 @@
       "source_location": "L91",
       "_origin": "ast",
       "id": "platform_cards_matchcardpublic",
-      "community": 37,
+      "community": 3,
       "norm_label": "matchcardpublic()"
     },
     {
@@ -2572,7 +2572,7 @@
       "source_location": "L139",
       "_origin": "ast",
       "id": "platform_cards_eventcard",
-      "community": 37,
+      "community": 3,
       "norm_label": "eventcard()"
     },
     {
@@ -2589,7 +2589,7 @@
       "label": "Field()",
       "file_type": "code",
       "source_file": "src/components/platform/fields.tsx",
-      "source_location": "L3",
+      "source_location": "L4",
       "_origin": "ast",
       "id": "platform_fields_field",
       "community": 3,
@@ -2599,7 +2599,7 @@
       "label": "SelectField()",
       "file_type": "code",
       "source_file": "src/components/platform/fields.tsx",
-      "source_location": "L14",
+      "source_location": "L22",
       "_origin": "ast",
       "id": "platform_fields_selectfield",
       "community": 3,
@@ -2609,7 +2609,7 @@
       "label": "CheckField()",
       "file_type": "code",
       "source_file": "src/components/platform/fields.tsx",
-      "source_location": "L41",
+      "source_location": "L49",
       "_origin": "ast",
       "id": "platform_fields_checkfield",
       "community": 3,
@@ -3026,6 +3026,36 @@
       "norm_label": "input()"
     },
     {
+      "label": "jalali-date-input.tsx",
+      "file_type": "code",
+      "source_file": "src/components/ui/jalali-date-input.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "ui_jalali_date_input",
+      "community": 26,
+      "norm_label": "jalali-date-input.tsx"
+    },
+    {
+      "label": "Props",
+      "file_type": "code",
+      "source_file": "src/components/ui/jalali-date-input.tsx",
+      "source_location": "L19",
+      "_origin": "ast",
+      "id": "ui_jalali_date_input_props",
+      "community": 26,
+      "norm_label": "props"
+    },
+    {
+      "label": "JalaliDateInput()",
+      "file_type": "code",
+      "source_file": "src/components/ui/jalali-date-input.tsx",
+      "source_location": "L33",
+      "_origin": "ast",
+      "id": "ui_jalali_date_input_jalalidateinput",
+      "community": 26,
+      "norm_label": "jalalidateinput()"
+    },
+    {
       "label": "auth.ts",
       "file_type": "code",
       "source_file": "src/lib/auth.ts",
@@ -3272,7 +3302,7 @@
       "source_location": "L149",
       "_origin": "ast",
       "id": "booking_providers_providerfor",
-      "community": 15,
+      "community": 26,
       "norm_label": "providerfor()"
     },
     {
@@ -3282,7 +3312,7 @@
       "source_location": "L158",
       "_origin": "ast",
       "id": "booking_providers_providerconfigured",
-      "community": 15,
+      "community": 26,
       "norm_label": "providerconfigured()"
     },
     {
@@ -3404,6 +3434,216 @@
       "id": "lib_data_getpublicresults",
       "community": 0,
       "norm_label": "getpublicresults"
+    },
+    {
+      "label": "date-time.ts",
+      "file_type": "code",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "lib_date_time",
+      "community": 26,
+      "norm_label": "date-time.ts"
+    },
+    {
+      "label": "JALALI_MONTHS",
+      "file_type": "code",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L3",
+      "_origin": "ast",
+      "id": "lib_date_time_jalali_months",
+      "community": 26,
+      "norm_label": "jalali_months"
+    },
+    {
+      "label": "JalaliDate",
+      "file_type": "code",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L18",
+      "_origin": "ast",
+      "id": "lib_date_time_jalalidate",
+      "community": 26,
+      "norm_label": "jalalidate"
+    },
+    {
+      "label": "persianParts",
+      "file_type": "code",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L19",
+      "_origin": "ast",
+      "id": "lib_date_time_persianparts",
+      "community": 26,
+      "norm_label": "persianparts"
+    },
+    {
+      "label": "gregorianParts",
+      "file_type": "code",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L27",
+      "_origin": "ast",
+      "id": "lib_date_time_gregorianparts",
+      "community": 26,
+      "norm_label": "gregorianparts"
+    },
+    {
+      "label": "asciiDigits()",
+      "file_type": "code",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L38",
+      "_origin": "ast",
+      "id": "lib_date_time_asciidigits",
+      "community": 26,
+      "norm_label": "asciidigits()"
+    },
+    {
+      "label": "persianDigits()",
+      "file_type": "code",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L43",
+      "_origin": "ast",
+      "id": "lib_date_time_persiandigits",
+      "community": 26,
+      "norm_label": "persiandigits()"
+    },
+    {
+      "label": "pad()",
+      "file_type": "code",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L45",
+      "_origin": "ast",
+      "id": "lib_date_time_pad",
+      "community": 26,
+      "norm_label": "pad()"
+    },
+    {
+      "label": "isGregorianDate()",
+      "file_type": "code",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L46",
+      "_origin": "ast",
+      "id": "lib_date_time_isgregoriandate",
+      "community": 26,
+      "norm_label": "isgregoriandate()"
+    },
+    {
+      "label": "instant()",
+      "file_type": "code",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L51",
+      "_origin": "ast",
+      "id": "lib_date_time_instant",
+      "community": 26,
+      "norm_label": "instant()"
+    },
+    {
+      "label": "jalaliParts()",
+      "file_type": "code",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L56",
+      "_origin": "ast",
+      "id": "lib_date_time_jalaliparts",
+      "community": 26,
+      "norm_label": "jalaliparts()"
+    },
+    {
+      "label": "jalaliToGregorian()",
+      "file_type": "code",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L66",
+      "_origin": "ast",
+      "id": "lib_date_time_jalalitogregorian",
+      "community": 26,
+      "norm_label": "jalalitogregorian()"
+    },
+    {
+      "label": "jalaliMonth()",
+      "file_type": "code",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L97",
+      "_origin": "ast",
+      "id": "lib_date_time_jalalimonth",
+      "community": 26,
+      "norm_label": "jalalimonth()"
+    },
+    {
+      "label": "tehranDateTime()",
+      "file_type": "code",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L111",
+      "_origin": "ast",
+      "id": "lib_date_time_tehrandatetime",
+      "community": 26,
+      "norm_label": "tehrandatetime()"
+    },
+    {
+      "label": "tehranToday()",
+      "file_type": "code",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L117",
+      "_origin": "ast",
+      "id": "lib_date_time_tehrantoday",
+      "community": 26,
+      "norm_label": "tehrantoday()"
+    },
+    {
+      "label": "tehranLocalToISO()",
+      "file_type": "code",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L119",
+      "_origin": "ast",
+      "id": "lib_date_time_tehranlocaltoiso",
+      "community": 26,
+      "norm_label": "tehranlocaltoiso()"
+    },
+    {
+      "label": "formatJalaliInput()",
+      "file_type": "code",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L135",
+      "_origin": "ast",
+      "id": "lib_date_time_formatjalaliinput",
+      "community": 26,
+      "norm_label": "formatjalaliinput()"
+    },
+    {
+      "label": "parseJalaliInput()",
+      "file_type": "code",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L142",
+      "_origin": "ast",
+      "id": "lib_date_time_parsejalaliinput",
+      "community": 26,
+      "norm_label": "parsejalaliinput()"
+    },
+    {
+      "label": "formatPersianDate()",
+      "file_type": "code",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L174",
+      "_origin": "ast",
+      "id": "lib_date_time_formatpersiandate",
+      "community": 0,
+      "norm_label": "formatpersiandate()"
+    },
+    {
+      "label": "formatPersianMoment()",
+      "file_type": "code",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L180",
+      "_origin": "ast",
+      "id": "lib_date_time_formatpersianmoment",
+      "community": 3,
+      "norm_label": "formatpersianmoment()"
+    },
+    {
+      "label": "formatTehranTime()",
+      "file_type": "code",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L188",
+      "_origin": "ast",
+      "id": "lib_date_time_formattehrantime",
+      "community": 26,
+      "norm_label": "formattehrantime()"
     },
     {
       "label": "zarinpal.ts",
@@ -3582,7 +3822,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "platform_data_events",
-      "community": 37,
+      "community": 3,
       "norm_label": "events"
     },
     {
@@ -3592,7 +3832,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "platform_data_matches",
-      "community": 37,
+      "community": 2,
       "norm_label": "matches()"
     },
     {
@@ -3602,7 +3842,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "platform_data_member",
-      "community": 2,
+      "community": 3,
       "norm_label": "member"
     },
     {
@@ -3719,37 +3959,17 @@
       "label": "money()",
       "file_type": "code",
       "source_file": "src/lib/platform/format.ts",
-      "source_location": "L1",
+      "source_location": "L2",
       "_origin": "ast",
       "id": "platform_format_money",
       "community": 3,
       "norm_label": "money()"
     },
     {
-      "label": "moment()",
-      "file_type": "code",
-      "source_file": "src/lib/platform/format.ts",
-      "source_location": "L3",
-      "_origin": "ast",
-      "id": "platform_format_moment",
-      "community": 3,
-      "norm_label": "moment()"
-    },
-    {
-      "label": "time()",
-      "file_type": "code",
-      "source_file": "src/lib/platform/format.ts",
-      "source_location": "L9",
-      "_origin": "ast",
-      "id": "platform_format_time",
-      "community": 3,
-      "norm_label": "time()"
-    },
-    {
       "label": "bookingLabels",
       "file_type": "code",
       "source_file": "src/lib/platform/format.ts",
-      "source_location": "L15",
+      "source_location": "L6",
       "_origin": "ast",
       "id": "platform_format_bookinglabels",
       "community": 3,
@@ -3759,7 +3979,7 @@
       "label": "cancellationText()",
       "file_type": "code",
       "source_file": "src/lib/platform/format.ts",
-      "source_location": "L48",
+      "source_location": "L39",
       "_origin": "ast",
       "id": "platform_format_cancellationtext",
       "community": 3,
@@ -3769,7 +3989,7 @@
       "label": "safeNext()",
       "file_type": "code",
       "source_file": "src/lib/platform/format.ts",
-      "source_location": "L58",
+      "source_location": "L49",
       "_origin": "ast",
       "id": "platform_format_safenext",
       "community": 2,
@@ -3832,7 +4052,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "platform_types_club",
-      "community": 10,
+      "community": 3,
       "norm_label": "club"
     },
     {
@@ -3842,7 +4062,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "platform_types_court",
-      "community": 10,
+      "community": 3,
       "norm_label": "court"
     },
     {
@@ -4232,7 +4452,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tournament_generatematches",
-      "community": 11,
+      "community": 0,
       "norm_label": "generatematches.ts"
     },
     {
@@ -4242,7 +4462,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "tournament_generatematches_slots",
-      "community": 11,
+      "community": 0,
       "norm_label": "slots"
     },
     {
@@ -4252,7 +4472,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "tournament_generatematches_schedule",
-      "community": 11,
+      "community": 0,
       "norm_label": "schedule"
     },
     {
@@ -4262,7 +4482,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "tournament_generatematches_generatematches",
-      "community": 11,
+      "community": 0,
       "norm_label": "generatematches()"
     },
     {
@@ -4292,7 +4512,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "lib_types_slot",
-      "community": 11,
+      "community": 0,
       "norm_label": "slot"
     },
     {
@@ -4419,7 +4639,7 @@
       "label": "cn()",
       "file_type": "code",
       "source_file": "src/lib/utils.ts",
-      "source_location": "L3",
+      "source_location": "L4",
       "_origin": "ast",
       "id": "lib_utils_cn",
       "community": 0,
@@ -4429,27 +4649,17 @@
       "label": "number()",
       "file_type": "code",
       "source_file": "src/lib/utils.ts",
-      "source_location": "L4",
+      "source_location": "L5",
       "_origin": "ast",
       "id": "lib_utils_number",
       "community": 0,
       "norm_label": "number()"
     },
     {
-      "label": "date()",
-      "file_type": "code",
-      "source_file": "src/lib/utils.ts",
-      "source_location": "L6",
-      "_origin": "ast",
-      "id": "lib_utils_date",
-      "community": 0,
-      "norm_label": "date()"
-    },
-    {
       "label": "fullName()",
       "file_type": "code",
       "source_file": "src/lib/utils.ts",
-      "source_location": "L11",
+      "source_location": "L8",
       "_origin": "ast",
       "id": "lib_utils_fullname",
       "community": 0,
@@ -4462,14 +4672,14 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_validation",
-      "community": 11,
+      "community": 2,
       "norm_label": "validation.ts"
     },
     {
       "label": "normalizeDigits()",
       "file_type": "code",
       "source_file": "src/lib/validation.ts",
-      "source_location": "L2",
+      "source_location": "L3",
       "_origin": "ast",
       "id": "lib_validation_normalizedigits",
       "community": 11,
@@ -4479,30 +4689,30 @@
       "label": "playerSchema",
       "file_type": "code",
       "source_file": "src/lib/validation.ts",
-      "source_location": "L7",
+      "source_location": "L8",
       "_origin": "ast",
       "id": "lib_validation_playerschema",
-      "community": 11,
+      "community": 2,
       "norm_label": "playerschema"
     },
     {
       "label": "tournamentSchema",
       "file_type": "code",
       "source_file": "src/lib/validation.ts",
-      "source_location": "L26",
+      "source_location": "L27",
       "_origin": "ast",
       "id": "lib_validation_tournamentschema",
-      "community": 11,
+      "community": 2,
       "norm_label": "tournamentschema"
     },
     {
       "label": "roundWinnersSchema",
       "file_type": "code",
       "source_file": "src/lib/validation.ts",
-      "source_location": "L42",
+      "source_location": "L38",
       "_origin": "ast",
       "id": "lib_validation_roundwinnersschema",
-      "community": 11,
+      "community": 2,
       "norm_label": "roundwinnersschema"
     },
     {
@@ -4896,6 +5106,16 @@
       "norm_label": "clubs.spec.ts"
     },
     {
+      "label": "jalali.spec.ts",
+      "file_type": "code",
+      "source_file": "tests/browser/jalali.spec.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "browser_jalali_spec",
+      "community": 39,
+      "norm_label": "jalali.spec.ts"
+    },
+    {
       "label": "performance.spec.ts",
       "file_type": "code",
       "source_file": "tests/browser/performance.spec.ts",
@@ -4919,7 +5139,7 @@
       "label": "uuid()",
       "file_type": "code",
       "source_file": "tests/browser/platform.spec.ts",
-      "source_location": "L2",
+      "source_location": "L3",
       "_origin": "ast",
       "id": "browser_platform_spec_uuid",
       "community": 26,
@@ -5112,7 +5332,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_database_test",
-      "community": 11,
+      "community": 0,
       "norm_label": "database.test.ts"
     },
     {
@@ -5122,7 +5342,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "tests_database_test_db",
-      "community": 11,
+      "community": 0,
       "norm_label": "db"
     },
     {
@@ -5132,7 +5352,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "tests_database_test_query",
-      "community": 11,
+      "community": 0,
       "norm_label": "query()"
     },
     {
@@ -5142,7 +5362,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "tests_database_test_role",
-      "community": 11,
+      "community": 0,
       "norm_label": "role()"
     },
     {
@@ -5152,7 +5372,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "tests_database_test_tournament",
-      "community": 11,
+      "community": 0,
       "norm_label": "tournament()"
     },
     {
@@ -5162,8 +5382,18 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "tests_database_test_save",
-      "community": 11,
+      "community": 0,
       "norm_label": "save()"
+    },
+    {
+      "label": "date-time.test.ts",
+      "file_type": "code",
+      "source_file": "tests/date-time.test.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "tests_date_time_test",
+      "community": 26,
+      "norm_label": "date-time.test.ts"
     },
     {
       "label": "domain.test.ts",
@@ -5172,7 +5402,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_domain_test",
-      "community": 11,
+      "community": 0,
       "norm_label": "domain.test.ts"
     },
     {
@@ -5836,14 +6066,84 @@
       "norm_label": "\u0647\u0648\u06cc\u062a \u0631\u0627\u0644\u06cc\u200c\u06cc\u0627\u0631 \u0648 \u0627\u0635\u0644\u0627\u062d \u0641\u0631\u0645\u200c\u0647\u0627"
     },
     {
-      "label": "\u0647\u0645\u06af\u0627\u0645\u200c\u0633\u0627\u0632\u06cc \u062a\u0642\u0648\u06cc\u0645 \u0628\u0627\u0634\u06af\u0627\u0647\u200c\u0647\u0627",
+      "label": "\u062a\u0642\u0648\u06cc\u0645 \u0634\u0645\u0633\u06cc \u0648 \u0632\u0645\u0627\u0646 \u062a\u0647\u0631\u0627\u0646",
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L149",
       "_origin": "ast",
+      "id": "readme_\u062a\u0642\u0648\u06cc\u0645_\u0634\u0645\u0633\u06cc_\u0648_\u0632\u0645\u0627\u0646_\u062a\u0647\u0631\u0627\u0646",
+      "community": 12,
+      "norm_label": "\u062a\u0642\u0648\u06cc\u0645 \u0634\u0645\u0633\u06cc \u0648 \u0632\u0645\u0627\u0646 \u062a\u0647\u0631\u0627\u0646"
+    },
+    {
+      "label": "\u0647\u0645\u06af\u0627\u0645\u200c\u0633\u0627\u0632\u06cc \u062a\u0642\u0648\u06cc\u0645 \u0628\u0627\u0634\u06af\u0627\u0647\u200c\u0647\u0627",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L153",
+      "_origin": "ast",
       "id": "readme_\u0647\u0645\u06af\u0627\u0645_\u0633\u0627\u0632\u06cc_\u062a\u0642\u0648\u06cc\u0645_\u0628\u0627\u0634\u06af\u0627\u0647_\u0647\u0627",
       "community": 12,
       "norm_label": "\u0647\u0645\u06af\u0627\u0645\u200c\u0633\u0627\u0632\u06cc \u062a\u0642\u0648\u06cc\u0645 \u0628\u0627\u0634\u06af\u0627\u0647\u200c\u0647\u0627"
+    },
+    {
+      "label": "CALENDAR-SYNC.md",
+      "file_type": "document",
+      "source_file": "docs/CALENDAR-SYNC.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "docs_calendar_sync",
+      "community": 38,
+      "norm_label": "calendar-sync.md"
+    },
+    {
+      "label": "Club calendar integration \u2014 2026-10-22",
+      "file_type": "document",
+      "source_file": "docs/CALENDAR-SYNC.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "docs_calendar_sync_club_calendar_integration_2026_10_22",
+      "community": 38,
+      "norm_label": "club calendar integration \u2014 2026-10-22"
+    },
+    {
+      "label": "Verified production setup",
+      "file_type": "document",
+      "source_file": "docs/CALENDAR-SYNC.md",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "docs_calendar_sync_verified_production_setup",
+      "community": 38,
+      "norm_label": "verified production setup"
+    },
+    {
+      "label": "Integrity and failure behavior",
+      "file_type": "document",
+      "source_file": "docs/CALENDAR-SYNC.md",
+      "source_location": "L14",
+      "_origin": "ast",
+      "id": "docs_calendar_sync_integrity_and_failure_behavior",
+      "community": 38,
+      "norm_label": "integrity and failure behavior"
+    },
+    {
+      "label": "Validation",
+      "file_type": "document",
+      "source_file": "docs/CALENDAR-SYNC.md",
+      "source_location": "L20",
+      "_origin": "ast",
+      "id": "docs_calendar_sync_validation",
+      "community": 38,
+      "norm_label": "validation"
+    },
+    {
+      "label": "Supabase advisory review",
+      "file_type": "document",
+      "source_file": "docs/CALENDAR-SYNC.md",
+      "source_location": "L28",
+      "_origin": "ast",
+      "id": "docs_calendar_sync_supabase_advisory_review",
+      "community": 38,
+      "norm_label": "supabase advisory review"
     },
     {
       "label": "DEPLOYMENT-20261022.md",
@@ -5914,6 +6214,26 @@
       "id": "docs_expansion_\u0628\u0631\u0646\u0627\u0645\u0647_\u0645\u0647\u0627\u062c\u0631\u062a_\u0648_\u0628\u0627\u0632\u06cc\u0627\u0628\u06cc",
       "community": 12,
       "norm_label": "\u0628\u0631\u0646\u0627\u0645\u0647 \u0645\u0647\u0627\u062c\u0631\u062a \u0648 \u0628\u0627\u0632\u06cc\u0627\u0628\u06cc"
+    },
+    {
+      "label": "JALALI-CALENDAR.md",
+      "file_type": "document",
+      "source_file": "docs/JALALI-CALENDAR.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "docs_jalali_calendar",
+      "community": 12,
+      "norm_label": "jalali-calendar.md"
+    },
+    {
+      "label": "Persian calendar and Tehran time",
+      "file_type": "document",
+      "source_file": "docs/JALALI-CALENDAR.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "docs_jalali_calendar_persian_calendar_and_tehran_time",
+      "community": 12,
+      "norm_label": "persian calendar and tehran time"
     },
     {
       "label": "OPERATIONS.md",
@@ -6054,6 +6374,36 @@
       "id": "docs_rallyyar_release_\u0631\u0627\u0644\u06cc_\u06cc\u0627\u0631_\u0627\u0635\u0644\u0627\u062d_\u0641\u0631\u0645_\u0648_\u06cc\u06a9\u067e\u0627\u0631\u0686\u06af\u06cc_\u0628\u0631\u0646\u062f",
       "community": 12,
       "norm_label": "\u0631\u0627\u0644\u06cc\u200c\u06cc\u0627\u0631\u061b \u0627\u0635\u0644\u0627\u062d \u0641\u0631\u0645 \u0648 \u06cc\u06a9\u067e\u0627\u0631\u0686\u06af\u06cc \u0628\u0631\u0646\u062f"
+    },
+    {
+      "label": "moment",
+      "file_type": "code",
+      "source_file": "src/lib/platform/format.ts",
+      "source_location": "L4",
+      "_origin": "ast",
+      "id": "platform_format_moment",
+      "community": 3,
+      "norm_label": "moment"
+    },
+    {
+      "label": "time",
+      "file_type": "code",
+      "source_file": "src/lib/platform/format.ts",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "platform_format_time",
+      "community": 3,
+      "norm_label": "time"
+    },
+    {
+      "label": "date",
+      "file_type": "code",
+      "source_file": "src/lib/utils.ts",
+      "source_location": "L7",
+      "_origin": "ast",
+      "id": "lib_utils_date",
+      "community": 0,
+      "norm_label": "date"
     },
     {
       "label": "Global Stylesheet",
@@ -6451,7 +6801,7 @@
     {
       "label": "ref_node_fs",
       "_origin": "semantic",
-      "community": 11,
+      "community": 0,
       "community_name": "domain.test.ts",
       "external": true,
       "file_type": "concept",
@@ -7258,6 +7608,17 @@
       "target": "components_shared_pageheader"
     },
     {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/(admin)/admin/clubs/page.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "src_app_admin_admin_clubs_page_tsx_clubs_page",
+      "target": "lib_date_time_formatpersianmoment",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -7430,6 +7791,39 @@
       "confidence_score": 1.0,
       "source": "src_app_admin_admin_events_page_tsx_events_page",
       "target": "events_page_manageevents"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/(admin)/admin/events/page.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "src_app_admin_admin_events_page_tsx_events_page",
+      "target": "lib_date_time",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/(admin)/admin/events/page.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "src_app_admin_admin_events_page_tsx_events_page",
+      "target": "lib_date_time_formatpersianmoment",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/(admin)/admin/events/page.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "src_app_admin_admin_events_page_tsx_events_page",
+      "target": "lib_date_time_tehrandatetime",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -7613,6 +8007,17 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "src/app/(admin)/admin/events/page.tsx",
+      "source_location": "L76",
+      "weight": 1.0,
+      "source": "events_page_manageevents",
+      "target": "lib_date_time_tehrandatetime"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/app/(admin)/admin/events/page.tsx",
       "source_location": "L18",
       "weight": 1.0,
       "source": "events_page_manageevents",
@@ -7732,6 +8137,17 @@
       "confidence_score": 1.0,
       "source": "integrations_page",
       "target": "lib_auth_requireadmin"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/(admin)/admin/integrations/page.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "integrations_page",
+      "target": "lib_date_time_formatpersianmoment",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -7963,6 +8379,17 @@
       "confidence_score": 1.0,
       "source": "operations_page",
       "target": "components_shared_pageheader"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/(admin)/admin/operations/page.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "operations_page",
+      "target": "lib_date_time_formatpersianmoment",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -8293,6 +8720,17 @@
       "target": "lib_data_gettournaments"
     },
     {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/(admin)/admin/page.tsx",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "admin_page",
+      "target": "lib_date_time_formatpersiandate",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -8607,6 +9045,17 @@
       "confidence_score": 1.0,
       "source": "src_app_admin_players_id_page_tsx_id_page",
       "target": "lib_data_gettournaments"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/(admin)/players/[id]/page.tsx",
+      "source_location": "L22",
+      "weight": 1.0,
+      "source": "src_app_admin_players_id_page_tsx_id_page",
+      "target": "lib_date_time_formatpersiandate",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -8992,6 +9441,17 @@
       "target": "lib_data_gettournament"
     },
     {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/(admin)/tournaments/[id]/page.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "src_app_admin_tournaments_id_page_tsx_id_page",
+      "target": "lib_date_time_formatpersiandate",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -9306,6 +9766,17 @@
       "confidence_score": 1.0,
       "source": "bookings_page",
       "target": "bookings_page_bookings"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/(member)/account/bookings/page.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "bookings_page",
+      "target": "lib_date_time_formatpersianmoment",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -9800,6 +10271,17 @@
       "target": "platform_data_requiremember"
     },
     {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/(member)/account/notifications/page.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "notifications_page",
+      "target": "lib_date_time_formatpersianmoment",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/app/(member)/account/notifications/page.tsx",
@@ -9895,6 +10377,17 @@
       "confidence_score": 1.0,
       "source": "account_page",
       "target": "account_page_account"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/(member)/account/page.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "account_page",
+      "target": "lib_date_time_formatpersianmoment",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -10051,6 +10544,17 @@
       "target": "app_payment_actions_retryverifypayment"
     },
     {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/(member)/account/payments/page.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "payments_page",
+      "target": "lib_date_time_formatpersianmoment",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/app/(member)/account/payments/page.tsx",
@@ -10202,6 +10706,17 @@
       "weight": 1.0,
       "source": "payments_page_payments",
       "target": "platform_data_requiremember"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/(member)/account/profile/page.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "profile_page",
+      "target": "lib_date_time_formatpersianmoment",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -10752,6 +11267,50 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/app/(public)/clubs/[slug]/book/page.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "book_page",
+      "target": "lib_date_time",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/(public)/clubs/[slug]/book/page.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "book_page",
+      "target": "lib_date_time_isgregoriandate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/(public)/clubs/[slug]/book/page.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "book_page",
+      "target": "lib_date_time_tehranlocaltoiso",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/(public)/clubs/[slug]/book/page.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "book_page",
+      "target": "lib_date_time_tehrantoday",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/(public)/clubs/[slug]/book/page.tsx",
       "source_location": "L6",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -10847,6 +11406,28 @@
       "target": "supabase_server_createclient"
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/(public)/clubs/[slug]/book/page.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "book_page",
+      "target": "ui_jalali_date_input",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/(public)/clubs/[slug]/book/page.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "book_page",
+      "target": "ui_jalali_date_input_jalalidateinput",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "INFERRED",
@@ -10878,6 +11459,39 @@
       "weight": 1.0,
       "source": "book_page_book",
       "target": "booking_providers_providerfor"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/app/(public)/clubs/[slug]/book/page.tsx",
+      "source_location": "L39",
+      "weight": 1.0,
+      "source": "book_page_book",
+      "target": "lib_date_time_isgregoriandate"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/app/(public)/clubs/[slug]/book/page.tsx",
+      "source_location": "L40",
+      "weight": 1.0,
+      "source": "book_page_book",
+      "target": "lib_date_time_tehranlocaltoiso"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/app/(public)/clubs/[slug]/book/page.tsx",
+      "source_location": "L39",
+      "weight": 1.0,
+      "source": "book_page_book",
+      "target": "lib_date_time_tehrantoday"
     },
     {
       "relation": "calls",
@@ -11259,6 +11873,17 @@
       "weight": 1.0,
       "source": "clubs_page_clubs",
       "target": "platform_data_catalog"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/(public)/events/[slug]/page.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "src_app_public_events_slug_page_tsx_slug_page",
+      "target": "lib_date_time_formatpersianmoment",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -12107,6 +12732,17 @@
       "target": "id_page_match"
     },
     {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/(public)/matches/[id]/page.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "src_app_public_matches_id_page_tsx_id_page",
+      "target": "lib_date_time_formatpersianmoment",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -12408,6 +13044,28 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/app/(public)/matches/page.tsx",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "matches_page",
+      "target": "lib_date_time",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/(public)/matches/page.tsx",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "matches_page",
+      "target": "lib_date_time_isgregoriandate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/(public)/matches/page.tsx",
       "source_location": "L8",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -12565,6 +13223,39 @@
       "confidence_score": 1.0,
       "source": "matches_page",
       "target": "ui_button_button"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/(public)/matches/page.tsx",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "matches_page",
+      "target": "ui_jalali_date_input",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/(public)/matches/page.tsx",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "matches_page",
+      "target": "ui_jalali_date_input_jalalidateinput",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/app/(public)/matches/page.tsx",
+      "source_location": "L34",
+      "weight": 1.0,
+      "source": "matches_page_matches",
+      "target": "lib_date_time_isgregoriandate"
     },
     {
       "relation": "calls",
@@ -13031,6 +13722,17 @@
       "confidence_score": 1.0,
       "source": "src_app_public_tournaments_id_results_page_tsx_results_page",
       "target": "lib_data_getpublicresults"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/(public)/tournaments/[id]/results/page.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "src_app_public_tournaments_id_results_page_tsx_results_page",
+      "target": "lib_date_time_formatpersiandate",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -14787,6 +15489,39 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/app/platform-actions.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "app_platform_actions",
+      "target": "lib_date_time",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/platform-actions.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "app_platform_actions",
+      "target": "lib_date_time_isgregoriandate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/platform-actions.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "app_platform_actions",
+      "target": "lib_date_time_tehranlocaltoiso",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/platform-actions.ts",
       "source_location": "L7",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -15089,6 +15824,17 @@
       "confidence_score": 1.0,
       "source": "app_platform_actions_platformaction",
       "target": "app_platform_actions_optionalid"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/platform-actions.ts",
+      "source_location": "L113",
+      "weight": 1.0,
+      "source": "app_platform_actions_iso",
+      "target": "lib_date_time_tehranlocaltoiso",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -15698,6 +16444,28 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/components/forms.tsx",
+      "source_location": "L17",
+      "weight": 1.0,
+      "source": "components_forms",
+      "target": "lib_date_time",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/forms.tsx",
+      "source_location": "L17",
+      "weight": 1.0,
+      "source": "components_forms",
+      "target": "lib_date_time_tehrantoday",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/forms.tsx",
       "source_location": "L24",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -15829,6 +16597,28 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/components/forms.tsx",
+      "source_location": "L16",
+      "weight": 1.0,
+      "source": "components_forms",
+      "target": "ui_jalali_date_input",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/forms.tsx",
+      "source_location": "L16",
+      "weight": 1.0,
+      "source": "components_forms",
+      "target": "ui_jalali_date_input_jalalidateinput",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/components/player-list.tsx",
       "source_location": "L5",
       "weight": 1.0,
@@ -15901,6 +16691,17 @@
       "confidence_score": 1.0,
       "source": "components_player_list",
       "target": "components_forms_deleteplayer"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/components/forms.tsx",
+      "source_location": "L316",
+      "weight": 1.0,
+      "source": "components_forms_createtournamentform",
+      "target": "lib_date_time_tehrantoday"
     },
     {
       "relation": "calls",
@@ -16099,6 +16900,17 @@
       "target": "platform_action_form_actionform"
     },
     {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/platform/booking-form.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "platform_booking_form",
+      "target": "lib_date_time_formatpersianmoment",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/components/platform/booking-form.tsx",
@@ -16271,6 +17083,17 @@
       "confidence_score": 1.0,
       "source": "platform_calendar_status_refresh",
       "target": "platform_calendar_status_refresh_calendarstatusrefresh"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/platform/cards.tsx",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "platform_cards",
+      "target": "lib_date_time_formatpersianmoment",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -16593,6 +17416,28 @@
       "confidence_score": 1.0,
       "source": "platform_fields",
       "target": "ui_input_input"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/platform/fields.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "platform_fields",
+      "target": "ui_jalali_date_input",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/platform/fields.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "platform_fields",
+      "target": "ui_jalali_date_input_jalalidateinput",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -16982,6 +17827,17 @@
       "confidence_score": 1.0,
       "source": "components_shared",
       "target": "components_shared_tournamentstandings"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/shared.tsx",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "components_shared",
+      "target": "lib_date_time_formatpersiandate",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -17681,6 +18537,28 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/components/ui/jalali-date-input.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "ui_jalali_date_input",
+      "target": "ui_dialog",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ui/jalali-date-input.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "ui_jalali_date_input",
+      "target": "ui_dialog_dialog",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/components/ui/input.tsx",
       "source_location": "L2",
       "weight": 1.0,
@@ -17718,6 +18596,213 @@
       "source_location": "L6",
       "weight": 1.0,
       "source": "ui_input_input",
+      "target": "lib_utils_cn"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ui/jalali-date-input.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "ui_jalali_date_input",
+      "target": "lib_date_time",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ui/jalali-date-input.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "ui_jalali_date_input",
+      "target": "lib_date_time_formatjalaliinput",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ui/jalali-date-input.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "ui_jalali_date_input",
+      "target": "lib_date_time_jalali_months",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ui/jalali-date-input.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "ui_jalali_date_input",
+      "target": "lib_date_time_jalalimonth",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ui/jalali-date-input.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "ui_jalali_date_input",
+      "target": "lib_date_time_jalaliparts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ui/jalali-date-input.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "ui_jalali_date_input",
+      "target": "lib_date_time_jalalitogregorian",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ui/jalali-date-input.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "ui_jalali_date_input",
+      "target": "lib_date_time_parsejalaliinput",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ui/jalali-date-input.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "ui_jalali_date_input",
+      "target": "lib_date_time_persiandigits",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ui/jalali-date-input.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "ui_jalali_date_input",
+      "target": "lib_date_time_tehrantoday",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ui/jalali-date-input.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "ui_jalali_date_input",
+      "target": "lib_utils",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ui/jalali-date-input.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "ui_jalali_date_input",
+      "target": "lib_utils_cn",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ui/jalali-date-input.tsx",
+      "source_location": "L33",
+      "weight": 1.0,
+      "source": "ui_jalali_date_input",
+      "target": "ui_jalali_date_input_jalalidateinput",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ui/jalali-date-input.tsx",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "ui_jalali_date_input",
+      "target": "ui_jalali_date_input_props",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/components/ui/jalali-date-input.tsx",
+      "source_location": "L53",
+      "weight": 1.0,
+      "source": "ui_jalali_date_input_jalalidateinput",
+      "target": "lib_date_time_formatjalaliinput"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/components/ui/jalali-date-input.tsx",
+      "source_location": "L71",
+      "weight": 1.0,
+      "source": "ui_jalali_date_input_jalalidateinput",
+      "target": "lib_date_time_jalalimonth"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/components/ui/jalali-date-input.tsx",
+      "source_location": "L72",
+      "weight": 1.0,
+      "source": "ui_jalali_date_input_jalalidateinput",
+      "target": "lib_date_time_jalalitogregorian"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/components/ui/jalali-date-input.tsx",
+      "source_location": "L60",
+      "weight": 1.0,
+      "source": "ui_jalali_date_input_jalalidateinput",
+      "target": "lib_date_time_parsejalaliinput"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/components/ui/jalali-date-input.tsx",
+      "source_location": "L238",
+      "weight": 1.0,
+      "source": "ui_jalali_date_input_jalalidateinput",
+      "target": "lib_date_time_persiandigits"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/components/ui/jalali-date-input.tsx",
+      "source_location": "L128",
+      "weight": 1.0,
+      "source": "ui_jalali_date_input_jalalidateinput",
       "target": "lib_utils_cn"
     },
     {
@@ -18609,6 +19694,635 @@
       "confidence_score": 1.0,
       "source": "lib_data_publicdb",
       "target": "supabase_server_createclient"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/browser/platform.spec.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "browser_platform_spec",
+      "target": "lib_date_time",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L38",
+      "weight": 1.0,
+      "source": "lib_date_time",
+      "target": "lib_date_time_asciidigits",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L135",
+      "weight": 1.0,
+      "source": "lib_date_time",
+      "target": "lib_date_time_formatjalaliinput",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L174",
+      "weight": 1.0,
+      "source": "lib_date_time",
+      "target": "lib_date_time_formatpersiandate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L180",
+      "weight": 1.0,
+      "source": "lib_date_time",
+      "target": "lib_date_time_formatpersianmoment",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L188",
+      "weight": 1.0,
+      "source": "lib_date_time",
+      "target": "lib_date_time_formattehrantime",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L27",
+      "weight": 1.0,
+      "source": "lib_date_time",
+      "target": "lib_date_time_gregorianparts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L51",
+      "weight": 1.0,
+      "source": "lib_date_time",
+      "target": "lib_date_time_instant",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L46",
+      "weight": 1.0,
+      "source": "lib_date_time",
+      "target": "lib_date_time_isgregoriandate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "lib_date_time",
+      "target": "lib_date_time_jalali_months",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L18",
+      "weight": 1.0,
+      "source": "lib_date_time",
+      "target": "lib_date_time_jalalidate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L97",
+      "weight": 1.0,
+      "source": "lib_date_time",
+      "target": "lib_date_time_jalalimonth",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L56",
+      "weight": 1.0,
+      "source": "lib_date_time",
+      "target": "lib_date_time_jalaliparts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L66",
+      "weight": 1.0,
+      "source": "lib_date_time",
+      "target": "lib_date_time_jalalitogregorian",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L45",
+      "weight": 1.0,
+      "source": "lib_date_time",
+      "target": "lib_date_time_pad",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L142",
+      "weight": 1.0,
+      "source": "lib_date_time",
+      "target": "lib_date_time_parsejalaliinput",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L43",
+      "weight": 1.0,
+      "source": "lib_date_time",
+      "target": "lib_date_time_persiandigits",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "lib_date_time",
+      "target": "lib_date_time_persianparts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L111",
+      "weight": 1.0,
+      "source": "lib_date_time",
+      "target": "lib_date_time_tehrandatetime",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L119",
+      "weight": 1.0,
+      "source": "lib_date_time",
+      "target": "lib_date_time_tehranlocaltoiso",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L117",
+      "weight": 1.0,
+      "source": "lib_date_time",
+      "target": "lib_date_time_tehrantoday",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "re_exports",
+      "context": "export",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/utils.ts",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "lib_utils",
+      "target": "lib_date_time",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/validation.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "lib_validation",
+      "target": "lib_date_time",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "re_exports",
+      "context": "export",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/platform/format.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "platform_format",
+      "target": "lib_date_time",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/date-time.test.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "tests_date_time_test",
+      "target": "lib_date_time",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L146",
+      "weight": 1.0,
+      "source": "lib_date_time_parsejalaliinput",
+      "target": "lib_date_time_asciidigits",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L138",
+      "weight": 1.0,
+      "source": "lib_date_time_formatjalaliinput",
+      "target": "lib_date_time_persiandigits",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L139",
+      "weight": 1.0,
+      "source": "lib_date_time_formatjalaliinput",
+      "target": "lib_date_time_pad",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L166",
+      "weight": 1.0,
+      "source": "lib_date_time_parsejalaliinput",
+      "target": "lib_date_time_pad",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L136",
+      "weight": 1.0,
+      "source": "lib_date_time_formatjalaliinput",
+      "target": "lib_date_time_isgregoriandate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L122",
+      "weight": 1.0,
+      "source": "lib_date_time_tehranlocaltoiso",
+      "target": "lib_date_time_isgregoriandate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/validation.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "lib_validation",
+      "target": "lib_date_time_isgregoriandate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/date-time.test.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "tests_date_time_test",
+      "target": "lib_date_time_isgregoriandate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L178",
+      "weight": 1.0,
+      "source": "lib_date_time_formatpersiandate",
+      "target": "lib_date_time_instant",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L186",
+      "weight": 1.0,
+      "source": "lib_date_time_formatpersianmoment",
+      "target": "lib_date_time_instant",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L194",
+      "weight": 1.0,
+      "source": "lib_date_time_formattehrantime",
+      "target": "lib_date_time_instant",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L58",
+      "weight": 1.0,
+      "source": "lib_date_time_jalaliparts",
+      "target": "lib_date_time_instant",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L137",
+      "weight": 1.0,
+      "source": "lib_date_time_formatjalaliinput",
+      "target": "lib_date_time_jalaliparts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L89",
+      "weight": 1.0,
+      "source": "lib_date_time_jalalitogregorian",
+      "target": "lib_date_time_jalaliparts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/date-time.test.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "tests_date_time_test",
+      "target": "lib_date_time_jalaliparts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L98",
+      "weight": 1.0,
+      "source": "lib_date_time_jalalimonth",
+      "target": "lib_date_time_jalalitogregorian",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L156",
+      "weight": 1.0,
+      "source": "lib_date_time_parsejalaliinput",
+      "target": "lib_date_time_jalalitogregorian",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/date-time.test.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "tests_date_time_test",
+      "target": "lib_date_time_jalalitogregorian",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/date-time.test.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "tests_date_time_test",
+      "target": "lib_date_time_jalalimonth",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/browser/platform.spec.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "browser_platform_spec",
+      "target": "lib_date_time_tehrandatetime",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L128",
+      "weight": 1.0,
+      "source": "lib_date_time_tehranlocaltoiso",
+      "target": "lib_date_time_tehrandatetime",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L118",
+      "weight": 1.0,
+      "source": "lib_date_time_tehrantoday",
+      "target": "lib_date_time_tehrandatetime",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/date-time.test.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "tests_date_time_test",
+      "target": "lib_date_time_tehrandatetime",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/date-time.test.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "tests_date_time_test",
+      "target": "lib_date_time_tehrantoday",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/date-time.ts",
+      "source_location": "L168",
+      "weight": 1.0,
+      "source": "lib_date_time_parsejalaliinput",
+      "target": "lib_date_time_tehranlocaltoiso",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/date-time.test.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "tests_date_time_test",
+      "target": "lib_date_time_tehranlocaltoiso",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/browser/platform.spec.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "browser_platform_spec",
+      "target": "lib_date_time_formatjalaliinput",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/date-time.test.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "tests_date_time_test",
+      "target": "lib_date_time_formatjalaliinput",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/date-time.test.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "tests_date_time_test",
+      "target": "lib_date_time_parsejalaliinput",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/utils.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "lib_utils",
+      "target": "lib_date_time_formatpersiandate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/platform/format.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "platform_format",
+      "target": "lib_date_time_formatpersianmoment",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/date-time.test.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "tests_date_time_test",
+      "target": "lib_date_time_formatpersianmoment",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/platform/format.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "platform_format",
+      "target": "lib_date_time_formattehrantime",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/date-time.test.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "tests_date_time_test",
+      "target": "lib_date_time_formattehrantime",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -21970,6 +23684,16 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
+      "source_location": "L151",
+      "weight": 1.0,
+      "source": "readme",
+      "target": "docs_jalali_calendar",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
       "source_location": "L58",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -22050,6 +23774,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
+      "source_location": "L149",
+      "weight": 1.0,
+      "source": "readme_\u0631\u0627\u0644\u06cc_\u06cc\u0627\u0631_\u067e\u0644\u062a\u0641\u0631\u0645_\u0641\u0627\u0631\u0633\u06cc_\u0631\u0632\u0631\u0648_\u0648_\u0647\u0645_\u0628\u0627\u0632\u06cc",
+      "target": "readme_\u062a\u0642\u0648\u06cc\u0645_\u0634\u0645\u0633\u06cc_\u0648_\u0632\u0645\u0627\u0646_\u062a\u0647\u0631\u0627\u0646",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
       "source_location": "L83",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -22119,6 +23853,56 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "docs/CALENDAR-SYNC.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "docs_calendar_sync",
+      "target": "docs_calendar_sync_club_calendar_integration_2026_10_22",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/CALENDAR-SYNC.md",
+      "source_location": "L14",
+      "weight": 1.0,
+      "source": "docs_calendar_sync_club_calendar_integration_2026_10_22",
+      "target": "docs_calendar_sync_integrity_and_failure_behavior",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/CALENDAR-SYNC.md",
+      "source_location": "L28",
+      "weight": 1.0,
+      "source": "docs_calendar_sync_club_calendar_integration_2026_10_22",
+      "target": "docs_calendar_sync_supabase_advisory_review",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/CALENDAR-SYNC.md",
+      "source_location": "L20",
+      "weight": 1.0,
+      "source": "docs_calendar_sync_club_calendar_integration_2026_10_22",
+      "target": "docs_calendar_sync_validation",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/CALENDAR-SYNC.md",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "docs_calendar_sync_club_calendar_integration_2026_10_22",
+      "target": "docs_calendar_sync_verified_production_setup",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "docs/DEPLOYMENT-20261022.md",
       "source_location": "L1",
       "weight": 1.0,
@@ -22165,6 +23949,16 @@
       "confidence_score": 1.0,
       "source": "docs_expansion_\u062a\u0648\u0633\u0639\u0647_\u067e\u062f\u0644_\u06a9\u0644\u0627\u0628_\u0645\u0645\u06cc\u0632\u06cc_\u0648_\u0637\u0631\u062d_\u0627\u0646\u062a\u0634\u0627\u0631",
       "target": "docs_expansion_\u0645\u0645\u06cc\u0632\u06cc_\u06f3\u06f0_\u0645\u0647\u0631_\u06f1\u06f4\u06f0\u06f5"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/JALALI-CALENDAR.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "docs_jalali_calendar",
+      "target": "docs_jalali_calendar_persian_calendar_and_tehran_time",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -22539,5 +24333,5 @@
       "source_file": "README.md"
     }
   ],
-  "built_at_commit": "58ff5e82a4988cea23982f02329718141818d6e8"
+  "built_at_commit": "a6373995437e162c177f885f777e7cdf31c2af9c"
 }

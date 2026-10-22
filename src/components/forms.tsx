@@ -13,6 +13,8 @@ import {
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { JalaliDateInput } from "@/components/ui/jalali-date-input";
+import { tehranToday } from "@/lib/date-time";
 import { Dialog } from "@/components/ui/dialog";
 import { PlayerAvatar } from "@/components/shared";
 import {
@@ -305,20 +307,13 @@ export function CreateTournamentForm({ players }: { players: Player[] }) {
             </label>
             <label className="text-sm">
               تاریخ برگزاری{" "}
-              <span className="text-xs text-muted-foreground">
-                (ورودی میلادی)
-              </span>
-              <Input
+              <span className="text-xs text-muted-foreground">(شمسی)</span>
+              <JalaliDateInput
                 name="date"
                 type="date"
                 className="mt-2"
                 required
-                defaultValue={new Intl.DateTimeFormat("en-CA", {
-                  timeZone: "Asia/Tehran",
-                  year: "numeric",
-                  month: "2-digit",
-                  day: "2-digit",
-                }).format(new Date())}
+                defaultValue={tehranToday()}
               />
             </label>
           </div>

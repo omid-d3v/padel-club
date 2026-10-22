@@ -383,13 +383,13 @@ export default async function ManageClubs({
                 <Field
                   name="starts_at"
                   type="datetime-local"
-                  label="شروع؛ ورودی میلادی / وقت تهران"
+                  label="شروع؛ شمسی / وقت تهران"
                   required
                 />
                 <Field
                   name="ends_at"
                   type="datetime-local"
-                  label="پایان؛ ورودی میلادی / وقت تهران"
+                  label="پایان؛ شمسی / وقت تهران"
                   required
                 />
                 <Field
@@ -467,7 +467,7 @@ export default async function ManageClubs({
                 <Field
                   type="date"
                   name="date"
-                  label="روز دلخواه؛ ورودی میلادی"
+                  label="روز دلخواه؛ شمسی"
                   required
                 />
               </ActionForm>

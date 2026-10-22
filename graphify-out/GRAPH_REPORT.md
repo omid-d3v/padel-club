@@ -1,16 +1,16 @@
 # Graph Report - padel-club  (2026-10-22)
 
 ## Corpus Check
-- 145 files · ~175,936 words
+- 151 files · ~179,325 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 632 nodes · 1491 edges · 38 communities (26 shown, 12 thin omitted)
-- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 58 edges (avg confidence: 0.81)
+- 667 nodes · 1625 edges · 40 communities (28 shown, 12 thin omitted)
+- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 59 edges (avg confidence: 0.81)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `58ff5e82`
+- Built from commit: `a6373995`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -40,9 +40,11 @@
 - [[_COMMUNITY_Community 22|Community 22]]
 - [[_COMMUNITY_Community 23|Community 23]]
 - [[_COMMUNITY_Community 24|Community 24]]
+- [[_COMMUNITY_Community 26|Community 26]]
 - [[_COMMUNITY_Community 27|Community 27]]
 - [[_COMMUNITY_Community 35|Community 35]]
 - [[_COMMUNITY_Community 37|Community 37]]
+- [[_COMMUNITY_Community 38|Community 38]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `requireMember()` - 27 edges
@@ -51,7 +53,7 @@
 4. `siteUrl()` - 22 edges
 5. `money()` - 21 edges
 6. `createClient()` - 21 edges
-7. `moment()` - 20 edges
+7. `moment` - 20 edges
 8. `requireAdmin` - 19 edges
 9. `ActionForm()` - 18 edges
 10. `Button()` - 18 edges
@@ -63,10 +65,10 @@
   AGENTS.md → README.md
 - `ManageClubs()` --calls--> `adminRows()`  [INFERRED]
   src/app/(admin)/admin/clubs/page.tsx → src/lib/platform/admin-data.ts
+- `ManageEvents()` --calls--> `tehranDateTime()`  [INFERRED]
+  src/app/(admin)/admin/events/page.tsx → src/lib/date-time.ts
 - `Profile()` --calls--> `NotFound()`  [INFERRED]
   src/app/(admin)/players/[id]/page.tsx → src/app/not-found.tsx
-- `AccountEvents()` --calls--> `ownRows()`  [INFERRED]
-  src/app/(member)/account/events/page.tsx → src/lib/platform/data.ts
 
 ## Import Cycles
 - None detected.
@@ -75,23 +77,23 @@
 - **Supabase Security and Integrity Model** — readme_supabase_backend, readme_admin_authorization, readme_row_level_security, readme_database_integrity_model, readme_optimistic_concurrency_control [EXTRACTED 1.00]
 - **Tournament Scoring and Ranking Model** — readme_tournament_lifecycle, readme_score_entry_rules, readme_ranking_rules, readme_leaderboard_rules [EXTRACTED 1.00]
 
-## Communities (38 total, 12 thin omitted)
+## Communities (40 total, 12 thin omitted)
 
 ### Community 0 - "Player Admin and Data"
-Cohesion: 0.08
-Nodes (60): Dashboard(), CreateTournamentForm(), DeletePlayer(), Pending(), PlayerForm(), Leaderboard(), PlayerList(), BackLink() (+52 more)
+Cohesion: 0.07
+Nodes (70): Dashboard(), CreateTournamentForm(), DeletePlayer(), Pending(), PlayerForm(), Leaderboard(), PlayerList(), BackLink() (+62 more)
 
 ### Community 1 - "Project Scripts and Linting"
 Cohesion: 0.04
 Nodes (47): author, dependencies, class-variance-authority, clsx, @fontsource/vazirmatn, lucide-react, next, @radix-ui/react-dialog (+39 more)
 
 ### Community 2 - "Tournament Domain and Tests"
-Cohesion: 0.10
-Nodes (32): AccountLayout(), metadata, AdminLayout(), metadata, changeStatus(), createTournament(), deleteMatch(), deletePlayer() (+24 more)
+Cohesion: 0.09
+Nodes (35): AccountLayout(), metadata, AdminLayout(), metadata, changeStatus(), createTournament(), deleteMatch(), deletePlayer() (+27 more)
 
 ### Community 3 - "Admin Actions and Validation"
-Cohesion: 0.09
-Nodes (45): Account(), updatePassword(), Bookings(), ManageClubs(), AccountEvents(), ManageEvents(), metadata, generateMetadata() (+37 more)
+Cohesion: 0.08
+Nodes (57): Account(), Bookings(), ManageClubs(), AccountEvents(), ManageEvents(), metadata, generateMetadata(), Match() (+49 more)
 
 ### Community 4 - "Round Winner Migration and Match Deletion"
 Cohesion: 0.20
@@ -111,19 +113,19 @@ Nodes (16): aliases, components, hooks, lib, ui, utils, iconLibrary, rsc (+8 mor
 
 ### Community 10 - "Runtime Dependencies"
 Cohesion: 0.10
-Nodes (25): Audit, AvailabilityRule, Booking, BookingItem, CalendarConnection, City, Club, Court (+17 more)
+Nodes (23): Audit, AvailabilityRule, Booking, BookingItem, CalendarConnection, City, MatchPreview, Notice (+15 more)
 
 ### Community 11 - "Development Dependencies"
-Cohesion: 0.09
-Nodes (29): errors, int(), iso(), optionalId(), platformAction(), PlatformResult, registerAccount(), upload() (+21 more)
+Cohesion: 0.18
+Nodes (19): errorResult(), errors, int(), iso(), optionalId(), platformAction(), PlatformResult, registerAccount() (+11 more)
 
 ### Community 12 - "Database Schema and RPC"
 Cohesion: 0.04
-Nodes (39): RallyYar | رالی‌یار, اجزا و حالات, اعتماد، دسترس‌پذیری و SEO, تایپوگرافی و شبکه, جایگاه و وعده, حرکت, دارایی‌های اصلی, ساختار صفحه (+31 more)
+Nodes (41): RallyYar | رالی‌یار, اجزا و حالات, اعتماد، دسترس‌پذیری و SEO, تایپوگرافی و شبکه, جایگاه و وعده, حرکت, دارایی‌های اصلی, ساختار صفحه (+33 more)
 
 ### Community 15 - "Loading Interface"
-Cohesion: 0.08
-Nodes (31): beginPayment(), retryVerifyPayment(), errorResult(), requestPasswordReset(), Book(), metadata, AuthorizedBridge, BookingProvider (+23 more)
+Cohesion: 0.10
+Nodes (25): beginPayment(), retryVerifyPayment(), AuthorizedBridge, BookingProvider, bookingSchema, configSchema, iso, ProviderBooking (+17 more)
 
 ### Community 16 - "Match Set Round Winners"
 Cohesion: 0.12
@@ -137,12 +139,20 @@ Nodes (11): admin, base64(), db, directory, names, player, queue, schedule (+3 m
 Cohesion: 0.27
 Nodes (10): approve(), db, finish(), participant(), paySeat(), query(), request(), role() (+2 more)
 
+### Community 26 - "Community 26"
+Cohesion: 0.16
+Nodes (26): Book(), metadata, providerConfigured(), providerFor(), asciiDigits(), formatJalaliInput(), formatTehranTime(), gregorianParts (+18 more)
+
 ### Community 37 - "Community 37"
 Cohesion: 0.09
-Nodes (36): metadata, NotFound(), robots(), sitemap(), Clubs(), Events(), metadata, metadata (+28 more)
+Nodes (26): metadata, NotFound(), robots(), sitemap(), Clubs(), Events(), metadata, metadata (+18 more)
+
+### Community 38 - "Community 38"
+Cohesion: 0.33
+Nodes (5): Club calendar integration — 2026-10-22, Integrity and failure behavior, Supabase advisory review, Validation, Verified production setup
 
 ## Knowledge Gaps
-- **200 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `config` (+195 more)
+- **211 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `config` (+206 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **12 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -150,11 +160,11 @@ Nodes (36): metadata, NotFound(), robots(), sitemap(), Clubs(), Events(), metada
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `post()` connect `Loading Interface` to `Round Winner Migration and Match Deletion`?**
-  _High betweenness centrality (0.036) - this node is a cross-community bridge._
+  _High betweenness centrality (0.035) - this node is a cross-community bridge._
 - **Why does `openCalendar()` connect `Round Winner Migration and Match Deletion` to `Loading Interface`?**
-  _High betweenness centrality (0.034) - this node is a cross-community bridge._
-- **Why does `createClient()` connect `Tournament Domain and Tests` to `Player Admin and Data`, `Admin Actions and Validation`, `Community 37`, `Development Dependencies`, `Loading Interface`?**
-  _High betweenness centrality (0.023) - this node is a cross-community bridge._
+  _High betweenness centrality (0.033) - this node is a cross-community bridge._
+- **Why does `createClient()` connect `Tournament Domain and Tests` to `Player Admin and Data`, `Admin Actions and Validation`, `Development Dependencies`, `Loading Interface`, `Community 26`?**
+  _High betweenness centrality (0.019) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `requireMember()` (e.g. with `ManageEvents()` and `Results()`) actually correct?**
   _`requireMember()` has 2 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 3 inferred relationships involving `number()` (e.g. with `Profile()` and `Event()`) actually correct?**
