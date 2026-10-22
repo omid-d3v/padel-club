@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { PanelTop, ArrowUpLeft } from "lucide-react";
 import { LoginForm } from "@/components/forms";
 import { configured } from "@/lib/supabase/server";
+import { safeNext } from "@/lib/platform/format";
 export const dynamic = "force-dynamic";
 export const metadata = {
   title: "ورود به رالی‌یار",
@@ -11,10 +12,10 @@ export const metadata = {
 export default async function Login({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; next?: string }>;
 }) {
   if (!configured()) redirect("/setup");
-  const { error } = await searchParams;
+  const { error, next } = await searchParams;
   return (
     <main id="main" className="grid min-h-screen lg:grid-cols-2">
       <div className="flex items-center justify-center p-6">
@@ -38,7 +39,7 @@ export default async function Login({
               حساب شما دسترسی مدیریت ندارد. با یک حساب ادمین وارد شوید.
             </p>
           )}
-          <LoginForm />
+          <LoginForm next={next ? safeNext(next) : undefined} />
           <div className="mt-5 flex justify-between text-sm">
             <Link href="/register" className="text-emerald-800 underline">
               هنوز حساب ندارم

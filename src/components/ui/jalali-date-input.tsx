@@ -3,6 +3,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import type { ComponentProps } from "react";
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import { Dialog } from "@/components/ui/dialog";
+import { DayStrip } from "@/components/ui/day-strip";
 import { cn } from "@/lib/utils";
 import {
   DAY_MS,
@@ -179,6 +180,18 @@ export function JalaliDateInput({
         title={withTime ? "انتخاب تاریخ و ساعت شمسی" : "انتخاب تاریخ شمسی"}
         description="روز دلخواه را در تقویم شمسی انتخاب کنید. تمام ساعت‌ها به وقت تهران هستند."
       >
+        <div className="mb-5 rounded-2xl bg-muted/60 p-3">
+          <p className="mb-3 text-xs font-bold text-emerald-900">
+            روزهای نزدیک
+          </p>
+          <DayStrip
+            start={tehranToday()}
+            today={tehranToday()}
+            selected={draftDate}
+            days={5}
+            onSelect={(date) => setDraft(jalaliParts(date))}
+          />
+        </div>
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -277,6 +290,32 @@ export function JalaliDateInput({
             );
           })}
         </div>
+        {withTime && (
+          <div className="mt-4">
+            <p className="mb-2 text-xs font-bold">انتخاب سریع ساعت تهران</p>
+            <div className="grid grid-cols-4 gap-2">
+              {[8, 10, 12, 14, 16, 18, 20, 22].map((hour) => {
+                const value = `${String(hour).padStart(2, "0")}:00`;
+                return (
+                  <button
+                    key={hour}
+                    type="button"
+                    aria-pressed={clock === value}
+                    onClick={() => setClock(value)}
+                    className={cn(
+                      "min-h-11 rounded-xl border text-sm tabular-nums",
+                      clock === value
+                        ? "border-emerald-900 bg-emerald-900 text-white"
+                        : "border-border bg-white",
+                    )}
+                  >
+                    {value.replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[Number(d)])}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
         {withTime && (
           <fieldset className="mt-4 flex items-center gap-3 rounded-xl bg-muted p-3">
             <legend className="text-xs">ساعت تهران</legend>

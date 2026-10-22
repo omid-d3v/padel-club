@@ -71,7 +71,8 @@ test("member profile → real SQL booking → admin hold → no fake payment wit
   ).toBeVisible();
   await page.goto(`/clubs/browser-test-club/book?court=${uuid(702)}`);
   const slot = uuid(test.info().project.name === "mobile" ? 721 : 720);
-  await page.getByRole("combobox", { name: "تاریخ و ساعت" }).selectOption(slot);
+  await page.getByRole("button", { name: "رفتن به نخستین روز آزاد" }).click();
+  await page.locator(`[data-slot-id="${slot}"]`).click();
   await page.getByRole("checkbox").check();
   await page
     .getByRole("button", { name: "ارسال درخواست رزرو", exact: true })
