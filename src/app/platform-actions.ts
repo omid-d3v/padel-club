@@ -21,6 +21,11 @@ export type PlatformResult = {
   redirect?: string;
 };
 const errors: Record<string, string> = {
+  INVALID_DISCOUNT:
+    "کد تخفیف معتبر نیست، منقضی شده یا ظرفیت استفاده آن تمام شده است.",
+  REASON_REQUIRED: "دلیل معافیت را وارد کنید.",
+  NOT_PAYABLE:
+    "ابتدا نگه‌داشت معتبر باشگاه باید ثبت شود و مهلت رزرو باقی مانده باشد.",
   INVALID_DATE:
     "تاریخ یا ساعت معتبر نیست؛ تاریخ شمسی و ساعت تهران را بررسی کنید.",
   CALENDAR_STALE:
@@ -43,7 +48,6 @@ const errors: Record<string, string> = {
   SKILL_MISMATCH: "سطح پروفایل با محدوده این بازی سازگار نیست.",
   HOLD_EXPIRED: "اعتبار نگه‌داشت باشگاه تمام شده است.",
   PAYMENT_EXPIRED: "مهلت پرداخت تمام شده است.",
-  NOT_PAYABLE: "این سفارش هنوز آماده پرداخت نیست.",
   EVENT_FULL: "ظرفیت رویداد تکمیل شده است.",
   EVENT_CLOSED: "ثبت‌نام رویداد بسته است.",
   EVENT_COURTS_UNSECURED: "دو زمین رویداد هنوز تأیید نشده‌اند.",
@@ -157,6 +161,34 @@ export async function platformAction(
         .parse(JSON.parse(raw));
     };
     switch (operation) {
+      case "discount":
+        out = await db.rpc("apply_booking_benefit", {
+          p_participant: id(form.get("participant_id")),
+          p_code: str(form, "code", 3, 40).toUpperCase(),
+        });
+        break;
+      case "admin:waive":
+        out = await db.rpc("apply_booking_benefit", {
+          p_participant: id(form.get("participant_id")),
+          p_reason: str(form, "reason", 3, 500),
+        });
+        break;
+      case "admin:discount":
+        out = await db.from("discount_codes").upsert({
+          ...(optionalId(form, "id") ? { id: id(form.get("id")) } : {}),
+          code: z
+            .string()
+            .regex(/^[A-Z0-9_-]{3,40}$/)
+            .parse(str(form, "code", 3, 40).toUpperCase()),
+          kind: z.enum(["percent", "fixed"]).parse(form.get("kind")),
+          value:
+            int(form, "value", 1, 100000000) *
+            (form.get("kind") === "fixed" ? 10 : 1),
+          max_uses: int(form, "max_uses", 1, 100000),
+          expires_at: iso(form, "expires_at"),
+          active: bool(form, "active"),
+        });
+        break;
       case "admin:calendar-configure":
         out = await db.rpc("configure_calendar", {
           p_id: id(form.get("connection_id")),
@@ -323,6 +355,16 @@ export async function platformAction(
       }
       case "admin:court":
         out = await db.from("courts").upsert({
+          sport: z
+            .enum([
+              "padel",
+              "tennis",
+              "beach_tennis",
+              "squash",
+              "badminton",
+              "other",
+            ])
+            .parse(form.get("sport") ?? "padel"),
           ...(optionalId(form, "id") ? { id: id(form.get("id")) } : {}),
           club_id: id(form.get("club_id")),
           name: str(form, "name", 2, 100),

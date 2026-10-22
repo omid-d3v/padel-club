@@ -83,6 +83,10 @@ test("member profile → real SQL booking → admin hold → no fake payment wit
     .filter({ hasText: "در انتظار تأیید باشگاه" })
     .last();
   await expect(article).toBeVisible();
+  const countdown = article.getByRole("timer");
+  await expect(countdown).toBeVisible();
+  const firstTick = await countdown.innerText();
+  await expect.poll(() => countdown.innerText()).not.toBe(firstTick);
   const bookingId = await article
     .locator('input[name="booking_id"]')
     .getAttribute("value");
@@ -122,10 +126,75 @@ test("member profile → real SQL booking → admin hold → no fake payment wit
   // specific approval card to disappear before reloading the player's receipt.
   await expect(card).toHaveCount(0);
   await page.reload();
+  const receipt = page
+    .locator("article")
+    .filter({
+      has: page.locator(`input[name="booking_id"][value="${bookingId}"]`),
+    });
   await expect(
     page.getByRole("button", { name: "پرداخت در زرین‌پال" }).first(),
   ).toBeDisabled();
-  await expect(page.getByText("رزرو قطعی", { exact: true })).toHaveCount(0);
+  await expect(receipt.getByText("رزرو قطعی", { exact: true })).toHaveCount(0);
+  const code = `BROWSER_${test.info().project.name.toUpperCase()}`;
+  const discountForm = admin.locator("form").filter({
+    has: admin.getByRole("button", { name: "ساخت کد تخفیف", exact: true }),
+  });
+  await discountForm.getByRole("textbox", { name: "کد انگلیسی" }).fill(code);
+  await discountForm
+    .getByRole("combobox", { name: "نوع تخفیف" })
+    .selectOption("percent");
+  await discountForm.getByLabel("مقدار (درصد یا تومان)").fill("25");
+  await discountForm.getByLabel("سقف کل استفاده؛ هر حساب یک بار").fill("10");
+  await discountForm
+    .getByRole("textbox", { name: "تاریخ انقضا؛ تهران" })
+    .fill(
+      formatJalaliInput(tehranDateTime(new Date(Date.now() + 86400000)), true),
+    );
+  await discountForm
+    .getByRole("button", { name: "ساخت کد تخفیف", exact: true })
+    .click();
+  await expect(
+    admin.locator("summary").filter({ hasText: code }),
+  ).toBeVisible();
+  const coupon = page
+    .locator("form")
+    .filter({
+      has: page.getByRole("button", { name: "اعمال کد تخفیف", exact: true }),
+    })
+    .last();
+  const participantId = await coupon
+    .locator('input[name="participant_id"]')
+    .inputValue();
+  await coupon.getByRole("textbox").fill(code);
+  await coupon
+    .getByRole("button", { name: "اعمال کد تخفیف", exact: true })
+    .click();
+  await expect(
+    page.getByText(`کد تخفیف: ${code}`, { exact: false }),
+  ).toBeVisible();
+  await admin.reload();
+  const waiver = admin.locator("form").filter({
+    has: admin.locator(
+      `input[name="participant_id"][value="${participantId}"]`,
+    ),
+  });
+  await waiver
+    .getByRole("textbox", { name: "دلیل معافیت" })
+    .fill("هدیه آزمون بدون پرداخت بانکی");
+  await waiver
+    .getByRole("button", {
+      name: "صفر کردن مبلغ و تسویه بدون پرداخت",
+      exact: true,
+    })
+    .click();
+  await admin
+    .getByRole("button", { name: "تأیید و ادامه", exact: true })
+    .click();
+  await expect(waiver).toHaveCount(0);
+  await page.reload();
+  await expect(
+    receipt.getByText("تسویه بدون پرداخت", { exact: true }),
+  ).toBeVisible();
   await context.close();
 });
 test("private routes and worker remain unauthorized; public filters remain crawlable", async ({

@@ -1,4 +1,10 @@
 import Link from "next/link";
+import Image from "next/image";
+import {
+  SportIcon,
+  EquipmentIcon,
+  SPORTS,
+} from "@/components/platform/sport-icon";
 import { notFound } from "next/navigation";
 import { catalog } from "@/lib/platform/data";
 import { seo, jsonLd, siteUrl } from "@/lib/seo";
@@ -12,13 +18,26 @@ export async function generateMetadata({
   const { slug } = await params;
   const d = await catalog();
   const club = d.clubs.find((c) => c.slug === slug);
-  return club
-    ? seo(
-        `${club.name} | رزرو زمین پدل`,
-        `${club.name} در ${d.cities.find((c) => c.id === club.city_id)?.name ?? "شهر شما"}؛ ${club.description.slice(0, 120)}`,
-        `/clubs/${club.slug}`,
-      )
-    : { title: "باشگاه پیدا نشد", robots: { index: false } };
+  if (!club) return { title: "باشگاه پیدا نشد", robots: { index: false } };
+  const metadata = seo(
+    `${club.name} | رزرو زمین پدل`,
+    `${club.name} در ${d.cities.find((c) => c.id === club.city_id)?.name ?? "شهر شما"}؛ ${club.description.slice(0, 120)}`,
+    `/clubs/${club.slug}`,
+  );
+  const photo =
+    club.photo_path && process.env.NEXT_PUBLIC_SUPABASE_URL
+      ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/club-images/${club.photo_path}`
+      : null;
+  return photo
+    ? {
+        ...metadata,
+        openGraph: {
+          ...metadata.openGraph,
+          images: [{ url: photo, alt: club.name }],
+        },
+        twitter: { ...metadata.twitter, images: [photo] },
+      }
+    : metadata;
 }
 export default async function Club({
   params,
@@ -30,10 +49,15 @@ export default async function Club({
   const c = d.clubs.find((c) => c.slug === slug);
   if (!c) notFound();
   const city = d.cities.find((x) => x.id === c.city_id);
+  const photo =
+    c.photo_path && process.env.NEXT_PUBLIC_SUPABASE_URL
+      ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/club-images/${c.photo_path}`
+      : null;
   const schema = {
     "@context": "https://schema.org",
     "@type": "SportsActivityLocation",
     name: c.name,
+    ...(photo ? { image: photo } : {}),
     description: c.description,
     address: {
       "@type": "PostalAddress",
@@ -90,6 +114,18 @@ export default async function Club({
         }}
       />
       <h1>{c.name}</h1>
+      {photo && (
+        <div className="relative mb-6 aspect-[16/7] overflow-hidden rounded-3xl">
+          <Image
+            src={photo}
+            alt={`فضای باشگاه ${c.name} در ${city?.name ?? ""}`}
+            fill
+            sizes="(max-width: 768px) 100vw, 1100px"
+            priority
+            className="object-cover"
+          />
+        </div>
+      )}
       <p className="intro">{c.description}</p>
       <div className="content-grid">
         <div className="space-y-6">
@@ -100,6 +136,11 @@ export default async function Club({
               .map((court) => (
                 <div key={court.id} className="booking-row">
                   <div>
+                    <SportIcon sport={court.sport} />
+                    <span className="text-xs text-emerald-800">
+                      {SPORTS.find((s) => s.id === court.sport)?.name ??
+                        "ورزش راکتی"}
+                    </span>
                     <b>{court.name}</b>
                     <p>
                       {court.indoor ? "سرپوشیده" : "روباز"} ·{" "}
@@ -138,6 +179,7 @@ export default async function Club({
                   key={e.id}
                 >
                   <span>
+                    <EquipmentIcon name={e.name} />
                     {e.name} · {e.kind === "shared" ? "مشترک" : "شخصی"}
                   </span>
                   <span>{e.price ? money(e.price) : "رایگان"}</span>
@@ -148,6 +190,25 @@ export default async function Club({
         <aside className="platform-card sticky-card">
           <h2>قبل از رفتن به زمین</h2>
           <p className="text-sm">{c.address}</p>
+          {(c.latitude === null || c.longitude === null) && (
+            <a
+              href={`https://www.openstreetmap.org/search?query=${encodeURIComponent(`${c.name} ${c.address}`)}`}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-3 block text-sm underline"
+            >
+              جست‌وجوی آدرس روی نقشه
+            </a>
+          )}
+          {c.latitude !== null && c.longitude !== null && (
+            <iframe
+              title={`نقشه ${c.name}`}
+              loading="lazy"
+              referrerPolicy="no-referrer"
+              className="mt-4 h-64 w-full rounded-2xl border border-border"
+              src={`https://www.openstreetmap.org/export/embed.html?bbox=${c.longitude - 0.008},${c.latitude - 0.006},${c.longitude + 0.008},${c.latitude + 0.006}&layer=mapnik&marker=${c.latitude},${c.longitude}`}
+            />
+          )}
           {c.latitude !== null && c.longitude !== null && (
             <a
               className="my-4 block text-sm text-emerald-800 underline"

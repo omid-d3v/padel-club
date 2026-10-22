@@ -3,6 +3,7 @@ import { useState } from "react";
 import type { Equipment } from "@/lib/platform/types";
 import { money } from "@/lib/platform/format";
 import { ActionForm } from "./action-form";
+import { EquipmentIcon } from "./sport-icon";
 export function JoinForm({
   matchId,
   equipment,
@@ -38,6 +39,7 @@ export function JoinForm({
           </legend>
           {equipment.map((e) => (
             <label key={e.id} className="field">
+              <EquipmentIcon name={e.name} />
               {e.name} · {money(e.price)}
               <input
                 type="number"

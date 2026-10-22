@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Countdown } from "@/components/platform/countdown";
 import { ownRows, requireMember } from "@/lib/platform/data";
 import {
   money,
@@ -13,6 +14,7 @@ import { paymentConfigured } from "@/lib/payments/zarinpal";
 import { PublicEmpty } from "@/components/platform/cards";
 export default async function Bookings() {
   const now = await requestTime();
+  const benefits = await ownRows("booking_benefits");
   const [m, participants] = await Promise.all([
     requireMember(),
     ownRows("booking_participants"),
@@ -71,7 +73,14 @@ export default async function Bookings() {
                       {bookingLabels[b.status]}
                     </span>
                     <span className="ms-2 status-pill">
-                      {bookingLabels[p.status]}
+                      {p.status === "paid" &&
+                      p.court_share +
+                        p.shared_share +
+                        p.personal_price +
+                        p.fee ===
+                        0
+                        ? "تسویه بدون پرداخت"
+                        : bookingLabels[p.status]}
                     </span>
                   </div>
                 </div>
@@ -106,6 +115,53 @@ export default async function Bookings() {
                     </div>
                   </div>
                   <div className="space-y-4 text-sm">
+                    {b.status === "pending_club" && (
+                      <Countdown
+                        now={now}
+                        deadline={b.request_expires_at}
+                        label="زمان باقی‌مانده برای پاسخ باشگاه"
+                      />
+                    )}
+                    {p.status === "reserved" && p.lock_expires_at && (
+                      <Countdown
+                        now={now}
+                        deadline={new Date(
+                          Math.min(
+                            Date.parse(p.lock_expires_at),
+                            b.hold_expires_at
+                              ? Date.parse(b.hold_expires_at)
+                              : Infinity,
+                          ),
+                        ).toISOString()}
+                        label="زمان باقی‌مانده برای تکمیل پرداخت"
+                      />
+                    )}
+                    {benefits
+                      .filter((x) => x.participant_id === p.id)
+                      .map((x) => (
+                        <p
+                          key={x.id}
+                          className="rounded-xl bg-emerald-50 p-3 text-emerald-900"
+                        >
+                          تخفیف / معافیت: {money(x.discount)} · {x.reason}
+                        </p>
+                      ))}
+                    {p.status === "reserved" &&
+                      !benefits.some((x) => x.participant_id === p.id) && (
+                        <ActionForm operation="discount" label="اعمال کد تخفیف">
+                          <input
+                            type="hidden"
+                            name="participant_id"
+                            value={p.id}
+                          />
+                          <Field
+                            name="code"
+                            label="کد تخفیف"
+                            required
+                            minLength={3}
+                          />
+                        </ActionForm>
+                      )}
                     {locations
                       ?.filter((l) => l.booking_id === b.id)
                       .map((l) => (

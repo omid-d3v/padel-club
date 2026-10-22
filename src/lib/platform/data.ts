@@ -87,7 +87,8 @@ export async function ownRows<
     | "payments"
     | "event_registrations"
     | "notifications"
-    | "rating_history",
+    | "rating_history"
+    | "booking_benefits",
 >(table: K) {
   const m = await requireMember();
   const { data, error } = await m.db

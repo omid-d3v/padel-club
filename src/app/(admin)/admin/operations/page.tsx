@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Countdown } from "@/components/platform/countdown";
 import { adminRows } from "@/lib/platform/admin-data";
 import { PageHeader } from "@/components/shared";
 import { ActionForm } from "@/components/platform/action-form";
@@ -8,6 +9,10 @@ import { retryVerifyPayment } from "@/app/payment-actions";
 import { number } from "@/lib/utils";
 export default async function Operations() {
   const now = await requestTime();
+  const [participants, codes] = await Promise.all([
+    adminRows("booking_participants"),
+    adminRows("discount_codes"),
+  ]);
   const [
     bookings,
     slots,
@@ -48,6 +53,127 @@ export default async function Operations() {
         title="اتاق عملیات باشگاه"
         description="رزرو، نگه‌داشت، پرداخت و استرداد را مستقل بررسی کنید."
       />
+      <section className="platform-card mb-6">
+        <h2>کدهای تخفیف</h2>
+        <ActionForm
+          operation="admin:discount"
+          label="ساخت کد تخفیف"
+          className="grid gap-4 md:grid-cols-3"
+        >
+          <Field label="کد انگلیسی" name="code" required minLength={3} />
+          <SelectField
+            label="نوع تخفیف"
+            name="kind"
+            options={[
+              { id: "percent", name: "درصدی" },
+              { id: "fixed", name: "مبلغ ثابت؛ تومان" },
+            ]}
+          />
+          <Field
+            label="مقدار (درصد یا تومان)"
+            name="value"
+            type="number"
+            min={1}
+            required
+          />
+          <Field
+            label="سقف کل استفاده؛ هر حساب یک بار"
+            name="max_uses"
+            type="number"
+            min={1}
+            required
+          />
+          <Field
+            label="تاریخ انقضا؛ تهران"
+            name="expires_at"
+            type="datetime-local"
+            required
+          />
+          <CheckField name="active" label="فعال" checked />
+        </ActionForm>
+        <div className="mt-4 space-y-2">
+          {codes.map((c) => (
+            <details key={c.id}>
+              <summary>
+                {c.code} · {c.active ? "فعال" : "غیرفعال"} ·{" "}
+                {moment(c.expires_at)}
+              </summary>
+              <ActionForm operation="admin:discount" label="به‌روزرسانی کد">
+                <input type="hidden" name="id" value={c.id} />
+                <input type="hidden" name="code" value={c.code} />
+                <input type="hidden" name="kind" value={c.kind} />
+                <input
+                  type="hidden"
+                  name="value"
+                  value={c.kind === "fixed" ? c.value / 10 : c.value}
+                />
+                <input type="hidden" name="max_uses" value={c.max_uses} />
+                <Field
+                  name="expires_at"
+                  type="datetime-local"
+                  label="انقضای جدید"
+                  required
+                />
+                <CheckField
+                  name="active"
+                  label="فعال بماند"
+                  checked={c.active}
+                />
+              </ActionForm>
+            </details>
+          ))}
+        </div>
+      </section>
+      <section className="platform-card mb-6">
+        <h2>رزرو بدون پرداخت؛ معافیت سهم بازیکن</h2>
+        <p className="mb-4 text-sm">
+          فقط پس از نگه‌داشت واقعی باشگاه. معافیت با دلیل ثبت می‌شود و تراکنش
+          بانکی ساختگی ایجاد نمی‌کند؛ بازی باز پس از تسویه چهار سهم قطعی می‌شود.
+        </p>
+        {participants
+          .filter(
+            (p) =>
+              p.status === "reserved" &&
+              bookings.some(
+                (b) =>
+                  b.id === p.booking_id &&
+                  ["awaiting_payment", "collecting"].includes(b.status),
+              ),
+          )
+          .map((p) => (
+            <div
+              className="my-4 rounded-xl border border-border p-4"
+              key={p.id}
+            >
+              <p>
+                {names(p.user_id)} ·{" "}
+                {money(
+                  p.court_share + p.shared_share + p.personal_price + p.fee,
+                )}
+              </p>
+              {p.lock_expires_at && (
+                <Countdown
+                  now={now}
+                  deadline={p.lock_expires_at}
+                  label="مهلت این جایگاه"
+                />
+              )}
+              <ActionForm
+                operation="admin:waive"
+                label="صفر کردن مبلغ و تسویه بدون پرداخت"
+                confirm="تمام مبلغ این سهم معاف و در گزارش مالی ثبت می‌شود. تأیید می‌کنید؟"
+              >
+                <input type="hidden" name="participant_id" value={p.id} />
+                <Field
+                  name="reason"
+                  label="دلیل معافیت"
+                  required
+                  minLength={3}
+                />
+              </ActionForm>
+            </div>
+          ))}
+      </section>
       <div className="mb-8 grid grid-cols-2 gap-4 xl:grid-cols-4">
         {[
           ["در انتظار باشگاه", pending.length],

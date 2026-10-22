@@ -1,16 +1,16 @@
 # Graph Report - padel-club  (2026-10-22)
 
 ## Corpus Check
-- 155 files · ~180,840 words
+- 159 files · ~183,960 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 675 nodes · 1663 edges · 42 communities (29 shown, 13 thin omitted)
-- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 59 edges (avg confidence: 0.81)
+- 685 nodes · 1687 edges · 48 communities (34 shown, 14 thin omitted)
+- Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 59 edges (avg confidence: 0.81)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `dea6e38d`
+- Built from commit: `e5136fad`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -46,6 +46,12 @@
 - [[_COMMUNITY_Community 37|Community 37]]
 - [[_COMMUNITY_Community 38|Community 38]]
 - [[_COMMUNITY_Community 41|Community 41]]
+- [[_COMMUNITY_Community 42|Community 42]]
+- [[_COMMUNITY_Community 43|Community 43]]
+- [[_COMMUNITY_Community 44|Community 44]]
+- [[_COMMUNITY_Community 45|Community 45]]
+- [[_COMMUNITY_Community 46|Community 46]]
+- [[_COMMUNITY_Community 47|Community 47]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `requireMember()` - 27 edges
@@ -78,23 +84,23 @@
 - **Supabase Security and Integrity Model** — readme_supabase_backend, readme_admin_authorization, readme_row_level_security, readme_database_integrity_model, readme_optimistic_concurrency_control [EXTRACTED 1.00]
 - **Tournament Scoring and Ranking Model** — readme_tournament_lifecycle, readme_score_entry_rules, readme_ranking_rules, readme_leaderboard_rules [EXTRACTED 1.00]
 
-## Communities (42 total, 13 thin omitted)
+## Communities (48 total, 14 thin omitted)
 
 ### Community 0 - "Player Admin and Data"
-Cohesion: 0.08
-Nodes (62): Dashboard(), CreateTournamentForm(), DeletePlayer(), Pending(), PlayerForm(), Leaderboard(), PlayerList(), BackLink() (+54 more)
+Cohesion: 0.09
+Nodes (55): Dashboard(), DeletePlayer(), PlayerForm(), Leaderboard(), PlayerList(), BackLink(), EmptyState(), LeaderboardTable() (+47 more)
 
 ### Community 1 - "Project Scripts and Linting"
 Cohesion: 0.04
 Nodes (47): author, dependencies, class-variance-authority, clsx, @fontsource/vazirmatn, lucide-react, next, @radix-ui/react-dialog (+39 more)
 
 ### Community 2 - "Tournament Domain and Tests"
-Cohesion: 0.11
-Nodes (31): AccountLayout(), metadata, AdminLayout(), metadata, changeStatus(), createTournament(), deleteMatch(), deletePlayer() (+23 more)
+Cohesion: 0.14
+Nodes (22): AccountLayout(), metadata, AdminLayout(), metadata, changeStatus(), createTournament(), deleteMatch(), deletePlayer() (+14 more)
 
 ### Community 3 - "Admin Actions and Validation"
 Cohesion: 0.09
-Nodes (48): Account(), Bookings(), ManageClubs(), AccountEvents(), ManageEvents(), metadata, generateMetadata(), Match() (+40 more)
+Nodes (46): Account(), Bookings(), ManageClubs(), AccountEvents(), ManageEvents(), metadata, generateMetadata(), Match() (+38 more)
 
 ### Community 4 - "Round Winner Migration and Match Deletion"
 Cohesion: 0.20
@@ -114,19 +120,19 @@ Nodes (16): aliases, components, hooks, lib, ui, utils, iconLibrary, rsc (+8 mor
 
 ### Community 10 - "Runtime Dependencies"
 Cohesion: 0.10
-Nodes (24): Audit, AvailabilityRule, Booking, BookingItem, CalendarConnection, Club, Court, MatchPreview (+16 more)
+Nodes (25): Audit, AvailabilityRule, Booking, BookingItem, CalendarConnection, City, Club, Court (+17 more)
 
 ### Community 11 - "Development Dependencies"
 Cohesion: 0.10
-Nodes (30): errorResult(), errors, int(), iso(), optionalId(), platformAction(), registerAccount(), requestPasswordReset() (+22 more)
+Nodes (31): errorResult(), errors, int(), iso(), optionalId(), platformAction(), PlatformResult, registerAccount() (+23 more)
 
 ### Community 12 - "Database Schema and RPC"
-Cohesion: 0.04
-Nodes (41): RallyYar | رالی‌یار, اجزا و حالات, اعتماد، دسترس‌پذیری و SEO, تایپوگرافی و شبکه, جایگاه و وعده, حرکت, دارایی‌های اصلی, ساختار صفحه (+33 more)
+Cohesion: 0.14
+Nodes (14): SQL موردنیاز Supabase, اجرای پروژه, انتشار و حدود عملیاتی, تخفیف، رزرو رایگان و معرفی باشگاه, تست, تقویم شمسی و زمان تهران, رالی‌یار — پلتفرم فارسی رزرو و هم‌بازی, ساختار و مسیرها (+6 more)
 
 ### Community 15 - "Loading Interface"
 Cohesion: 0.09
-Nodes (26): beginPayment(), retryVerifyPayment(), PlatformResult, AuthorizedBridge, BookingProvider, bookingSchema, configSchema, iso (+18 more)
+Nodes (27): beginPayment(), retryVerifyPayment(), AuthorizedBridge, BookingProvider, bookingSchema, configSchema, iso, ProviderBooking (+19 more)
 
 ### Community 16 - "Match Set Round Winners"
 Cohesion: 0.12
@@ -141,21 +147,41 @@ Cohesion: 0.27
 Nodes (10): approve(), db, finish(), participant(), paySeat(), query(), request(), role() (+2 more)
 
 ### Community 26 - "Community 26"
-Cohesion: 0.15
-Nodes (31): Book(), metadata, providerConfigured(), providerFor(), asciiDigits(), formatJalaliInput(), formatPersianDate(), formatTehranTime() (+23 more)
+Cohesion: 0.13
+Nodes (32): Book(), metadata, CreateTournamentForm(), Pending(), PlayerAvatar(), asciiDigits(), formatJalaliInput(), formatTehranTime() (+24 more)
 
 ### Community 37 - "Community 37"
-Cohesion: 0.09
-Nodes (32): metadata, NotFound(), robots(), sitemap(), Clubs(), Events(), metadata, metadata (+24 more)
+Cohesion: 0.06
+Nodes (50): metadata, NotFound(), robots(), sitemap(), Clubs(), LoginForm(), GET(), Events() (+42 more)
 
 ### Community 38 - "Community 38"
 Cohesion: 0.33
 Nodes (5): Club calendar integration — 2026-10-22, Integrity and failure behavior, Supabase advisory review, Validation, Verified production setup
 
+### Community 43 - "Community 43"
+Cohesion: 0.18
+Nodes (11): RallyYar | رالی‌یار, اجزا و حالات, اعتماد، دسترس‌پذیری و SEO, تایپوگرافی و شبکه, جایگاه و وعده, حرکت, دارایی‌های اصلی, ساختار صفحه (+3 more)
+
+### Community 44 - "Community 44"
+Cohesion: 0.22
+Nodes (3): انتشار ۳۰ مهر ۱۴۰۵, Persian calendar and Tehran time, رالی‌یار؛ اصلاح فرم و یکپارچگی برند
+
+### Community 45 - "Community 45"
+Cohesion: 0.29
+Nodes (7): اجرای jobها, احراز هویت و تصاویر, راهنمای انتشار و عملیات, فعال‌سازی زرین‌پال, قرارداد اتصال مجاز باشگاه, پیش از انتشار, کنترل پس از انتشار و بازیابی
+
+### Community 46 - "Community 46"
+Cohesion: 0.40
+Nodes (4): برنامه مهاجرت و بازیابی, تصمیم‌های سازگاری, توسعه پدل کلاب — ممیزی و طرح انتشار, ممیزی، ۳۰ مهر ۱۴۰۵
+
+### Community 47 - "Community 47"
+Cohesion: 0.50
+Nodes (3): باقی‌مانده برای انتشار واقعی, دامنه تست, گزارش تحویل مرحله‌ای
+
 ## Knowledge Gaps
-- **212 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `config` (+207 more)
+- **214 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `config` (+209 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **13 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **14 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_

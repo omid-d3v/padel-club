@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SPORTS } from "@/components/platform/sport-icon";
 import { adminRows } from "@/lib/platform/admin-data";
 import { PageHeader } from "@/components/shared";
 import { ActionForm } from "@/components/platform/action-form";
@@ -263,8 +264,15 @@ export default async function ManageClubs({
             />
             <Field
               name="external_court_ref"
+
               label="شناسه زمین در سامانه باشگاه؛ در اتصال خودکار"
               defaultValue={court?.external_court_ref ?? ""}
+            />
+            <SelectField
+              name="sport"
+              label="نوع ورزش زمین و آیکون"
+              options={SPORTS}
+              value={court?.sport ?? "padel"}
             />
             <Field
               name="hourly_price"
