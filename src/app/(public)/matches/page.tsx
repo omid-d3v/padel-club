@@ -8,6 +8,8 @@ import {
 import { seo } from "@/lib/seo";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { JalaliDateInput } from "@/components/ui/jalali-date-input";
+import { isGregorianDate } from "@/lib/date-time";
 export const metadata = seo(
   "هم‌بازی پدل و بازی‌های باز",
   "بازی پدل با بازیکنان هم‌سطح پیدا کنید؛ ظرفیت چهار نفره، سهم مشخص هر بازیکن و تأیید واقعی باشگاه.",
@@ -29,12 +31,7 @@ export default async function Matches({
   const skill =
     q.skill && /^[0-5]$/.test(q.skill) ? Number(q.skill) : undefined;
   const city = d.cities.some((c) => c.id === q.city) ? q.city : undefined;
-  const date =
-    q.date &&
-    /^\d{4}-\d{2}-\d{2}$/.test(q.date) &&
-    !Number.isNaN(Date.parse(q.date))
-      ? q.date
-      : undefined;
+  const date = q.date && isGregorianDate(q.date) ? q.date : undefined;
   const games = await matches(undefined, (page - 1) * 24, {
     skill,
     city,
@@ -88,8 +85,8 @@ export default async function Matches({
           </select>
         </label>
         <label className="field">
-          روز بازی؛ ورودی میلادی
-          <input type="date" name="date" defaultValue={date} />
+          روز بازی؛ شمسی
+          <JalaliDateInput name="date" defaultValue={date} />
         </label>
         <button className="rounded-xl bg-primary px-5 py-3 font-bold">
           جست‌وجوی بازی

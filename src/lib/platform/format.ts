@@ -1,17 +1,8 @@
+import { formatPersianMoment, formatTehranTime } from "@/lib/date-time";
 export const money = (rial: number) =>
   `${new Intl.NumberFormat("fa-IR", { maximumFractionDigits: 1 }).format(rial / 10)} تومان`;
-export const moment = (iso: string) =>
-  new Intl.DateTimeFormat("fa-IR", {
-    timeZone: "Asia/Tehran",
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(iso));
-export const time = (iso: string) =>
-  new Intl.DateTimeFormat("fa-IR", {
-    timeZone: "Asia/Tehran",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(iso));
+export const moment = formatPersianMoment;
+export const time = formatTehranTime;
 export const bookingLabels: Record<string, string> = {
   pending_club: "در انتظار تأیید باشگاه",
   awaiting_payment: "آماده پرداخت",

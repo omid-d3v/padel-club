@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isGregorianDate } from "./date-time";
 export function normalizeDigits(value: string) {
   return value
     .replace(/[۰-۹]/g, (n) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(n)))
@@ -28,12 +29,7 @@ export const tournamentSchema = z.object({
   date: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, "تاریخ را انتخاب کنید.")
-    .refine(
-      (v) =>
-        !Number.isNaN(Date.parse(v)) &&
-        new Date(v).toISOString().slice(0, 10) === v,
-      "تاریخ معتبر نیست.",
-    ),
+    .refine(isGregorianDate, "تاریخ معتبر نیست."),
   player_ids: z
     .array(z.string().uuid())
     .length(8, "دقیقاً هشت بازیکن انتخاب کنید.")

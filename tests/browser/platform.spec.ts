@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { formatJalaliInput, tehranDateTime } from "../../src/lib/date-time";
 const uuid = (n: number) =>
   `10000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 test("public SSR, SEO, Persian layout and reduced-motion fallback", async ({
@@ -106,10 +107,10 @@ test("member profile → real SQL booking → admin hold → no fake payment wit
   await card
     .getByRole("textbox", { name: "نام مسئول و مرجع تأیید باشگاه" })
     .fill("تأیید واقعی در دیتابیس آزمون");
-  const hold = new Date(Date.now() + 50 * 60000 + 3.5 * 3600000)
-    .toISOString()
-    .slice(0, 16);
-  await card.locator('input[name="hold_until"]').fill(hold);
+  const hold = tehranDateTime(new Date(Date.now() + 50 * 60000));
+  await card
+    .getByRole("textbox", { name: "اعتبار نگه‌داشت؛ وقت تهران" })
+    .fill(formatJalaliInput(hold, true));
   await card
     .getByRole("button", { name: "ثبت نگه‌داشت باشگاه و فعال‌کردن پرداخت" })
     .click();

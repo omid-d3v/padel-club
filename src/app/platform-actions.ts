@@ -5,6 +5,7 @@ import { requireMember } from "@/lib/platform/data";
 import { requireAdmin } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { siteUrl } from "@/lib/seo";
+import { isGregorianDate, tehranLocalToISO } from "@/lib/date-time";
 import {
   formText,
   formNumber,
@@ -20,6 +21,8 @@ export type PlatformResult = {
   redirect?: string;
 };
 const errors: Record<string, string> = {
+  INVALID_DATE:
+    "تاریخ یا ساعت معتبر نیست؛ تاریخ شمسی و ساعت تهران را بررسی کنید.",
   CALENDAR_STALE:
     "تقویم باشگاه به‌روز نیست؛ پس از همگام‌سازی دوباره تلاش کنید.",
   CALENDAR_DISABLED: "ابتدا اتصال تقویم را فعال کنید.",
@@ -107,12 +110,7 @@ const int = (f: FormData, k: string, min = 0, max = 100000000000) =>
 const bool = (f: FormData, k: string) => f.get(k) === "on";
 const optionalId = (f: FormData, k: string) => (f.get(k) ? id(f.get(k)) : null);
 function iso(f: FormData, k: string) {
-  const value = str(f, k);
-  const date = new Date(
-    /(Z|[+-]\d\d:\d\d)$/.test(value) ? value : `${value}+03:30`,
-  );
-  if (Number.isNaN(date.getTime())) throw new Error("INVALID_DATE");
-  return date.toISOString();
+  return tehranLocalToISO(str(f, k));
 }
 async function upload(
   f: FormData,
@@ -375,6 +373,7 @@ export async function platformAction(
           p_date: z
             .string()
             .regex(/^\d{4}-\d{2}-\d{2}$/)
+            .refine(isGregorianDate)
             .parse(form.get("date")),
         });
         break;

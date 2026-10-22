@@ -1,4 +1,5 @@
 import { Input } from "@/components/ui/input";
+import { JalaliDateInput } from "@/components/ui/jalali-date-input";
 import type { ComponentProps } from "react";
 export function Field({
   label,
@@ -7,7 +8,14 @@ export function Field({
   return (
     <label className="field">
       {label}
-      <Input {...props} />
+      {props.type === "date" || props.type === "datetime-local" ? (
+        <JalaliDateInput
+          {...props}
+          type={props.type === "date" ? "date" : "datetime-local"}
+        />
+      ) : (
+        <Input {...props} />
+      )}
     </label>
   );
 }

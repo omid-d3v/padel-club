@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { tehranDateTime } from "@/lib/date-time";
 import { adminRows } from "@/lib/platform/admin-data";
 import { requireMember } from "@/lib/platform/data";
 import { ActionForm } from "@/components/platform/action-form";
@@ -68,15 +69,23 @@ export default async function ManageEvents({
             value={edit?.club_id}
           />
           <Field
-            label="شروع؛ وقت تهران / ورودی میلادی"
+            label="شروع؛ شمسی / وقت تهران"
             name="starts_at"
             type="datetime-local"
+            defaultValue={
+              edit ? tehranDateTime(new Date(edit.starts_at)) : undefined
+            }
             required
           />
           <Field
             label="پایان ثبت‌نام؛ قبل از شروع"
             name="deadline"
             type="datetime-local"
+            defaultValue={
+              edit
+                ? tehranDateTime(new Date(edit.registration_deadline))
+                : undefined
+            }
             required
           />
           <Field

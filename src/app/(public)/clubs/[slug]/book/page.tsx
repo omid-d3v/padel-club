@@ -5,6 +5,12 @@ import { catalog, member } from "@/lib/platform/data";
 import { createClient } from "@/lib/supabase/server";
 import { BookingForm } from "@/components/platform/booking-form";
 import { providerFor, providerConfigured } from "@/lib/booking/providers";
+import { JalaliDateInput } from "@/components/ui/jalali-date-input";
+import {
+  isGregorianDate,
+  tehranLocalToISO,
+  tehranToday,
+} from "@/lib/date-time";
 export const metadata = {
   title: "درخواست رزرو زمین",
   robots: { index: false, follow: false },
@@ -29,12 +35,9 @@ export default async function Book({
     d.courts.find((c) => c.club_id === club?.id);
   if (!club || !court) notFound();
   const db = await createClient();
-  const from =
-    q.date &&
-    /^\d{4}-\d{2}-\d{2}$/.test(q.date) &&
-    !Number.isNaN(Date.parse(`${q.date}T00:00:00+03:30`))
-      ? new Date(`${q.date}T00:00:00+03:30`)
-      : new Date();
+  const selectedDay =
+    q.date && isGregorianDate(q.date) ? q.date : tehranToday(new Date(now));
+  const from = new Date(tehranLocalToISO(`${selectedDay}T00:00`));
   const to = new Date(from.getTime() + 7 * 86400000);
   const { data: slots, error } = await db.rpc("discover_slots", {
     p_court: court.id,
@@ -83,13 +86,8 @@ export default async function Book({
       <form className="filter-bar">
         <input type="hidden" name="court" value={court.id} />
         <label className="field">
-          شروع بازه (ورودی میلادی)
-          <input
-            type="date"
-            name="date"
-            defaultValue={q.date}
-            className="ms-3 min-h-12 rounded-lg border border-border px-3"
-          />
+          شروع بازه (شمسی)
+          <JalaliDateInput name="date" defaultValue={selectedDay} />
         </label>
         <button className="rounded-xl bg-primary px-5 text-sm font-bold">
           نمایش سانس‌ها
