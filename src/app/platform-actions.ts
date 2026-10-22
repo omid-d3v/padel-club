@@ -20,6 +20,13 @@ export type PlatformResult = {
   redirect?: string;
 };
 const errors: Record<string, string> = {
+  CALENDAR_STALE:
+    "تقویم باشگاه به‌روز نیست؛ پس از همگام‌سازی دوباره تلاش کنید.",
+  CALENDAR_DISABLED: "ابتدا اتصال تقویم را فعال کنید.",
+  COURT_CLUB_MISMATCH: "زمین انتخاب‌شده متعلق به باشگاه این اتصال نیست.",
+  UNKNOWN_EXTERNAL_COURT:
+    "ابتدا فهرست زمین‌ها را از منبع دریافت و سپس زمین را انتخاب کنید.",
+  COURT_ALREADY_MAPPED: "این زمین به اتصال دیگری متصل است.",
   LOGIN_REQUIRED: "ابتدا وارد حساب شوید.",
   PROFILE_REQUIRED: "ابتدا نام و سطح بازی را در پروفایل تکمیل کنید.",
   SLOT_UNAVAILABLE: "این سانس دیگر در دسترس نیست؛ سانس دیگری انتخاب کنید.",
@@ -152,6 +159,32 @@ export async function platformAction(
         .parse(JSON.parse(raw));
     };
     switch (operation) {
+      case "admin:calendar-configure":
+        out = await db.rpc("configure_calendar", {
+          p_id: id(form.get("connection_id")),
+          p_club: optionalId(form, "club_id"),
+          p_enabled: bool(form, "enabled"),
+          p_interval: int(form, "interval_minutes", 15, 1440),
+          p_horizon: int(form, "horizon_days", 1, 14),
+        });
+        break;
+      case "admin:calendar-map":
+        out = await db.rpc("map_calendar_court", {
+          p_connection: id(form.get("connection_id")),
+          p_court: id(form.get("court_id")),
+          p_ref: str(form, "external_ref", 1, 100),
+        });
+        break;
+      case "admin:calendar-unmap":
+        out = await db.rpc("unmap_calendar_court", {
+          p_mapping: id(form.get("mapping_id")),
+        });
+        break;
+      case "admin:calendar-refresh":
+        out = await db.rpc("request_calendar_sync", {
+          p_id: id(form.get("connection_id")),
+        });
+        break;
       case "profile": {
         const photo = await upload(form, "avatars", m.userId, db);
         out = await db.rpc("save_my_profile", {

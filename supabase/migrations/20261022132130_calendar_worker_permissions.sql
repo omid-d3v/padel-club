@@ -1,0 +1,1 @@
+revoke all on function public.claim_calendar_sync(),public.finish_calendar_sync(uuid,uuid,text,jsonb,jsonb,timestamptz,timestamptz,text) from public,anon,authenticated; grant execute on function public.claim_calendar_sync(),public.finish_calendar_sync(uuid,uuid,text,jsonb,jsonb,timestamptz,timestamptz,text) to service_role;

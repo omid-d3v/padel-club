@@ -135,6 +135,7 @@ test("private routes and worker remain unauthorized; public filters remain crawl
     "/account/payments",
     "/admin/operations",
     "/admin/clubs",
+    "/admin/integrations",
   ]) {
     await page.goto(path);
     await expect(page).toHaveURL(/\/login/);
@@ -150,4 +151,53 @@ test("private routes and worker remain unauthorized; public filters remain crawl
     "href",
     "http://127.0.0.1:3100/clubs",
   );
+});
+
+test("admin calendar interval and pause persist through real SQL", async ({
+  page,
+}) => {
+  await page.goto("/login");
+  await page
+    .getByRole("textbox", { name: "ایمیل", exact: true })
+    .fill("admin@example.com");
+  await page.getByLabel("رمز عبور").fill("browser-test-password");
+  await page.getByRole("button", { name: "ورود به حساب", exact: true }).click();
+  await expect(page).toHaveURL("/admin");
+  await page.goto("/admin/integrations");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "اتصال تقویم باشگاه‌ها",
+  );
+  const source =
+    test.info().project.name === "mobile" ? "سرزمین صبا" : "گیلان پدل کلاب";
+  const card = page
+    .locator("section")
+    .filter({ has: page.getByRole("heading", { name: source, exact: true }) });
+  await expect(
+    card.getByLabel("فاصله همگام‌سازی (دقیقه، ۱۵ تا ۱۴۴۰)"),
+  ).toHaveValue("60");
+  await card.getByLabel("فاصله همگام‌سازی (دقیقه، ۱۵ تا ۱۴۴۰)").fill("90");
+  await card.getByRole("checkbox", { name: "همگام‌سازی فعال باشد" }).uncheck();
+  await card.getByRole("button", { name: "ذخیره تنظیمات اتصال" }).click();
+  await expect(
+    card.getByRole("status").filter({ hasText: "اطلاعات با موفقیت ثبت شد." }),
+  ).toBeVisible();
+  await page.reload();
+  await expect(
+    card.getByLabel("فاصله همگام‌سازی (دقیقه، ۱۵ تا ۱۴۴۰)"),
+  ).toHaveValue("90");
+  await expect(
+    card.getByRole("checkbox", { name: "همگام‌سازی فعال باشد" }),
+  ).not.toBeChecked();
+  await expect(
+    card.getByRole("button", { name: "درخواست همگام‌سازی اکنون" }),
+  ).toBeDisabled();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await page.screenshot({
+    path: `test-results/calendar-admin-${test.info().project.name}.png`,
+    fullPage: true,
+  });
 });
