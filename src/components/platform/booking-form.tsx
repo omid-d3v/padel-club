@@ -6,6 +6,7 @@ import { money, cancellationText } from "@/lib/platform/format";
 import { ActionForm } from "./action-form";
 import { Field } from "./fields";
 import { EquipmentIcon } from "./sport-icon";
+import { QuantityStepper } from "@/components/ui/quantity-stepper";
 import { AvailabilityPicker } from "./availability-picker";
 export function BookingForm({
   club,
@@ -161,10 +162,7 @@ export function BookingForm({
           <h2>تجهیزات لازم</h2>
           {equipment.length ? (
             equipment.map((e) => (
-              <label
-                className="mb-4 flex items-center justify-between gap-4 text-sm"
-                key={e.id}
-              >
+              <div className="equipment-choice" key={e.id}>
                 <span>
                   <EquipmentIcon name={e.name} />
                   {e.name}
@@ -175,24 +173,15 @@ export function BookingForm({
                     · {e.price ? money(e.price) : "رایگان"}
                   </small>
                 </span>
-                <input
-                  aria-label={`تعداد ${e.name}`}
-                  type="number"
-                  min={0}
-                  max={Math.min(20, e.stock)}
+                <QuantityStepper
+                  label={e.name}
                   value={quantities[e.id] ?? 0}
-                  onChange={(event) =>
-                    setQuantities((p) => ({
-                      ...p,
-                      [e.id]: Math.max(
-                        0,
-                        Math.min(20, Number(event.target.value)),
-                      ),
-                    }))
+                  max={Math.min(20, e.stock)}
+                  onChange={(value) =>
+                    setQuantities((p) => ({ ...p, [e.id]: value }))
                   }
-                  className="h-12 w-20 rounded-lg border border-border p-3"
                 />
-              </label>
+              </div>
             ))
           ) : (
             <p className="text-sm text-muted-foreground">

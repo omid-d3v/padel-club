@@ -11,84 +11,76 @@ export function SportIcon({
   sport = "padel",
   ...props
 }: SVGProps<SVGSVGElement> & { sport?: string }) {
-  if (sport === "badminton" || sport === "other")
-    return (
-      <svg
-        viewBox="0 0 48 48"
-        width="40"
-        height="40"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        aria-hidden="true"
-        {...props}
-      >
-        {sport === "badminton" ? (
-          <>
-            <path d="m12 30 1-24 10 3 10 9 8 9-23 10Z" fill="#d7ff3f" />
-            <path d="m13 6 5 25M23 9l-5 22m15-13-15 13m23-4-23 4" />
-            <path d="M12 30c-11 1-7 15 2 12l4-5Z" fill="#0f5d3a" />
-          </>
-        ) : (
-          <>
-            <rect x="4" y="8" width="40" height="32" rx="3" fill="#d7ff3f" />
-            <path d="M24 8v32M4 24h40M10 8v32M38 8v32" />
-          </>
-        )}
-      </svg>
-    );
   return (
     <svg
-      viewBox="0 0 48 48"
-      width="40"
-      height="40"
+      viewBox="0 0 32 32"
+      width="28"
+      height="28"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
+      strokeWidth="1.65"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       aria-hidden="true"
       {...props}
     >
-      <ellipse
-        cx="28"
-        cy="17"
-        rx={sport === "squash" ? 8 : 11}
-        ry="13"
-        transform="rotate(35 28 17)"
-        fill="#d7ff3f"
-      />
-      <path d="m20 28-10 14-4-3 10-15" strokeWidth="3" />
-      {sport === "tennis" ? (
-        <path d="m21 8 15 12M18 14l16 12M25 5 13 24m20-16-14 21" />
+      {sport === "other" ? (
+        <>
+          <rect x="3" y="5" width="26" height="22" rx="2" />
+          <path d="M16 5v22M3 16h26M7 5v22M25 5v22" />
+        </>
+      ) : sport === "badminton" ? (
+        <>
+          <path d="m8 21 1-17 7 2 7 6 5 7-16 7Z" />
+          <path d="m9 4 3 18m4-16-4 16m11-10-11 10m16-3-16 3" />
+          <path d="M8 21c-7 1-4 11 2 9l2-4" />
+        </>
       ) : (
         <>
-          <circle cx="26" cy="12" r="1" />
-          <circle cx="32" cy="16" r="1" />
-          <circle cx="23" cy="20" r="1" />
-          <circle cx="28" cy="24" r="1" />
+          <ellipse
+            cx="20"
+            cy="11"
+            rx={sport === "squash" ? 6 : 8}
+            ry="9"
+            transform="rotate(35 20 11)"
+          />
+          <path d="m14 18-9 11-3-2 9-11" />
+          {sport === "tennis" || sport === "squash" ? (
+            <path d="m15 6 11 8M13 11l9 8m-3-17-9 13m16-10L15 21" />
+          ) : (
+            <>
+              <circle cx="18" cy="7" r=".6" />
+              <circle cx="23" cy="10" r=".6" />
+              <circle cx="16" cy="12" r=".6" />
+              <circle cx="21" cy="15" r=".6" />
+            </>
+          )}
+          {sport === "beach_tennis" ? (
+            <path d="M15 29q3-3 6 0t6 0" />
+          ) : (
+            <>
+              <circle cx="26" cy="25" r="3" />
+              <path d="m24 23 4 4" />
+            </>
+          )}
         </>
       )}
-      <circle cx="39" cy="38" r="5" fill="#d7ff3f" />
-      {sport === "beach_tennis" && <path d="M3 46q8-5 16 0t18 0" />}
     </svg>
   );
 }
 export function EquipmentIcon({ name }: { name: string }) {
   return /توپ|ball/i.test(name) ? (
-    <svg viewBox="0 0 48 48" width="36" height="36" aria-hidden="true">
-      <circle
-        cx="24"
-        cy="24"
-        r="18"
-        fill="#d7ff3f"
-        stroke="#0f5d3a"
-        strokeWidth="2"
-      />
-      <path
-        d="M12 10q25 10 24 28M10 34q10-24 27-22"
-        fill="none"
-        stroke="#0f5d3a"
-        strokeWidth="2"
-      />
+    <svg
+      viewBox="0 0 32 32"
+      width="28"
+      height="28"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      aria-hidden="true"
+    >
+      <circle cx="16" cy="16" r="12" fill="#d7ff3f" />
+      <path d="M8 7c14 5 5 12 16 18M8 25C19 19 10 12 24 7" />
     </svg>
   ) : (
     <SportIcon />

@@ -10,6 +10,9 @@ test("admin can create a club and validation names the invalid field", async ({
   await page.getByRole("button", { name: "ورود به حساب", exact: true }).click();
   await expect(page).toHaveURL("/admin");
   await page.goto("/admin/clubs");
+  await page
+    .getByRole("button", { name: "افزودن باشگاه", exact: true })
+    .click();
   const form = page.locator("form").filter({
     has: page.getByRole("textbox", { name: "نام باشگاه", exact: true }),
   });

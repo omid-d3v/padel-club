@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { DetailPanel } from "@/components/platform/detail-panel";
+import { AdminList } from "@/components/platform/admin-list";
 import { requireAdmin } from "@/lib/auth";
 import { adminRows } from "@/lib/platform/admin-data";
 import { PageHeader } from "@/components/shared";
@@ -157,172 +159,162 @@ export default async function Integrations() {
                   زمین، سانسی وارد سایت نمی‌شود.
                 </p>
               )}
-              <ActionForm
-                operation="admin:calendar-configure"
-                label="ذخیره تنظیمات اتصال"
-                className="grid gap-4 md:grid-cols-3"
+              <DetailPanel
+                title={`مدیریت اتصال ${source.name}`}
+                label={`مدیریت اتصال ${source.name}`}
               >
-                <input type="hidden" name="connection_id" value={c.id} />
-                <SelectField
-                  label="باشگاه مقصد"
-                  name="club_id"
-                  options={clubs}
-                  value={c.club_id ?? ""}
-                  required={false}
-                />
-                <Field
-                  label="فاصله همگام‌سازی (دقیقه، ۱۵ تا ۱۴۴۰)"
-                  name="interval_minutes"
-                  type="number"
-                  min={15}
-                  max={1440}
-                  defaultValue={c.interval_minutes}
-                  required
-                />
-                <Field
-                  label="بازه دریافت (روز، ۱ تا ۱۴)"
-                  name="horizon_days"
-                  type="number"
-                  min={1}
-                  max={14}
-                  defaultValue={c.horizon_days}
-                  required
-                />
-                <CheckField
-                  name="enabled"
-                  label="همگام‌سازی فعال باشد"
-                  checked={c.enabled}
-                />
-                <p className="text-xs leading-6 text-muted-foreground">
-                  تغییر باشگاه، نگاشت‌های قبلی را پاک و سانس‌های واردشده را
-                  غیرفعال می‌کند. رزروهای ثبت‌شده حفظ می‌شوند.
-                </p>
-              </ActionForm>
-              <ActionForm
-                operation="admin:calendar-refresh"
-                label="درخواست همگام‌سازی اکنون"
-                disabled={!c.enabled || !ready}
-              >
-                <input type="hidden" name="connection_id" value={c.id} />
-              </ActionForm>
-              <div className="border-t border-border pt-4">
-                <h3 className="mb-3 font-bold">زمین‌های منبع و نگاشت</h3>
-                <div className="mb-4 flex flex-wrap gap-2">
-                  {external.map((e) => (
-                    <span key={e.reference} className="status-pill">
-                      {e.name} · {money(e.price)}
-                    </span>
-                  ))}
-                </div>
-                {c.club_id && external.length > 0 && (
-                  <ActionForm
-                    operation="admin:calendar-map"
-                    label="اتصال زمین"
-                    className="grid gap-4 md:grid-cols-2"
-                  >
-                    <input type="hidden" name="connection_id" value={c.id} />
-                    <SelectField
-                      label="زمین در رالی‌یار"
-                      name="court_id"
-                      options={courts.filter(
-                        (ct) => ct.club_id === c.club_id && ct.active,
-                      )}
-                    />
-                    <SelectField
-                      label="زمین در سایت باشگاه"
-                      name="external_ref"
-                      options={external.map((e) => ({
-                        id: e.reference,
-                        name: e.name,
-                      }))}
-                    />
-                  </ActionForm>
-                )}
-                <ul className="mt-4 space-y-3">
-                  {assigned.map((m) => (
-                    <li
-                      key={m.id}
-                      className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-muted p-3 text-sm"
-                    >
-                      <span>
-                        {courts.find((ct) => ct.id === m.court_id)?.name} ←{" "}
-                        {external.find((e) => e.reference === m.external_ref)
-                          ?.name ?? m.external_ref}
+                <ActionForm
+                  operation="admin:calendar-configure"
+                  label="ذخیره تنظیمات اتصال"
+                  className="grid gap-4 md:grid-cols-3"
+                >
+                  <input type="hidden" name="connection_id" value={c.id} />
+                  <SelectField
+                    label="باشگاه مقصد"
+                    name="club_id"
+                    options={clubs}
+                    value={c.club_id ?? ""}
+                    required={false}
+                  />
+                  <Field
+                    label="فاصله همگام‌سازی (دقیقه، ۱۵ تا ۱۴۴۰)"
+                    name="interval_minutes"
+                    type="number"
+                    min={15}
+                    max={1440}
+                    defaultValue={c.interval_minutes}
+                    required
+                  />
+                  <Field
+                    label="بازه دریافت (روز، ۱ تا ۱۴)"
+                    name="horizon_days"
+                    type="number"
+                    min={1}
+                    max={14}
+                    defaultValue={c.horizon_days}
+                    required
+                  />
+                  <CheckField
+                    name="enabled"
+                    label="همگام‌سازی فعال باشد"
+                    checked={c.enabled}
+                  />
+                  <p className="text-xs leading-6 text-muted-foreground">
+                    تغییر باشگاه، نگاشت‌های قبلی را پاک و سانس‌های واردشده را
+                    غیرفعال می‌کند. رزروهای ثبت‌شده حفظ می‌شوند.
+                  </p>
+                </ActionForm>
+                <ActionForm
+                  operation="admin:calendar-refresh"
+                  label="درخواست همگام‌سازی اکنون"
+                  disabled={!c.enabled || !ready}
+                >
+                  <input type="hidden" name="connection_id" value={c.id} />
+                </ActionForm>
+                <div className="border-t border-border pt-4">
+                  <h3 className="mb-3 font-bold">زمین‌های منبع و نگاشت</h3>
+                  <div className="mb-4 flex flex-wrap gap-2">
+                    {external.map((e) => (
+                      <span key={e.reference} className="status-pill">
+                        {e.name} · {money(e.price)}
                       </span>
-                      <ActionForm
-                        operation="admin:calendar-unmap"
-                        label="قطع اتصال زمین"
-                        confirm="سانس‌های این اتصال از دسترس رزرو خارج می‌شوند. ادامه می‌دهید؟"
+                    ))}
+                  </div>
+                  {c.club_id && external.length > 0 && (
+                    <ActionForm
+                      operation="admin:calendar-map"
+                      label="اتصال زمین"
+                      className="grid gap-4 md:grid-cols-2"
+                    >
+                      <input type="hidden" name="connection_id" value={c.id} />
+                      <SelectField
+                        label="زمین در رالی‌یار"
+                        name="court_id"
+                        options={courts.filter(
+                          (ct) => ct.club_id === c.club_id && ct.active,
+                        )}
+                      />
+                      <SelectField
+                        label="زمین در سایت باشگاه"
+                        name="external_ref"
+                        options={external.map((e) => ({
+                          id: e.reference,
+                          name: e.name,
+                        }))}
+                      />
+                    </ActionForm>
+                  )}
+                  <ul className="mt-4 space-y-3">
+                    {assigned.map((m) => (
+                      <li
+                        key={m.id}
+                        className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-muted p-3 text-sm"
                       >
-                        <input type="hidden" name="mapping_id" value={m.id} />
-                      </ActionForm>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+                        <span>
+                          {courts.find((ct) => ct.id === m.court_id)?.name} ←{" "}
+                          {external.find((e) => e.reference === m.external_ref)
+                            ?.name ?? m.external_ref}
+                        </span>
+                        <ActionForm
+                          operation="admin:calendar-unmap"
+                          label="قطع اتصال زمین"
+                          confirm="سانس‌های این اتصال از دسترس رزرو خارج می‌شوند. ادامه می‌دهید؟"
+                        >
+                          <input type="hidden" name="mapping_id" value={m.id} />
+                        </ActionForm>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </DetailPanel>
             </section>
           );
         })}
       </div>
-      <section className="platform-card mt-6">
-        <h2>آخرین اجراها</h2>
-        <p className="mb-4 text-xs text-muted-foreground">
-          ۳۰ اجرای اخیر؛ تعارض‌ها یعنی سانس دستی یا قیمت رزرو قبلی حفظ شده است.
-        </p>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[700px] text-right text-sm">
-            <thead>
-              <tr>
-                {[
-                  "منبع",
-                  "شروع",
-                  "پایان",
-                  "وضعیت",
-                  "دریافت / واردشده",
-                  "تعارض",
-                  "توضیح",
-                ].map((t) => (
-                  <th key={t} className="p-3">
-                    {t}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {history.data.map((r) => (
-                <tr key={r.id} className="border-t border-border">
-                  <td className="p-3">
-                    {
-                      sources[
-                        connections.find((c) => c.id === r.connection_id)!
-                          .source
-                      ].name
-                    }
-                  </td>
-                  <td className="p-3">{moment(r.started_at)}</td>
-                  <td className="p-3">
-                    {r.finished_at ? moment(r.finished_at) : "—"}
-                  </td>
-                  <td className="p-3">{statuses[r.status] ?? r.status}</td>
-                  <td className="p-3">
+      <div className="mt-6">
+        <AdminList
+          title="آخرین اجراها"
+          description="۳۰ اجرای اخیر؛ جزئیات دریافت و تعارض در پرونده هر اجرا."
+          items={history.data.map((r) => ({
+            id: r.id,
+            title:
+              sources[connections.find((c) => c.id === r.connection_id)!.source]
+                .name,
+            meta: moment(r.started_at),
+            badge: statuses[r.status] ?? r.status,
+            state: r.status,
+            content: (
+              <dl className="admin-facts">
+                <div>
+                  <dt>پایان</dt>
+                  <dd>
+                    {r.finished_at ? moment(r.finished_at) : "در حال اجرا"}
+                  </dd>
+                </div>
+                <div>
+                  <dt>دریافت / واردشده</dt>
+                  <dd>
                     {r.slot_count.toLocaleString("fa-IR")} /{" "}
                     {r.imported_count.toLocaleString("fa-IR")}
-                  </td>
-                  <td className="p-3">
-                    {r.conflict_count.toLocaleString("fa-IR")}
-                  </td>
-                  <td className="p-3">
-                    {r.message ? (errors[r.message] ?? "نیازمند بررسی") : "—"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        {!history.data.length && (
-          <p className="p-4 text-sm">هنوز اجرایی ثبت نشده است.</p>
-        )}
-      </section>
+                  </dd>
+                </div>
+                <div>
+                  <dt>تعارض</dt>
+                  <dd>{r.conflict_count.toLocaleString("fa-IR")}</dd>
+                </div>
+                <div>
+                  <dt>توضیح</dt>
+                  <dd>
+                    {r.message
+                      ? (errors[r.message] ?? "نیازمند بررسی")
+                      : "بدون خطای ثبت‌شده"}
+                  </dd>
+                </div>
+              </dl>
+            ),
+          }))}
+        />
+      </div>
     </>
   );
 }

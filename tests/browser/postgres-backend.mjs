@@ -108,6 +108,12 @@ await db.query(
   [uuid(760), uuid(701)],
 );
 const base64 = (o) => Buffer.from(JSON.stringify(o)).toString("base64url");
+// Local-only records exercise real pagination, search and status filtering.
+for (let i = 0; i < 10; i++)
+  await db.query(
+    "insert into discount_codes(code,kind,value,max_uses,expires_at,active) values($1,'percent',10,5,now()+interval '1 day',false)",
+    ["UI_AUDIT_" + String(i).padStart(2, "0")],
+  );
 function user(id) {
   return {
     id,

@@ -1,4 +1,17 @@
 import Link from "next/link";
+import {
+  CalendarDays,
+  Trophy,
+  TrendingUp,
+  Target,
+  UsersRound,
+  ArrowUpLeft,
+  BadgeCheck,
+  Pencil,
+  MapPin,
+  Wallet,
+} from "lucide-react";
+import { PlayerAvatar } from "@/components/platform/player-avatar";
 import { requireMember, ownRows } from "@/lib/platform/data";
 import { number } from "@/lib/utils";
 import { SKILLS } from "@/lib/platform/types";
@@ -31,16 +44,38 @@ export default async function Account() {
       : r.team2_sets > r.team1_sets;
   return (
     <section className="public-container public-page">
-      <h1>
-        {m.profile
-          ? `${m.profile.display_name}، وقت بازیه.`
-          : "به رالی‌یار خوش آمدی."}
-      </h1>
-      <p className="intro">
-        {m.profile
-          ? `${SKILLS[m.profile.skill_level]} · ${m.profile.skill_verified ? "سطح تأییدشده" : "سطح خوداظهاری"}`
-          : "برای رزرو و پیدا کردن هم‌بازی، اول پروفایل بازی را تکمیل کن."}
-      </p>
+      <header className="member-hero">
+        <div className="member-hero-main">
+          <PlayerAvatar
+            name={m.profile?.display_name ?? "بازیکن"}
+            path={m.profile?.avatar_path}
+            large
+          />
+          <div>
+            <span className="member-eyebrow">رالی‌یار / فضای بازی تو</span>
+            <h1>
+              {m.profile
+                ? `${m.profile.display_name}، وقت بازیه.`
+                : "به رالی‌یار خوش آمدی."}
+            </h1>
+            <p className="intro">
+              {m.profile
+                ? `${SKILLS[m.profile.skill_level]} · ${m.profile.skill_verified ? "سطح تأییدشده" : "سطح خوداظهاری"}`
+                : "برای رزرو و پیدا کردن هم‌بازی، اول پروفایل بازی را تکمیل کن."}
+            </p>
+            {m.profile?.skill_verified && (
+              <span className="member-verified">
+                <BadgeCheck size={16} />
+                سطح تأییدشده
+              </span>
+            )}
+          </div>
+        </div>
+        <Link href="/account/profile" className="member-edit">
+          <Pencil size={16} />
+          ویرایش پروفایل
+        </Link>
+      </header>
       {!m.profile && (
         <Link
           href="/account/profile"
@@ -49,7 +84,7 @@ export default async function Account() {
           تکمیل پروفایل
         </Link>
       )}
-      <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className="member-stats">
         {[
           ["درخواست رزرو", bookings.length],
           [
@@ -61,27 +96,57 @@ export default async function Account() {
             "درصد برد تاریخچه",
             wins + losses ? Math.round((100 * wins) / (wins + losses)) : 0,
           ],
-        ].map(([label, value]) => (
-          <div className="platform-card" key={label}>
-            <p className="text-sm text-muted-foreground">{label}</p>
-            <p className="mt-4 text-3xl font-extrabold">
-              {number(Number(value))}
-            </p>
-          </div>
-        ))}
+        ].map(([label, value], i) => {
+          const Icon = [CalendarDays, Trophy, Target, TrendingUp][i];
+          return (
+            <div className="member-stat" key={label}>
+              <span className="member-stat-icon">
+                <Icon size={21} />
+              </span>
+              <p className="text-sm text-muted-foreground">{label}</p>
+              <p className="mt-4 text-3xl font-extrabold">
+                {number(Number(value))}
+              </p>
+            </div>
+          );
+        })}
       </div>
       <div className="mt-8 grid gap-5 md:grid-cols-2">
-        <Link href="/clubs" className="platform-card">
-          <h2>زمین بازی بعدی</h2>
-          <p className="text-sm text-muted-foreground">
-            باشگاه و سانس دلخواه را پیدا کن. ↖
-          </p>
+        <Link href="/clubs" className="member-action member-action-primary">
+          <span className="member-action-icon">
+            <MapPin size={28} />
+          </span>
+          <div>
+            <h2>زمین بازی بعدی</h2>
+            <p className="text-sm text-muted-foreground">
+              باشگاه و سانس دلخواه را پیدا کن.
+            </p>
+          </div>
+          <ArrowUpLeft size={22} />
         </Link>
-        <Link href="/matches" className="platform-card">
-          <h2>هم‌بازی بعدی</h2>
-          <p className="text-sm text-muted-foreground">
-            به یک بازی چهار نفره ملحق شو. ↖
-          </p>
+        <Link href="/matches" className="member-action">
+          <span className="member-action-icon">
+            <UsersRound size={28} />
+          </span>
+          <div>
+            <h2>هم‌بازی بعدی</h2>
+            <p className="text-sm text-muted-foreground">
+              به یک بازی چهار نفره ملحق شو.
+            </p>
+          </div>
+          <ArrowUpLeft size={22} />
+        </Link>
+      </div>
+      <div className="mt-5 grid gap-4 sm:grid-cols-2">
+        <Link href="/account/bookings" className="member-shortcut">
+          <CalendarDays size={20} />
+          <span>پیگیری رزروها و مهلت پرداخت</span>
+          <ArrowUpLeft size={17} />
+        </Link>
+        <Link href="/account/payments" className="member-shortcut">
+          <Wallet size={20} />
+          <span>رسیدها و وضعیت استرداد</span>
+          <ArrowUpLeft size={17} />
         </Link>
       </div>
       {history && history.length > 0 && (
