@@ -312,9 +312,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1792784324.9333253,
-    "seen": 1792785512.0551775,
-    "ast_hash": "f20458aba61573f229fbaf21ab353c7a",
+    "mtime": 1792790514.07199,
+    "seen": 1792790872.1071923,
+    "ast_hash": "e3cf5ce315d622e0c2d10b5270c4aa0c",
     "semantic_hash": ""
   },
   "ops/enable-expiry-cron.sql": {
@@ -1476,9 +1476,9 @@
     "semantic_hash": ""
   },
   "docs/SELF-HOSTING.md": {
-    "mtime": 1792784858.4156072,
-    "seen": 1792785512.055242,
-    "ast_hash": "632692b22758ffc0d5964449d0fb7957",
+    "mtime": 1792786222.864571,
+    "seen": 1792790872.1072989,
+    "ast_hash": "68a736f08db2b4d390812eab1ac2f54a",
     "semantic_hash": ""
   },
   "deploy/activate.sh": {
@@ -1542,15 +1542,45 @@
     "semantic_hash": ""
   },
   "docs/UBUNTU-GITHUB-DEPLOY.md": {
-    "mtime": 1792785885.6352408,
-    "seen": 1792785959.5563285,
-    "ast_hash": "211be6af7f69f30d90cb4a38a3eb25f6",
+    "mtime": 1792786226.6221037,
+    "seen": 1792790872.1073048,
+    "ast_hash": "00b9aeae2b05a61c40921e5ef4ac263d",
     "semantic_hash": ""
   },
   "deploy/smoke-image.sh": {
     "mtime": 1792785874.5941772,
     "seen": 1792785959.5545788,
     "ast_hash": "b561c5e1a717b64f2de4331b579e3802",
+    "semantic_hash": ""
+  },
+  "deploy/install-offline.sh": {
+    "mtime": 1792790680.6742477,
+    "seen": 1792790872.1048706,
+    "ast_hash": "00b001bf742818eb82bf1de909748483",
+    "semantic_hash": ""
+  },
+  "deploy/offline-config.mjs": {
+    "mtime": 1792790530.4336965,
+    "seen": 1792790872.1049082,
+    "ast_hash": "c90dc83d5da01eaa6fb79b5d8c85dcf2",
+    "semantic_hash": ""
+  },
+  "tests/offline-deployment.test.mjs": {
+    "mtime": 1792790767.6846926,
+    "seen": 1792790872.1071072,
+    "ast_hash": "5702ff3bb64aece5ab2fee51d1fb7e46",
+    "semantic_hash": ""
+  },
+  ".github/workflows/offline.yml": {
+    "mtime": 1792790684.6253197,
+    "seen": 1792790872.1071575,
+    "ast_hash": "a77fc62b024c4f57e0a3b3afc3c5d12d",
+    "semantic_hash": ""
+  },
+  "docs/OFFLINE-DEPLOY.md": {
+    "mtime": 1792790509.8578517,
+    "seen": 1792790872.107265,
+    "ast_hash": "85d4d1d6ce6201959a24c90d02a7a11b",
     "semantic_hash": ""
   }
 }

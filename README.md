@@ -1,5 +1,7 @@
 # مچ شو / MatchSho — پلتفرم فارسی رزرو و هم‌بازی
 
+[انتشار موقت آفلاین با دانلود و SCP](docs/OFFLINE-DEPLOY.md): بیلد روی GitHub بدون SSH به سرور؛ انتقال دستی بسته کامل زیرساخت و سپس ایمیج سایت، با حفظ env و داده‌ها.
+
 [از Ubuntu خام ایران تا انتشار خودکار GitHub Actions](docs/UBUNTU-GITHUB-DEPLOY.md): نصب Docker و میرور، اتصال امن SSH، تولید خودکار env، انتقال ایمیج بدون رجیستری، DNS و اولین انتشار پس از انتقال Cloud.
 
 [راهنمای Docker، Supabase سلف‌هاست و انتقال دامنه](docs/SELF-HOSTING.md): نصب روی سرور `85.198.55.121`، دامنهٔ `match-sho.com`، انتقال کاربران/فایل‌ها، مایگریشن امن، HTTPS و بکاپ. نقطهٔ شروع: `bash deploy/setup.sh match-sho.com api.match-sho.com YOUR_REAL_EMAIL`؛ دیتابیس فعلی را قبل از مطالعهٔ مسیر انتقال دست‌کاری نکنید.

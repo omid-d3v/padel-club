@@ -1,0 +1,73 @@
+name: Build offline deployment bundle
+on:
+  workflow_dispatch:
+    inputs:
+      package_kind:
+        description: prepare = first install with all infrastructure; deploy = site update
+        type: choice
+        options: [prepare, deploy]
+        default: prepare
+permissions:
+  contents: read
+concurrency:
+  group: offline-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  bundle:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npx --no-install next typegen
+      - run: npm run typecheck
+      - run: npm test
+      - run: for file in deploy/*.sh; do bash -n "$file"; done
+      - name: Package source (never dotenv, runtime or database backups)
+        env:
+          KIND: ${{ inputs.package_kind }}
+        run: |
+          mkdir bundle
+          git archive --format=tar.gz -o bundle/source.tar.gz HEAD
+          printf '%s\n' "$GITHUB_SHA" > bundle/RELEASE
+          printf '%s\n' "$KIND" > bundle/BUNDLE_KIND
+          cp deploy/install-offline.sh bundle/install-offline.sh
+      - name: Bundle pinned infrastructure on GitHub only
+        if: inputs.package_kind == 'prepare'
+        run: |
+          bash deploy/setup.sh match-sho.com api.match-sho.com ci@example.com
+          git -C deploy/runtime/supabase archive --format=tar.gz -o "$GITHUB_WORKSPACE/bundle/upstream.tar.gz" HEAD docker
+          git -C deploy/runtime/supabase rev-parse HEAD > bundle/upstream.tar.gz.revision
+          node deploy/package-infra.mjs
+      - name: Validate public production configuration
+        if: inputs.package_kind == 'deploy'
+        env:
+          OFFLINE_PUBLIC_ENV: ${{ vars.OFFLINE_PUBLIC_ENV }}
+        run: node deploy/offline-config.mjs
+      - name: Build and test site image on GitHub only
+        if: inputs.package_kind == 'deploy'
+        run: |
+          args=()
+          for key in NEXT_PUBLIC_SITE_URL NEXT_PUBLIC_SUPABASE_URL NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY NEXT_PUBLIC_FIREBASE_API_KEY NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN NEXT_PUBLIC_FIREBASE_PROJECT_ID NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID NEXT_PUBLIC_FIREBASE_APP_ID NEXT_PUBLIC_FIREBASE_VAPID_KEY; do
+            args+=(--build-arg "$key=${!key:-}")
+          done
+          docker build --platform linux/amd64 "${args[@]}" -t "matchsho-web:$GITHUB_SHA" .
+          bash deploy/smoke-image.sh "matchsho-web:$GITHUB_SHA"
+          docker image save "matchsho-web:$GITHUB_SHA" | gzip -1 > bundle/web-image.tar.gz
+      - name: Checksum fixed deliverables
+        run: (cd bundle && files=(*); sha256sum "${files[@]}" > SHA256SUMS)
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: matchsho-offline-${{ inputs.package_kind }}-${{ github.sha }}
+          path: bundle/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
