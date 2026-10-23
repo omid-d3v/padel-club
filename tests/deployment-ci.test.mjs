@@ -116,6 +116,9 @@ describe("production delivery safety", () => {
     ).toBeGreaterThan(release.indexOf("if ! bash"));
   });
   it("keeps TLS and package signing enabled when configuring mirrors", () => {
+    expect(read("deploy/stack.sh")).toContain(
+      'vendor="$(cd -- "$vendor" && pwd -P)"',
+    );
     const bootstrap = read("deploy/bootstrap-ubuntu.sh");
     expect(bootstrap).toContain("https://docker.arvancloud.ir");
     expect(bootstrap).not.toMatch(

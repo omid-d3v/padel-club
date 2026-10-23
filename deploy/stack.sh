@@ -4,6 +4,9 @@ root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)"
 export MATCHSHO_ROOT="$root"
 vendor="$root/deploy/runtime/supabase/docker"
 [[ -f "$vendor/.env" && -f "$root/deploy/.env.app" ]] || { echo 'Run setup.sh first.' >&2; exit 1; }
+# Canonicalize the persistent project directory too: container bind sources for
+# DB/Storage must NEVER depend on a disposable releases/<SHA>/ symlink chain.
+vendor="$(cd -- "$vendor" && pwd -P)"
 # Optional offline image map and persisted application release. Neither contains secrets.
 extra=()
 [[ ! -f "$root/deploy/runtime/app-image.env" ]] || extra+=(--env-file "$root/deploy/runtime/app-image.env")

@@ -386,4 +386,6 @@ bash deploy/stack.sh up -d --no-build --pull never --no-deps --force-recreate we
 - [امنیت GitHub Actions](https://docs.github.com/en/actions/reference/security/secure-use)، [محدودیت پلن‌های environments](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments)
 - [HTTPS خودکار Caddy و پیش‌نیاز DNS](https://caddyserver.com/docs/automatic-https)
 
-تست‌های محلی برنامه و قواعد deployment، syntax شل و YAML جدا از تست live هستند. تا زمانی که SSH/Secrets و مهاجرت واقعی انجام نشوند، اجرای workflow روی GitHub، bundle کامل زیرساخت، عملکرد واقعی میرور از سرور ایران، SSL، ارسال پیامک/پوش و restore نهایی **تأییدشده محسوب نمی‌شوند**. اجرای راهنما روی سرور شما لازم است.
+اعتبارسنجی ۲۳ اکتبر ۲۰۲۶: **۷۶ تست در ۱۶ فایل**، lint/typecheck، syntax شل و actionlint موفق شدند. [اجرای GitHub روی commit 2159071](https://github.com/omid-d3v/padel-club/actions/runs/40016678179) Dockerfile واقعی را روی Linux build و health/favicon کانتینر را با تنظیمات عمومی آزمایشی با موفقیت تست کرد؛ job انتشار به سرور عمداً skipped بود.
+
+این تست‌ها جدا از تست live هستند. تا زمانی که SSH/Secrets و مهاجرت واقعی انجام نشوند، تحویل و اجرای کامل زیرساخت روی سرور، عملکرد واقعی میرور از سرور ایران، SSL، ارسال پیامک/پوش و restore نهایی **تأییدشده محسوب نمی‌شوند**. اجرای راهنما روی سرور شما لازم است.

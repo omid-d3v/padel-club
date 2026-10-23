@@ -1446,9 +1446,9 @@
     "semantic_hash": ""
   },
   "deploy/stack.sh": {
-    "mtime": 1792784083.4302728,
-    "seen": 1792785512.053805,
-    "ast_hash": "7c423beba3680fb2e0aa0697b06bd79e",
+    "mtime": 1792786101.6926806,
+    "seen": 1792786149.5491958,
+    "ast_hash": "106dee6d58f0312ac55997df75219752",
     "semantic_hash": ""
   },
   "deploy/verify.sql": {
@@ -1524,9 +1524,9 @@
     "semantic_hash": ""
   },
   "tests/deployment-ci.test.mjs": {
-    "mtime": 1792785900.360069,
-    "seen": 1792785959.5560734,
-    "ast_hash": "f8047dab007f764313d621a8edc33f06",
+    "mtime": 1792786117.1422951,
+    "seen": 1792786149.5509503,
+    "ast_hash": "72d5dde28e85f4f28b6b2121a78fde6f",
     "semantic_hash": ""
   },
   "tests/deployment-edge.test.ts": {
