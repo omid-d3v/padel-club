@@ -2,20 +2,40 @@ import { test, expect } from "@playwright/test";
 import { formatJalaliInput, tehranDateTime } from "../../src/lib/date-time";
 const uuid = (n: number) =>
   `10000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
-test("inline booking authentication and profile keep selected slot and equipment", async ({
+test("inline booking wizard, private receipt and admin review", async ({
   page,
+  browser,
 }) => {
-  test.setTimeout(120000);
-  const slot = uuid(test.info().project.name === "mobile" ? 725 : 724);
-  const path = `/clubs/browser-test-club/book?court=${uuid(702)}&slot=${slot}`;
-  await page.goto(path);
+  test.setTimeout(180000);
+  const project = test.info().project.name,
+    slot = uuid(project === "mobile" ? 725 : 724),
+    person = `رزروکنندهٔ مسیر ${project}`;
+  await page.goto(
+    `/clubs/browser-test-club/book?court=${uuid(702)}&slot=${slot}`,
+  );
+  await expect(
+    page.getByRole("navigation", { name: "مراحل رزرو" }),
+  ).toBeVisible();
   await expect(page.locator(`[data-slot-id="${slot}"]`)).toHaveAttribute(
     "aria-pressed",
     "true",
   );
+  await page.getByRole("button", { name: "مرحلهٔ بعد", exact: true }).click();
   await page.getByRole("button", { name: "افزایش تعداد راکت آزمون" }).click();
+  await page.getByRole("button", { name: "مرحلهٔ قبل", exact: true }).click();
+  await expect(page.locator(`[data-slot-id="${slot}"]`)).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await page.getByRole("button", { name: "مرحلهٔ بعد", exact: true }).click();
+  await expect(page.getByLabel("تعداد راکت آزمون", { exact: true })).toHaveText(
+    "۱",
+  );
+  await page
+    .getByRole("button", { name: "ادامه با این تجهیزات", exact: true })
+    .click();
   const auth = page.getByRole("region", { name: "ورود و ادامه رزرو" });
-  if (test.info().project.name === "desktop") {
+  if (project === "desktop") {
     await auth.getByRole("button", { name: "ساخت حساب", exact: true }).click();
     await auth
       .getByLabel("ایمیل", { exact: true })
@@ -37,33 +57,127 @@ test("inline booking authentication and profile keep selected slot and equipment
       .click();
   }
   await expect(auth).toHaveCount(0);
-  await expect(page).toHaveURL(new RegExp(`/clubs/browser-test-club/book\\?`));
-  await expect(page.locator(`[data-slot-id="${slot}"]`)).toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
-  await expect(page.getByLabel("تعداد راکت آزمون", { exact: true })).toHaveText(
-    "۱",
-  );
-  await page
-    .getByLabel("نام و نام خانوادگی", { exact: true })
-    .fill("رزروکننده در همان مسیر");
+  await page.getByLabel("نام و نام خانوادگی", { exact: true }).fill(person);
+  await page.getByRole("button", { name: "مرحلهٔ بعد", exact: true }).click();
+  await expect(page.locator("button.bg-primary:visible")).toHaveCount(1);
+  await expect(page.getByRole("radio", { name: /کارت‌به‌کارت/ })).toBeChecked();
   await page.getByRole("checkbox").check();
-  await page
-    .getByRole("button", { name: "پرداخت و ثبت رزرو", exact: true })
-    .click();
-  await expect(
-    page.getByRole("alert").filter({ hasText: "درگاه پرداخت هنوز تنظیم نشده" }),
-  ).toBeVisible();
-  await expect(page).toHaveURL(new RegExp(`/clubs/browser-test-club/book\\?`));
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
   await page.screenshot({
-    path: `test-results/inline-checkout-${test.info().project.name}.png`,
+    path: `test-results/wizard-review-${project}.png`,
     fullPage: true,
   });
+  await page
+    .getByRole("button", { name: "ادامه واریز کارت‌به‌کارت", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/account\/payments\/[a-f0-9-]+$/);
+  const payment = page.url().split("/").at(-1)!;
+  await expect(
+    page.getByText("کارت آزمایشی بدون واریز واقعی", { exact: true }),
+  ).toBeVisible();
+  const upload = async (label: string) => {
+    await page
+      .getByLabel("عکس رسید واریز", { exact: true })
+      .setInputFiles({
+        name: "test-only.png",
+        mimeType: "image/png",
+        buffer: Buffer.from(
+          "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jS1sAAAAASUVORK5CYII=",
+          "base64",
+        ),
+      });
+    await page.getByRole("checkbox").check();
+    await page.getByRole("button", { name: label, exact: true }).click();
+    await expect(
+      page.getByRole("heading", {
+        name: "رسید در انتظار بررسی است",
+        exact: true,
+      }),
+    ).toBeVisible();
+  };
+  await upload("واریز کردم؛ ثبت عکس رسید");
+  const context = await browser.newContext({
+      baseURL: "http://127.0.0.1:3100",
+    }),
+    adminPage = await context.newPage();
+  await adminPage.goto("/login");
+  await adminPage
+    .getByLabel("ایمیل", { exact: true })
+    .fill("admin@example.com");
+  await adminPage
+    .getByLabel("رمز عبور", { exact: true })
+    .fill("browser-test-password");
+  await adminPage
+    .getByRole("button", { name: "ورود به حساب", exact: true })
+    .click();
+  await expect(adminPage).toHaveURL("/admin");
+  await adminPage.goto("/admin/operations?tab=queue");
+  await expect(
+    adminPage.getByRole("heading", { name: person, exact: true }),
+  ).toHaveCount(0);
+  const openReceipt = async () => {
+    await adminPage.goto("/admin/operations?tab=receipts");
+    await adminPage
+      .locator("[data-record-id]")
+      .filter({ hasText: person })
+      .getByRole("button", { name: /جزئیات/ })
+      .click();
+  };
+  await openReceipt();
+  if (project === "desktop") {
+    await adminPage.getByText("رد رسید با ذکر علت", { exact: true }).click();
+    await adminPage
+      .getByLabel("علت رد رسید", { exact: true })
+      .fill("عکس رسید خوانا نیست");
+    await adminPage
+      .getByRole("button", { name: "رد رسید و اطلاع به کاربر", exact: true })
+      .click();
+    await adminPage
+      .getByRole("button", { name: "تأیید و ادامه", exact: true })
+      .click();
+    await expect(
+      adminPage.getByText("علت رد: عکس رسید خوانا نیست", { exact: false }),
+    ).toBeVisible();
+    await page.reload();
+    await expect(
+      page.getByRole("alert").filter({ hasText: "عکس رسید خوانا نیست" }),
+    ).toBeVisible();
+    await upload("ثبت رسید اصلاح‌شده");
+    await openReceipt();
+  }
+  await adminPage
+    .getByLabel("شناسهٔ واقعی تراکنش در گردش حساب", { exact: true })
+    .fill(`BROWSER_ONLY_${project}_${payment}`);
+  await adminPage
+    .getByRole("button", { name: "تأیید واریز پس از تطبیق حساب", exact: true })
+    .click();
+  await adminPage
+    .getByRole("button", { name: "تأیید و ادامه", exact: true })
+    .click();
+  await expect(
+    adminPage.getByRole("button", {
+      name: "تأیید واریز پس از تطبیق حساب",
+      exact: true,
+    }),
+  ).toHaveCount(0);
+  await page.reload();
+  await expect(
+    page.getByRole("heading", { name: "واریز بررسی و تأیید شد", exact: true }),
+  ).toBeVisible();
   await page.goto("/account/bookings");
   await expect(
-    page.locator("article").filter({ hasText: "آماده پرداخت" }),
+    page.getByText("پرداخت موفق؛ در انتظار تأیید نهایی", { exact: true }),
   ).toBeVisible();
+  await expect(page.getByText("رزرو قطعی", { exact: true })).toHaveCount(0);
+  await page.screenshot({
+    path: `test-results/transfer-paid-${project}.png`,
+    fullPage: true,
+  });
+  await context.close();
 });
 
 test("public SSR, SEO, Persian layout and reduced-motion fallback", async ({
@@ -139,14 +253,19 @@ test("member profile → real SQL booking → admin hold → no fake payment wit
       .first(),
   ).toBeVisible();
   await page.goto(`/clubs/browser-test-club/book?court=${uuid(702)}`);
+  await page.getByRole("button", { name: /بازی باز چهار نفره/ }).click();
+  await page.getByLabel("عنوان بازی").fill("بازی آزمون پیگیری سانس");
+  await page.getByRole("button", { name: "مرحلهٔ بعد", exact: true }).click();
   const slot = uuid(test.info().project.name === "mobile" ? 721 : 720);
   await page.getByRole("button", { name: "رفتن به نخستین روز آزاد" }).click();
   await page.locator(`[data-slot-id="${slot}"]`).click();
-  await page.getByRole("tab", { name: /بازی باز چهار نفره/ }).click();
-  await page.getByLabel("عنوان بازی").fill("بازی آزمون پیگیری سانس");
+  await page
+    .getByRole("button", { name: "ادامه با این تجهیزات", exact: true })
+    .click();
+  await page.getByRole("button", { name: "مرحلهٔ بعد", exact: true }).click();
   await page.getByRole("checkbox").check();
   await page
-    .getByRole("button", { name: "درخواست زمین و ساخت بازی", exact: true })
+    .getByRole("button", { name: "ثبت بازی و درخواست رزرو", exact: true })
     .click();
   await expect(page).toHaveURL("/account/bookings");
   const article = page
@@ -161,7 +280,11 @@ test("member profile → real SQL booking → admin hold → no fake payment wit
   const bookingId = await article
     .locator('input[name="booking_id"]')
     .getAttribute("value");
-  await expect(page.getByText("درگاه زرین‌پال هنوز تنظیم نشده")).toBeVisible();
+  await expect(
+    page
+      .getByRole("link", { name: "پیگیری پرداخت و استرداد", exact: true })
+      .first(),
+  ).toBeVisible();
   const context = await browser.newContext({
     baseURL: "http://127.0.0.1:3100",
   });
@@ -196,7 +319,10 @@ test("member profile → real SQL booking → admin hold → no fake payment wit
   const target = uuid(test.info().project.name === "mobile" ? 723 : 722);
   // Relative fixture times can cross Tehran midnight; select the target's day,
   // rather than assuming it is on the first day with any free inventory.
-  for (const day of await replacement.getByRole("group", {name:"انتخاب روز",exact:true}).getByRole("button").all()) {
+  for (const day of await replacement
+    .getByRole("group", { name: "انتخاب روز", exact: true })
+    .getByRole("button")
+    .all()) {
     if (await replacement.locator(`[data-slot-id="${target}"]`).count()) break;
     await day.click();
   }
@@ -279,8 +405,8 @@ test("member profile → real SQL booking → admin hold → no fake payment wit
     has: page.locator(`input[name="booking_id"][value="${bookingId}"]`),
   });
   await expect(
-    page.getByRole("button", { name: "پرداخت در زرین‌پال" }).first(),
-  ).toBeDisabled();
+    page.getByRole("button", { name: "ادامهٔ پرداخت" }).first(),
+  ).toBeEnabled();
   await expect(receipt.getByText("رزرو قطعی", { exact: true })).toHaveCount(0);
   const code = `BROWSER_${test.info().project.name.toUpperCase()}`;
   await admin.goto("/admin/operations?tab=discounts");

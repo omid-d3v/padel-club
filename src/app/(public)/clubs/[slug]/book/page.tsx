@@ -7,6 +7,7 @@ import { BookingForm } from "@/components/platform/booking-form";
 import { providerFor, providerConfigured } from "@/lib/booking/providers";
 import { JalaliDateInput } from "@/components/ui/jalali-date-input";
 import { equipmentSelection } from "@/lib/booking/selection";
+import { paymentMethods } from "@/lib/payments/methods";
 import {
   isGregorianDate,
   tehranLocalToISO,
@@ -90,35 +91,6 @@ export default async function Book({
       <p className="intro">
         سانس‌های هفت روز پیش رو؛ تاریخ و ساعت نمایش‌داده‌شده به وقت تهران است.
       </p>
-      <nav aria-label="انتخاب زمین" className="mb-5 flex flex-wrap gap-2">
-        {d.courts
-          .filter((c) => c.club_id === club.id && c.active)
-          .map((c) => (
-            <Link
-              key={c.id}
-              href={`?court=${c.id}&date=${selectedDay}`}
-              aria-current={c.id === court.id ? "page" : undefined}
-              className={`min-h-11 rounded-xl border px-5 py-3 text-sm ${c.id === court.id ? "border-emerald-900 bg-emerald-900 font-bold text-white" : "border-border bg-white"}`}
-            >
-              {c.name}
-            </Link>
-          ))}
-      </nav>
-      <details className="mb-6 rounded-2xl border border-border bg-white p-4">
-        <summary className="min-h-11 cursor-pointer text-sm font-bold text-emerald-900">
-          تاریخ دیگری مدنظرته؟ تقویم کامل
-        </summary>
-        <form className="filter-bar !mb-0 !border-0 !p-0 mt-4">
-          <input type="hidden" name="court" value={court.id} />
-          <label className="field">
-            شروع بازه (شمسی)
-            <JalaliDateInput name="date" defaultValue={selectedDay} />
-          </label>
-          <button className="rounded-xl bg-primary px-5 text-sm font-bold">
-            نمایش سانس‌ها
-          </button>
-        </form>
-      </details>
       {liveError && (
         <p
           role="status"
@@ -136,6 +108,40 @@ export default async function Book({
         </p>
       )}
       <BookingForm
+        navigation={
+          <>
+            <nav aria-label="انتخاب زمین" className="mb-5 flex flex-wrap gap-2">
+              {d.courts
+                .filter((c) => c.club_id === club.id && c.active)
+                .map((c) => (
+                  <Link
+                    key={c.id}
+                    href={`?court=${c.id}&date=${selectedDay}`}
+                    aria-current={c.id === court.id ? "page" : undefined}
+                    className={`min-h-11 rounded-xl border px-5 py-3 text-sm ${c.id === court.id ? "border-emerald-900 bg-emerald-50 font-bold text-emerald-900" : "border-border bg-white"}`}
+                  >
+                    {c.name}
+                  </Link>
+                ))}
+            </nav>
+            <details className="mb-6 rounded-2xl border border-border bg-white p-4">
+              <summary className="min-h-11 cursor-pointer text-sm font-bold text-emerald-900">
+                تاریخ دیگری مدنظرته؟ تقویم کامل
+              </summary>
+              <form className="filter-bar !mb-0 !border-0 !p-0 mt-4">
+                <input type="hidden" name="court" value={court.id} />
+                <label className="field">
+                  شروع بازه (شمسی)
+                  <JalaliDateInput name="date" defaultValue={selectedDay} />
+                </label>
+                <button className="min-h-11 rounded-xl border border-border bg-white px-5 text-sm font-bold">
+                  نمایش سانس‌ها
+                </button>
+              </form>
+            </details>
+          </>
+        }
+        methods={m ? await paymentMethods() : { card: false, zarinpal: false }}
         key={`${court.id}:${selectedDay}`}
         authenticated={!!m}
         needsProfile={!!m && !m.profile}

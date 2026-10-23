@@ -29,7 +29,8 @@ export function BookingAccess({
       <div className="mb-5 flex gap-3" role="group" aria-label="حساب کاربری">
         <Button
           type="button"
-          variant={!signup ? "default" : "outline"}
+          variant="outline"
+          className={!signup ? "border-emerald-800 bg-emerald-50" : ""}
           aria-pressed={!signup}
           onClick={() => setSignup(false)}
         >
@@ -37,7 +38,8 @@ export function BookingAccess({
         </Button>
         <Button
           type="button"
-          variant={signup ? "default" : "outline"}
+          variant="outline"
+          className={signup ? "border-emerald-800 bg-emerald-50" : ""}
           aria-pressed={signup}
           onClick={() => setSignup(true)}
         >
@@ -53,6 +55,7 @@ export function BookingAccess({
         {signup ? (
           <ActionForm
             action={registerAccount}
+            buttonVariant="default"
             label="ساخت حساب و ادامه رزرو"
             onSuccess={(result) => {
               if (result.redirect) resume();

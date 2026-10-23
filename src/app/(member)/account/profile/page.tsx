@@ -68,7 +68,11 @@ export default async function Profile() {
               )}
             </div>
           </div>
-          <ActionForm operation="profile" label="ذخیره پروفایل">
+          <ActionForm
+            operation="profile"
+            label="ذخیره پروفایل"
+            buttonVariant="default"
+          >
             <h3 className="form-section-title">
               <UserRound size={18} />
               اطلاعات بازیکن

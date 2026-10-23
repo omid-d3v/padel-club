@@ -159,7 +159,7 @@ export function PushOptIn({
             غیرفعال‌کردن اعلان این دستگاه
           </Button>
         ) : (
-          <Button disabled={pending} onClick={enable}>
+          <Button variant="outline" disabled={pending} onClick={enable}>
             {pending ? "در حال فعال‌سازی…" : "فعال‌کردن اعلان‌ها"}
           </Button>
         )}

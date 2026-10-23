@@ -3,7 +3,7 @@ const config: NextConfig = {
   poweredByHeader: false,
   devIndicators: false,
   distDir: process.env.NEXT_DIST_DIR || ".next",
-  experimental: { serverActions: { bodySizeLimit: "4mb" } },
+  experimental: { serverActions: { bodySizeLimit: "6mb" } },
   images: {
     remotePatterns: [
       {

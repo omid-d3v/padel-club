@@ -6,17 +6,22 @@ import {
   requestGateway,
   verifyGateway,
   gatewayUrl,
-  paymentConfigured,
 } from "@/lib/payments/zarinpal";
 import { siteUrl } from "@/lib/seo";
 import { errorResult, type PlatformResult } from "@/app/platform-actions";
+import { paymentMethods } from "@/lib/payments/methods";
 export async function beginPayment(form: FormData): Promise<PlatformResult> {
   const m = await requireMember();
   try {
-    if (!paymentConfigured())
+    const method = z
+      .enum(["zarinpal", "card_transfer"])
+      .parse(form.get("method") ?? "zarinpal");
+    const methods = await paymentMethods();
+    if (!(method === "zarinpal" ? methods.zarinpal : methods.card))
       return {
         success: false,
-        message: "درگاه پرداخت هنوز تنظیم نشده است؛ هیچ مبلغی دریافت نمی‌شود.",
+        message:
+          "این روش پرداخت اکنون آماده نیست؛ صفحه را تازه یا روش دیگری انتخاب کنید.",
       };
     const participant = form.get("participant_id")
       ? z.uuid().parse(form.get("participant_id"))
@@ -24,11 +29,18 @@ export async function beginPayment(form: FormData): Promise<PlatformResult> {
     const registration = form.get("registration_id")
       ? z.uuid().parse(form.get("registration_id"))
       : null;
-    const { data: pid, error } = await m.db.rpc("start_checkout", {
+    const { data: pid, error } = await m.db.rpc("start_payment", {
       p_participant: participant,
       p_registration: registration,
+      p_provider: method,
     });
     if (error) throw error;
+    if (method === "card_transfer")
+      return {
+        success: true,
+        message: "اطلاعات واریز آماده است؛ پس از واریز، عکس رسید را ثبت کنید.",
+        redirect: `/account/payments/${pid}`,
+      };
     const { data: p, error: readError } = await m.db
       .from("payments")
       .select("*")

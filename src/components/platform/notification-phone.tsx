@@ -71,7 +71,7 @@ export function NotificationPhone({
             {message}
           </p>
         )}
-        <Button disabled={pending}>
+        <Button variant="outline" disabled={pending}>
           {pending
             ? "در حال بررسی…"
             : sent

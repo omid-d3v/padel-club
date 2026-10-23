@@ -1,14 +1,14 @@
 import Link from "next/link";
 import { ownRows, events } from "@/lib/platform/data";
 import { money, bookingLabels } from "@/lib/platform/format";
-import { ActionForm } from "@/components/platform/action-form";
-import { beginPayment } from "@/app/payment-actions";
-import { paymentConfigured } from "@/lib/payments/zarinpal";
+import { paymentMethods } from "@/lib/payments/methods";
+import { PaymentChooser } from "@/components/platform/payment-chooser";
 export default async function AccountEvents() {
   const [rows, ev] = await Promise.all([
     ownRows("event_registrations"),
     events(),
   ]);
+  const methods = await paymentMethods();
   return (
     <section className="public-container public-page">
       <h1>رقابت‌های تو</h1>
@@ -31,14 +31,8 @@ export default async function AccountEvents() {
             )}
             {r.status === "reserved" && (
               <div className="max-w-xs">
-                <ActionForm
-                  action={beginPayment}
-                  label="پرداخت ثبت‌نام"
-                  disabled={!paymentConfigured()}
-                >
-                  <input type="hidden" name="registration_id" value={r.id} />
-                </ActionForm>
-                {!paymentConfigured() && (
+                <PaymentChooser methods={methods} registration={r.id} />
+                {!methods.card && !methods.zarinpal && (
                   <p className="mt-3 text-xs text-amber-800">
                     درگاه هنوز تنظیم نشده است.
                   </p>

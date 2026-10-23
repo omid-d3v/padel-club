@@ -15,6 +15,9 @@ await db.exec(
   `create schema auth;create role anon;create role authenticated;create role service_role bypassrls;create table auth.users(id uuid primary key);create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;grant usage on schema auth to anon,authenticated,service_role;grant execute on function auth.uid() to anon,authenticated,service_role;`,
 );
 const directory = new URL("../../supabase/migrations/", import.meta.url);
+await db.exec(
+  `create schema storage;create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);create table storage.objects(id uuid primary key default gen_random_uuid(),bucket_id text,name text,metadata jsonb,unique(bucket_id,name));alter table storage.objects enable row level security;create function storage.foldername(text) returns text[] language sql immutable as $$select string_to_array($1,'/')$$;grant usage on schema storage to authenticated,service_role;grant select,insert on storage.objects to authenticated;grant all on storage.objects to service_role;`,
+);
 for (const file of readdirSync(directory)
   .filter((f) => f.endsWith(".sql"))
   .sort())
@@ -27,6 +30,11 @@ await db.query("insert into auth.users(id) values($1),($2),($3),($4),($5)", [
   checkoutMobile,
 ]);
 await db.query("insert into admins(user_id) values($1)", [admin]);
+// Test-only destination, never seeded into the product database.
+await db.query("select set_config('request.jwt.claim.sub',$1,false)", [admin]);
+await db.query(
+  "select save_payment_settings(false,true,'4242424242424242','کارت آزمایشی بدون واریز واقعی')",
+);
 const names = [
   ["امید", "حسینی"],
   ["علی", "رضایی"],
@@ -168,14 +176,18 @@ function subject(req) {
   }
 }
 let queue = Promise.resolve();
+const testImages = new Map();
 http
   .createServer(async (req, res) => {
     const url = new URL(req.url, "http://127.0.0.1:54321");
     const chunks = [];
     for await (const chunk of req) chunks.push(chunk);
-    const body = chunks.length
-      ? JSON.parse(Buffer.concat(chunks).toString())
-      : {};
+    const raw = Buffer.concat(chunks);
+    const body =
+      raw.length &&
+      String(req.headers["content-type"] ?? "").includes("application/json")
+        ? JSON.parse(raw.toString())
+        : {};
     const send = (data, status = 200) => {
       res.writeHead(status, { "Content-Type": "application/json" });
       res.end(
@@ -207,6 +219,65 @@ http
         await db.query("select set_config('request.jwt.claim.sub',$1,false)", [
           uid ?? "",
         ]);
+        if (
+          url.pathname.startsWith("/storage/v1/object/payment-receipts/") &&
+          req.method === "POST"
+        ) {
+          const path = decodeURIComponent(
+            url.pathname.slice("/storage/v1/object/payment-receipts/".length),
+          );
+          const objectId = crypto.randomUUID();
+          await db.query(
+            "insert into storage.objects(id,bucket_id,name,metadata) values($1,'payment-receipts',$2,$3::jsonb)",
+            [
+              objectId,
+              path,
+              JSON.stringify({
+                mimetype: req.headers["content-type"],
+                size: raw.length,
+              }),
+            ],
+          );
+          testImages.set(path, raw);
+          return send({ Id: objectId, Key: `payment-receipts/${path}` });
+        }
+        if (
+          url.pathname.startsWith(
+            "/storage/v1/object/sign/payment-receipts/",
+          ) &&
+          req.method === "POST"
+        ) {
+          const path = decodeURIComponent(
+            url.pathname.slice(
+              "/storage/v1/object/sign/payment-receipts/".length,
+            ),
+          );
+          const { rows } = await db.query(
+            "select id from storage.objects where bucket_id='payment-receipts' and name=$1",
+            [path],
+          );
+          if (!rows.length) return send({ error: "Not found" }, 404);
+          return send({
+            signedURL: `/object/sign/payment-receipts/${path}?token=test-only`,
+          });
+        }
+        if (
+          url.pathname.startsWith(
+            "/storage/v1/object/sign/payment-receipts/",
+          ) &&
+          req.method === "GET"
+        ) {
+          const path = decodeURIComponent(
+              url.pathname.slice(
+                "/storage/v1/object/sign/payment-receipts/".length,
+              ),
+            ),
+            bytes = testImages.get(path);
+          if (!bytes || url.searchParams.get("token") !== "test-only")
+            return send({}, 404);
+          res.writeHead(200, { "Content-Type": "image/png" });
+          return res.end(bytes);
+        }
         if (url.pathname.startsWith("/rest/v1/rpc/")) {
           const fn = identifier(url.pathname.split("/").at(-1));
           const entries = Object.entries(body);

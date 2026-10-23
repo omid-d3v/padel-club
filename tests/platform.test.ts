@@ -622,6 +622,186 @@ describe("calendar import isolation and scheduling", () => {
   });
 });
 describe("payment-first private bookings", () => {
+  async function transfer(day: number) {
+    await role("authenticated");
+    await db.query(
+      "select save_payment_settings(true,true,'4242424242424242','حساب فقط برای آزمون')",
+    );
+    const b = await request(await slot(courts[1], 4000001, day));
+    const bp = await participant(b);
+    const pid = await id("select start_payment($1,null,'card_transfer') id", [
+      bp,
+    ]);
+    const receipt = await id(
+      "select id from card_transfer_receipts where payment_id=$1",
+      [pid],
+    );
+    return { b, bp, pid, receipt };
+  }
+  async function submitReceipt(pid: string) {
+    const path = `${users[0]}/${pid}/${crypto.randomUUID()}.png`;
+    await role("postgres");
+    await db.exec(
+      "create schema if not exists storage;create table if not exists storage.objects(bucket_id text,name text)",
+    );
+    await db.query(
+      "insert into storage.objects(bucket_id,name) values('payment-receipts',$1)",
+      [path],
+    );
+    await role("authenticated", users[0]);
+    await db.query("select submit_card_receipt($1,$2)", [pid, path]);
+    return path;
+  }
+  it("protects settings, honors disabled methods and snapshots the destination card", async () => {
+    await role("authenticated", users[0]);
+    await expect(
+      db.query(
+        "select save_payment_settings(false,true,'4242424242424242','حساب آزمون')",
+      ),
+    ).rejects.toThrow("ADMIN_REQUIRED");
+    const { pid } = await transfer(200);
+    await role("authenticated");
+    await db.query(
+      "select save_payment_settings(false,false,'5555555555554444','کارت جدید آزمون')",
+    );
+    await role("authenticated", users[0]);
+    expect(
+      (
+        await query(
+          "select card_number from card_transfer_receipts where payment_id=$1",
+          [pid],
+        )
+      )[0].card_number,
+    ).toBe("4242424242424242");
+    const b = await request(await slot(courts[1], 4000001, 202));
+    const bp = await participant(b);
+    await expect(
+      db.query("select start_payment($1,null,'card_transfer')", [bp]),
+    ).rejects.toThrow("PAYMENT_METHOD_DISABLED");
+    await expect(
+      db.query("select start_checkout($1,null)", [bp]),
+    ).rejects.toThrow("PAYMENT_METHOD_DISABLED");
+    await role("authenticated");
+    await db.query(
+      "select save_payment_settings(true,true,'4242424242424242','حساب آزمون')",
+    );
+  });
+  it("requires an uploaded owned receipt and admin bank reconciliation, not a user claim", async () => {
+    const { b, pid, receipt } = await transfer(204);
+    await expect(
+      db.query("select submit_card_receipt($1,'other-owner/file.png')", [pid]),
+    ).rejects.toThrow("INVALID_RECEIPT");
+    await submitReceipt(pid);
+    expect(
+      (await query("select status from payments where id=$1", [pid]))[0].status,
+    ).toBe("pending");
+    expect(
+      (await query("select status from bookings where id=$1", [b]))[0].status,
+    ).toBe("awaiting_payment");
+    await expect(
+      db.query("select review_card_receipt($1,1,true,'','real-bank-id')", [
+        receipt,
+      ]),
+    ).rejects.toThrow("ADMIN_REQUIRED");
+    await role("authenticated", users[1]);
+    expect(
+      await query("select * from card_transfer_receipts where id=$1", [
+        receipt,
+      ]),
+    ).toHaveLength(0);
+    await role("service_role");
+    await expect(
+      db.query("select settle_payment($1,'fake-gateway',4000001)", [pid]),
+    ).rejects.toThrow("PAYMENT_METHOD_MISMATCH");
+    expect(
+      (
+        await query<{ claimed: boolean }>(
+          "select claim_payment_request($1) claimed",
+          [pid],
+        )
+      )[0].claimed,
+    ).toBe(false);
+    await role("authenticated");
+    await expect(
+      db.query("select review_card_receipt($1,1,true,'','')", [receipt]),
+    ).rejects.toThrow("BANK_REFERENCE_REQUIRED");
+    await db.query(
+      "select save_payment_settings(true,false,'4242424242424242','حساب آزمون')",
+    );
+    const bank = `verified-${receipt}`;
+    await db.query("select review_card_receipt($1,1,true,'',$2)", [
+      receipt,
+      bank,
+    ]);
+    await db.query("select review_card_receipt($1,1,true,'',$2)", [
+      receipt,
+      bank,
+    ]);
+    expect(
+      (await query("select status from bookings where id=$1", [b]))[0].status,
+    ).toBe("booking_in_progress");
+    expect(
+      (await query("select status from payments where id=$1", [pid]))[0].status,
+    ).toBe("paid");
+  });
+  it("requires a rejection reason, accepts corrections and fences stale review revisions", async () => {
+    const { pid, receipt } = await transfer(206);
+    await submitReceipt(pid);
+    await role("authenticated");
+    await expect(
+      db.query("select review_card_receipt($1,1,false,'','')", [receipt]),
+    ).rejects.toThrow("REASON_REQUIRED");
+    await db.query(
+      "select review_card_receipt($1,1,false,'شناسهٔ تراکنش خوانا نیست','')",
+      [receipt],
+    );
+    await role("authenticated", users[0]);
+    expect(
+      (
+        await query(
+          "select rejection_reason from card_transfer_receipts where id=$1",
+          [receipt],
+        )
+      )[0].rejection_reason,
+    ).toContain("خوانا نیست");
+    await submitReceipt(pid);
+    await role("authenticated");
+    await expect(
+      db.query("select review_card_receipt($1,1,true,'','stale-review')", [
+        receipt,
+      ]),
+    ).rejects.toThrow("STALE_RECEIPT");
+    await db.query("select review_card_receipt($1,2,true,'',$2)", [
+      receipt,
+      `corrected-${receipt}`,
+    ]);
+  });
+  it("records late claims but refunds verified late money without resurrecting inventory", async () => {
+    const { b, pid, receipt } = await transfer(208);
+    await role("postgres");
+    await db.query(
+      "update payments set expires_at=now()-interval '1 minute' where id=$1",
+      [pid],
+    );
+    await db.query(
+      "update bookings set payment_deadline=now()-interval '1 minute' where id=$1",
+      [b],
+    );
+    await role("service_role");
+    await db.query("select run_platform_jobs()");
+    await submitReceipt(pid);
+    await role("authenticated");
+    await db.query("select review_card_receipt($1,1,true,'',$2)", [
+      receipt,
+      `late-${receipt}`,
+    ]);
+    expect(
+      (await query("select status from bookings where id=$1", [b]))[0].status,
+    ).toBe("cancelled");
+    expect(
+      await query("select * from refunds where payment_id=$1", [pid]),
+    ).toHaveLength(1);
+  });
   it("collects payment without fabricating a hold, queues only paid orders, then requires a real reservation", async () => {
     const b = await request(await slot(courts[1], 4000001, 60));
     expect(
@@ -1040,7 +1220,7 @@ describe("platform booking and payment authority", () => {
     );
   });
   it("requires secured event courts, enforces eight registrations and reuses the seven-round format", async () => {
-    const first = await slot(courts[0], 4000000, 20);
+    const first = await slot(courts[0], 4000000, 500);
     await role("postgres");
     const s = (
       await query<{ starts_at: string; ends_at: string }>(

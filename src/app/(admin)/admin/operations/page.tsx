@@ -15,6 +15,7 @@ import {
   type AdminListItem,
 } from "@/components/platform/admin-list";
 import { DetailPanel } from "@/components/platform/detail-panel";
+import { ReceiptReview } from "@/components/platform/receipt-review";
 import { money, moment, bookingLabels } from "@/lib/platform/format";
 import { retryVerifyPayment } from "@/app/payment-actions";
 import { number } from "@/lib/utils";
@@ -26,6 +27,7 @@ import {
 } from "@/components/platform/booking-fulfillment";
 
 const sections = [
+  ["receipts", "رسیدهای کارت‌به‌کارت"],
   ["queue", "صف اقدام رزرو"],
   ["bookings", "رزروها"],
   ["payments", "پرداخت‌ها"],
@@ -74,9 +76,10 @@ export default async function Operations({
     adminRows("players"),
     adminRows("discount_codes"),
   ]);
-  const [proposals, connections] = await Promise.all([
+  const [proposals, connections, receipts] = await Promise.all([
     adminRows("booking_reschedules"),
     adminRows("calendar_connections"),
+    adminRows("card_transfer_receipts"),
   ]);
   const sourceUrls: Record<string, string> = {
     guilan: "https://guilanpadelclub.ir/booking",
@@ -295,6 +298,27 @@ export default async function Operations({
           })
       : [];
   let otherItems: AdminListItem[] = [];
+  if (tab === "receipts")
+    otherItems = receipts
+      .filter((r) => r.status !== "draft")
+      .toSorted((a, b) =>
+        (b.submitted_at ?? b.created_at).localeCompare(
+          a.submitted_at ?? a.created_at,
+        ),
+      )
+      .map((r) => ({
+        id: r.id,
+        title: names(r.user_id),
+        meta: `${money(payments.find((p) => p.id === r.payment_id)?.amount ?? 0)} · ${moment(r.submitted_at ?? r.created_at)}`,
+        badge: {
+          pending: "در انتظار بررسی",
+          approved: "واریز تأیید شد",
+          rejected: "رسید رد شد",
+          draft: "آماده واریز",
+        }[r.status],
+        state: r.status,
+        content: <ReceiptReview receipt={r} />,
+      }));
   if (tab === "payments")
     otherItems = payments
       .toSorted((a, b) => b.created_at.localeCompare(a.created_at))

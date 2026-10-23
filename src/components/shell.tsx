@@ -10,10 +10,12 @@ import {
   ArrowUpLeft,
   LogOut,
   PanelTop,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logout } from "@/app/actions";
 const links = [
+  { href: "/admin/settings", label: "تنظیمات", icon: Settings },
   { href: "/admin", label: "داشبورد", icon: LayoutDashboard },
   {
     href: "/admin/operations",
@@ -121,6 +123,7 @@ export function Shell({
                   "/admin/clubs",
                   "/admin/integrations",
                   "/admin/events",
+                  "/admin/settings",
                 ].includes(x.href),
               )
               .map((x) => (

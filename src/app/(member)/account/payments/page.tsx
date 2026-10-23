@@ -3,6 +3,7 @@ import { money, moment, bookingLabels } from "@/lib/platform/format";
 import { ActionForm } from "@/components/platform/action-form";
 import { retryVerifyPayment } from "@/app/payment-actions";
 import { PublicEmpty } from "@/components/platform/cards";
+import Link from "next/link";
 export default async function Payments({
   searchParams,
 }: {
@@ -45,6 +46,14 @@ export default async function Payments({
                 <span className="status-pill">{bookingLabels[p.status]}</span>
               </div>
               <p className="mt-4 text-sm">{moment(p.created_at)}</p>
+              {p.provider === "card_transfer" && (
+                <Link
+                  href={`/account/payments/${p.id}`}
+                  className="mt-3 inline-flex min-h-11 items-center text-sm underline"
+                >
+                  رسید کارت‌به‌کارت، علت رد و نتیجهٔ بررسی
+                </Link>
+              )}
               <p className="mt-3 text-xs">
                 شناسه پیگیری داخلی: <bdi>{p.id}</bdi>
               </p>

@@ -16,7 +16,8 @@ export function ActionForm({
   confirm,
   action,
   disabled = false,
-  buttonVariant = "default",
+  buttonVariant = "outline",
+  showSubmit = true,
   onSuccess,
 }: {
   operation?: string;
@@ -27,6 +28,7 @@ export function ActionForm({
   action?: (form: FormData) => Promise<PlatformResult>;
   disabled?: boolean;
   buttonVariant?: ComponentProps<typeof Button>["variant"];
+  showSubmit?: boolean;
   onSuccess?: (result: PlatformResult) => void;
 }) {
   const router = useRouter();
@@ -71,6 +73,7 @@ export function ActionForm({
         className={className}
         onSubmit={(e) => {
           e.preventDefault();
+          if (!showSubmit) return;
           if (pending) return;
           const f = new FormData(e.currentTarget);
           if (confirm) setConfirmation(f);
@@ -99,15 +102,17 @@ export function ActionForm({
               پیگیری و ادامهٔ پرداخت رزرو
             </Link>
           )}
-        <Button
-          variant={buttonVariant}
-          disabled={pending || disabled}
-          className="w-full"
-          type="submit"
-        >
-          {pending && <LoaderCircle size={17} className="animate-spin" />}
-          {pending ? "در حال بررسی…" : label}
-        </Button>
+        {showSubmit && (
+          <Button
+            variant={buttonVariant}
+            disabled={pending || disabled}
+            className="w-full"
+            type="submit"
+          >
+            {pending && <LoaderCircle size={17} className="animate-spin" />}
+            {pending ? "در حال بررسی…" : label}
+          </Button>
+        )}
       </form>
       {confirm && (
         <Dialog

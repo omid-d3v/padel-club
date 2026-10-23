@@ -1605,7 +1605,7 @@ a:focus-visible {
     transform 140ms var(--ease-out);
 }
 .quantity-stepper button:last-child {
-  background: var(--rally-lime);
+  background: #f1f6ef;
 }
 .quantity-stepper button:active:not(:disabled) {
   transform: scale(0.95);

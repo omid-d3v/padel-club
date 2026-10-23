@@ -9,8 +9,8 @@ import {
 } from "@/lib/platform/format";
 import { ActionForm } from "@/components/platform/action-form";
 import { Field } from "@/components/platform/fields";
-import { beginPayment } from "@/app/payment-actions";
-import { paymentConfigured } from "@/lib/payments/zarinpal";
+import { paymentMethods } from "@/lib/payments/methods";
+import { PaymentChooser } from "@/components/platform/payment-chooser";
 import { PublicEmpty } from "@/components/platform/cards";
 import { ReplacementNotice } from "@/components/platform/replacement-notice";
 export default async function Bookings() {
@@ -30,6 +30,7 @@ export default async function Bookings() {
         )
     : { data: [], error: null };
   if (error) throw new Error("دریافت رزرو انجام نشد.");
+  const methods = await paymentMethods();
   const { data: proposals, error: proposalError } = await m.db
     .from("booking_reschedules")
     .select("*")
@@ -46,13 +47,12 @@ export default async function Bookings() {
         وضعیت تأیید باشگاه با وضعیت پرداخت فرق دارد. جزئیات هر دو را اینجا
         ببینید.
       </p>
-      {!paymentConfigured() && (
+      {!methods.card && !methods.zarinpal && (
         <p
           role="status"
           className="my-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm"
         >
-          درگاه زرین‌پال هنوز تنظیم نشده؛ رزرو و پیگیری درخواست ممکن است اما
-          پرداخت پول فعال نیست.
+          روش پرداخت فعالی نداریم؛ وضعیت تنظیمات پرداخت باید بررسی شود.
         </p>
       )}
       {participants.length ? (
@@ -218,21 +218,14 @@ export default async function Bookings() {
                       </p>
                     )}
                     {p.status === "reserved" && (
-                      <ActionForm
-                        action={beginPayment}
-                        label="پرداخت در زرین‌پال"
+                      <PaymentChooser
+                        methods={methods}
+                        participant={p.id}
                         disabled={
-                          !paymentConfigured() ||
                           !p.lock_expires_at ||
-                          new Date(p.lock_expires_at).getTime() <= now
+                          Date.parse(p.lock_expires_at) <= now
                         }
-                      >
-                        <input
-                          type="hidden"
-                          name="participant_id"
-                          value={p.id}
-                        />
-                      </ActionForm>
+                      />
                     )}
                     <Link
                       href="/account/payments"

@@ -62,6 +62,7 @@ export function ReplacementNotice({
                 <ActionForm
                   operation="reply-slot"
                   label="این تاریخ و ساعت را تأیید می‌کنم"
+                  buttonVariant="default"
                   confirm={`تغییر به ${moment(proposal.new_starts_at)} با همان مبلغ را می‌پذیرید؟ نتیجهٔ نهایی رزرو اطلاع‌رسانی خواهد شد.`}
                 >
                   <input type="hidden" name="proposal_id" value={proposal.id} />

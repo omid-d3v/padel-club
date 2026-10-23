@@ -22,13 +22,20 @@ export type PlatformResult = {
   redirect?: string;
 };
 const errors: Record<string, string> = {
+  PAYMENT_METHOD_DISABLED:
+    "این روش پرداخت فعلاً فعال نیست؛ روش دیگری انتخاب کنید.",
+  INVALID_CARD: "شماره کارت و نام صاحب حساب را کامل و معتبر وارد کنید.",
+  INVALID_RECEIPT: "عکس رسید معتبر و متعلق به همین پرداخت را بارگذاری کنید.",
+  STALE_RECEIPT: "رسید یا نتیجهٔ بررسی تغییر کرده است؛ صفحه را تازه کنید.",
+  BANK_REFERENCE_REQUIRED:
+    "پس از تطبیق با گردش حساب، شناسهٔ واقعی تراکنش واریزی را وارد کنید.",
   REPLACEMENT_UNAVAILABLE:
     "این سانس جایگزین دیگر آزاد نیست یا با مبلغ و مدت رزرو فعلی مطابقت ندارد. تقویم را تازه کنید.",
   PROPOSAL_EXPIRED:
     "مهلت پیشنهاد تمام شده یا وضعیت رزرو تغییر کرده است؛ از مدیر بخواهید پیشنهاد تازه‌ای ارسال کند.",
   INVALID_DISCOUNT:
     "کد تخفیف معتبر نیست، منقضی شده یا ظرفیت استفاده آن تمام شده است.",
-  REASON_REQUIRED: "دلیل معافیت را وارد کنید.",
+  REASON_REQUIRED: "علت این اقدام را کامل وارد کنید.",
   NOT_PAYABLE:
     "این رزرو فعلاً آمادهٔ پرداخت نیست؛ وضعیت رزرو و مهلت پرداخت را بررسی کنید.",
   INVALID_DATE:
@@ -270,6 +277,7 @@ export async function platformAction(
             const { beginPayment } = await import("@/app/payment-actions");
             const paymentForm = new FormData();
             paymentForm.set("participant_id", seat.id);
+            paymentForm.set("method", String(form.get("method") ?? "zarinpal"));
             const result = await beginPayment(paymentForm);
             revalidatePath("/account/bookings");
             return {

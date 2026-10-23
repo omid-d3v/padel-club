@@ -1,17 +1,17 @@
 # Graph Report - padel-club  (2026-10-23)
 
 ## Corpus Check
-- 195 files · ~204,778 words
+- 207 files · ~212,795 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 5 file(s) not represented in the graph (top: (none) 2, .example 1, .css 1)
 
 ## Summary
-- 1027 nodes · 2564 edges · 63 communities (35 shown, 28 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 18 edges (avg confidence: 0.91)
+- 1078 nodes · 2719 edges · 76 communities (45 shown, 31 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 19 edges (avg confidence: 0.91)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `891f31f2`
+- Built from commit: `5961102e`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -36,7 +36,7 @@
 - ref_next_types_routes_d_ts
 - devDependencies
 - 20261022111028_platform_expansion.sql
-- next
+- platform-actions.ts
 - This is NOT the Next.js you know
 - private.calendar_slot_fresh
 - جریان مدیر و کاربر
@@ -46,7 +46,7 @@
 - 20261022143309_booking_benefits.sql
 - platform/types.ts
 - eslint.config.mjs
-- actions.ts
+- public-shell.tsx
 - 20261022132244_calendar_scheduler.sql
 - Club calendar integration — 2026-10-22
 - 20261022132206_calendar_recoverable_mappings.sql
@@ -58,36 +58,49 @@
 - platform/data.ts
 - public.match_sets
 - public.courts
+- formatPersianMoment
 - README.md
 - public.calendar_connections
+- requireMember
 - پیگیری رزرو، ورود پیامکی و اعلان‌ها
+- operations/page.tsx
+- next
 - راهنمای انتشار و عملیات
+- backend.mjs
+- react
 - توسعه پدل کلاب — ممیزی و طرح انتشار
+- ref_node_fs
 - overrides
+- 20261023165928_transfer_payments_and_settings.sql
+- phone-auth-actions.ts
+- @playwright/test
+- رزرو مرحله‌ای و کارت‌به‌کارت
+- database.test.ts
+- proxy.ts
 
 ## God Nodes (most connected - your core abstractions)
-1. `next` - 62 edges
-2. `formatPersianMoment()` - 37 edges
-3. `number()` - 37 edges
-4. `react` - 35 edges
-5. `requireMember()` - 35 edges
-6. `moment` - 34 edges
-7. `money()` - 32 edges
-8. `lucide-react` - 31 edges
-9. `requireAdmin` - 27 edges
-10. `catalog` - 26 edges
+1. `next` - 66 edges
+2. `formatPersianMoment()` - 41 edges
+3. `requireMember()` - 41 edges
+4. `moment` - 38 edges
+5. `number()` - 37 edges
+6. `react` - 36 edges
+7. `money()` - 34 edges
+8. `requireAdmin` - 32 edges
+9. `lucide-react` - 31 edges
+10. `ActionForm()` - 27 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `تب‌های تغییر مسیر رزرو` --references--> `BookingModeTabs()`  [INFERRED]
-  DESIGN.md → src/components/platform/booking-mode-tabs.tsx
+- `سلسله‌مراتب اکشن‌ها — قاعدهٔ الزامی` --references--> `ActionForm()`  [INFERRED]
+  DESIGN.md → src/components/platform/action-form.tsx
 - `Persian calendar and Tehran time` --references--> `JalaliDateInput()`  [INFERRED]
   docs/JALALI-CALENDAR.md → src/components/ui/jalali-date-input.tsx
 - `پیش از انتشار` --references--> `matches()`  [INFERRED]
   docs/OPERATIONS.md → src/lib/platform/data.ts
+- `تب‌های تغییر مسیر رزرو` --references--> `BookingModeTabs()`  [INFERRED]
+  DESIGN.md → src/components/platform/booking-mode-tabs.tsx
 - `قواعد مشترک محصول و پنل` --references--> `QuantityStepper()`  [INFERRED]
   DESIGN.md → src/components/ui/quantity-stepper.tsx
-- `پنل: AdminList و DetailPanel` --references--> `AdminList()`  [INFERRED]
-  DESIGN.md → src/components/platform/admin-list.tsx
 
 ## Import Cycles
 - None detected.
@@ -96,11 +109,11 @@
 - **Supabase Security and Integrity Model** — readme_supabase_backend, readme_admin_authorization, readme_row_level_security, readme_database_integrity_model, readme_optimistic_concurrency_control [EXTRACTED 1.00]
 - **Tournament Scoring and Ranking Model** — readme_tournament_lifecycle, readme_score_entry_rules, readme_ranking_rules, readme_leaderboard_rules [EXTRACTED 1.00]
 
-## Communities (63 total, 28 thin omitted)
+## Communities (76 total, 31 thin omitted)
 
 ### Community 0 - "shared.tsx"
-Cohesion: 0.09
-Nodes (57): sonner, Dashboard(), Profile(), Players(), Tournament(), New(), Tournaments(), LeaderboardPage() (+49 more)
+Cohesion: 0.07
+Nodes (83): sonner, changeStatus(), createTournament(), deleteMatch(), deletePlayer(), deleteTournament(), fail(), login() (+75 more)
 
 ### Community 1 - "dependencies"
 Cohesion: 0.12
@@ -128,11 +141,11 @@ Nodes (19): compilerOptions, allowImportingTsExtensions, allowJs, esModuleIntero
 
 ### Community 7 - "package.json"
 Cohesion: 0.08
-Nodes (23): author, description, keywords, license, name, private, type, version (+15 more)
+Nodes (24): author, description, keywords, license, name, private, type, version (+16 more)
 
 ### Community 8 - "platform.test.ts"
-Cohesion: 0.08
-Nodes (18): ref_node_fs, @playwright/test, contentType, size, alt, contentType, size, SocialImage() (+10 more)
+Cohesion: 0.29
+Nodes (12): approve(), db, finish(), participant(), paySeat(), query(), request(), role() (+4 more)
 
 ### Community 9 - "components.json"
 Cohesion: 0.12
@@ -140,7 +153,7 @@ Nodes (16): aliases, components, hooks, lib, ui, utils, iconLibrary, rsc (+8 mor
 
 ### Community 10 - "payment-actions.ts"
 Cohesion: 0.07
-Nodes (43): ref_node_crypto, ref_node_url, ref_server_only, standardwebhooks, vitest, zod, POST(), dynamic (+35 more)
+Nodes (43): ref_node_crypto, ref_node_url, ref_server_only, standardwebhooks, vitest, zod, Settings(), POST() (+35 more)
 
 ### Community 12 - "رالی‌یار — پلتفرم فارسی رزرو و هم‌بازی"
 Cohesion: 0.14
@@ -151,8 +164,8 @@ Cohesion: 0.50
 Nodes (3): NOTE: This file should not be edited, next_types_root_params_d, next_types_routes_d
 
 ### Community 16 - "postgres-backend.mjs"
-Cohesion: 0.07
-Nodes (31): ref_node_http, base64(), matches, names, participants, players, results, rounds (+23 more)
+Cohesion: 0.12
+Nodes (15): admin, base64(), checkoutDesktop, checkoutMobile, db, directory, mobilePlayer, names (+7 more)
 
 ### Community 19 - "devDependencies"
 Cohesion: 0.15
@@ -162,9 +175,9 @@ Nodes (13): devDependencies, @electric-sql/pglite, eslint, eslint-config-next, @
 Cohesion: 0.18
 Nodes (8): private.check_slot, public.availability_rules, no_overlapping_slots, public.discover_slots(), public.generate_court_slots(), public.bookings, public.court_slots, public.courts
 
-### Community 21 - "next"
-Cohesion: 0.05
-Nodes (50): config, next, @supabase/ssr, login(), GET(), metadata, Global Stylesheet, metadata (+42 more)
+### Community 21 - "platform-actions.ts"
+Cohesion: 0.17
+Nodes (21): errorResult(), errors, int(), iso(), optionalId(), platformAction(), PlatformResult, upload() (+13 more)
 
 ### Community 23 - "private.calendar_slot_fresh"
 Cohesion: 0.20
@@ -191,12 +204,12 @@ Cohesion: 0.29
 Nodes (6): auth.users, audit_platform_change, public.booking_benefits, public.discount_codes, private.audit_change, public.booking_participants
 
 ### Community 30 - "platform/types.ts"
-Cohesion: 0.11
-Nodes (22): Audit, AvailabilityRule, Booking, BookingItem, CalendarConnection, City, Club, MatchPreview (+14 more)
+Cohesion: 0.09
+Nodes (32): BookingAccess(), BOOKING_STEPS, BookingProgress(), PaymentChooser(), PaymentMethodFields(), PaymentMethods, Audit, AvailabilityRule (+24 more)
 
-### Community 33 - "actions.ts"
-Cohesion: 0.07
-Nodes (44): @electric-sql/pglite, firebase, changeStatus(), createTournament(), deleteMatch(), deletePlayer(), deleteTournament(), fail() (+36 more)
+### Community 33 - "public-shell.tsx"
+Cohesion: 0.17
+Nodes (9): logout(), AdminLayout(), dynamic, metadata, dynamic, BrandLogo(), PublicShell(), links (+1 more)
 
 ### Community 34 - "20261022132244_calendar_scheduler.sql"
 Cohesion: 0.33
@@ -211,51 +224,91 @@ Cohesion: 0.67
 Nodes (3): calendar_active_court, calendar_active_external, public.calendar_court_mappings
 
 ### Community 43 - "RallyYar | رالی‌یار"
-Cohesion: 0.11
-Nodes (17): RallyYar | رالی‌یار, اجزا و حالات, اعتماد، دسترس‌پذیری و SEO, انتخاب تعداد: QuantityStepper, تایپوگرافی و شبکه, تب‌های تغییر مسیر رزرو, جایگاه و وعده, حرکت (+9 more)
+Cohesion: 0.10
+Nodes (19): RallyYar | رالی‌یار, اجزا و حالات, اعتماد، دسترس‌پذیری و SEO, انتخاب تعداد: QuantityStepper, تایپوگرافی و شبکه, تب‌های تغییر مسیر رزرو, جایگاه و وعده, حرکت (+11 more)
 
 ### Community 48 - "date-time.ts"
-Cohesion: 0.07
-Nodes (53): lucide-react, react, Book(), metadata, replacementCalendar(), CreateTournamentForm(), Pending(), AvailabilityPicker() (+45 more)
+Cohesion: 0.12
+Nodes (33): Matches(), metadata, AvailabilityPicker(), AvailableSlot, BookingMode, BookingModeTabs(), modes, DayStrip() (+25 more)
 
 ### Community 49 - "platform/data.ts"
 Cohesion: 0.06
-Nodes (89): پنل: AdminList و DetailPanel, ManageClubs(), metadata, ManageEvents(), discovered(), errors, Integrations(), metadata (+81 more)
+Nodes (59): GET(), Global Stylesheet, metadata, Bookings(), AccountEvents(), requestPasswordReset(), City(), generateMetadata() (+51 more)
+
+### Community 54 - "formatPersianMoment"
+Cohesion: 0.12
+Nodes (26): پنل: AdminList و DetailPanel, ManageClubs(), metadata, ManageEvents(), discovered(), errors, Integrations(), metadata (+18 more)
 
 ### Community 56 - "README.md"
-Cohesion: 0.20
+Cohesion: 0.22
 Nodes (3): انتشار ۳۰ مهر ۱۴۰۵, Persian calendar and Tehran time, رالی‌یار؛ اصلاح فرم و یکپارچگی برند
+
+### Community 59 - "requireMember"
+Cohesion: 0.11
+Nodes (23): GET(), AccountLayout(), dynamic, metadata, Notifications(), Account(), Payments(), Profile() (+15 more)
 
 ### Community 60 - "پیگیری رزرو، ورود پیامکی و اعلان‌ها"
 Cohesion: 0.20
 Nodes (10): Firebase Cloud Messaging, Online Payamak و OTP, آزمون مسیر رزرو در مرورگر, زمان‌بندی و تحویل اعلان, فایل‌ها و نقاط ورود, فعال‌سازی و آزمون واقعی, قرارداد وضعیت‌ها و دسترسی‌ها, وضعیت اجرا و بررسی نسخهٔ ۲۰۲۶/۱۰/۲۳ (+2 more)
 
+### Community 61 - "operations/page.tsx"
+Cohesion: 0.18
+Nodes (14): sections, metadata, replacementCalendar(), ActionForm(), AdminListItem, fulfillmentLabels, Countdown(), CheckField() (+6 more)
+
+### Community 62 - "next"
+Cohesion: 0.18
+Nodes (12): config, next, dynamic, Login(), metadata, registerAccount(), metadata, Register() (+4 more)
+
 ### Community 63 - "راهنمای انتشار و عملیات"
-Cohesion: 0.29
+Cohesion: 0.25
 Nodes (7): اجرای jobها, احراز هویت و تصاویر, راهنمای انتشار و عملیات, فعال‌سازی زرین‌پال, قرارداد اتصال مجاز باشگاه, پیش از انتشار, کنترل پس از انتشار و بازیابی
+
+### Community 64 - "backend.mjs"
+Cohesion: 0.16
+Nodes (17): ref_node_http, base64(), matches, names, participants, players, results, rounds (+9 more)
+
+### Community 65 - "react"
+Cohesion: 0.30
+Nodes (5): lucide-react, react, AvatarUpload(), links, Dialog()
 
 ### Community 66 - "توسعه پدل کلاب — ممیزی و طرح انتشار"
 Cohesion: 0.40
 Nodes (4): برنامه مهاجرت و بازیابی, تصمیم‌های سازگاری, توسعه پدل کلاب — ممیزی و طرح انتشار, ممیزی، ۳۰ مهر ۱۴۰۵
 
+### Community 67 - "ref_node_fs"
+Cohesion: 0.17
+Nodes (7): ref_node_fs, contentType, size, alt, contentType, size, SocialImage()
+
+### Community 71 - "phone-auth-actions.ts"
+Cohesion: 0.42
+Nodes (6): confirmNotificationPhone(), requestNotificationPhone(), requestPhoneCode(), verifyPhoneCode(), NotificationPhone(), iranMobile()
+
+### Community 73 - "رزرو مرحله‌ای و کارت‌به‌کارت"
+Cohesion: 0.29
+Nodes (7): اجرا و آزمون, ثبت و بررسی رسید, حریم خصوصی و مجوزها, رزرو مرحله‌ای و کارت‌به‌کارت, فعال‌سازی از پنل مدیر, مسیر کاربر, مهلت، لغو و جلوگیری از دوباره‌پرداخت
+
+### Community 74 - "database.test.ts"
+Cohesion: 0.38
+Nodes (5): @electric-sql/pglite, db, query(), role(), save()
+
 ## Knowledge Gaps
-- **253 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `config` (+248 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 435 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **28 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **261 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `config` (+256 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 453 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **31 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `next` connect `next` to `shared.tsx`, `actions.ts`, `package.json`, `platform.test.ts`, `payment-actions.ts`, `date-time.ts`, `platform/data.ts`?**
-  _High betweenness centrality (0.139) - this node is a cross-community bridge._
-- **Why does `vitest` connect `payment-actions.ts` to `actions.ts`, `calendar-sources.ts`, `package.json`, `platform.test.ts`, `date-time.ts`, `next`?**
-  _High betweenness centrality (0.074) - this node is a cross-community bridge._
-- **Why does `JalaliDateInput()` connect `date-time.ts` to `README.md`, `platform/data.ts`?**
-  _High betweenness centrality (0.052) - this node is a cross-community bridge._
+- **Why does `next` connect `next` to `shared.tsx`, `public-shell.tsx`, `react`, `ref_node_fs`, `package.json`, `phone-auth-actions.ts`, `payment-actions.ts`, `proxy.ts`, `date-time.ts`, `platform/data.ts`, `platform-actions.ts`, `formatPersianMoment`, `requireMember`, `operations/page.tsx`, `platform/types.ts`?**
+  _High betweenness centrality (0.144) - this node is a cross-community bridge._
+- **Why does `vitest` connect `payment-actions.ts` to `shared.tsx`, `calendar-sources.ts`, `package.json`, `phone-auth-actions.ts`, `platform.test.ts`, `database.test.ts`, `date-time.ts`, `platform/data.ts`, `platform-actions.ts`?**
+  _High betweenness centrality (0.061) - this node is a cross-community bridge._
+- **Why does `JalaliDateInput()` connect `date-time.ts` to `README.md`, `platform/data.ts`, `operations/page.tsx`, `shared.tsx`?**
+  _High betweenness centrality (0.055) - this node is a cross-community bridge._
 - **What connects `$schema`, `style`, `rsc` to the rest of the system?**
-  _253 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _261 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `shared.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.09185329438493996 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06846846846846846 - nodes in this community are weakly interconnected._
 - **Should `dependencies` be split into smaller, more focused modules?**
   _Cohesion score 0.11764705882352941 - nodes in this community are weakly interconnected._
 - **Should `20261022111120_events_results_and_jobs.sql` be split into smaller, more focused modules?**

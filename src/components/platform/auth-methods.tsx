@@ -42,7 +42,12 @@ export function AuthMethods({
           <Button
             key={key}
             type="button"
-            variant={mode === key ? "default" : "outline"}
+            variant="outline"
+            className={
+              mode === key
+                ? "border-emerald-800 bg-emerald-50 text-emerald-900"
+                : ""
+            }
             aria-pressed={mode === key}
             onClick={() => {
               setMode(key);

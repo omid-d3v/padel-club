@@ -32,7 +32,11 @@ export default async function Register({
         next={next}
         phoneEnabled={process.env.PHONE_AUTH_ENABLED === "true"}
       >
-        <ActionForm action={registerAccount} label="ساخت حساب">
+        <ActionForm
+          action={registerAccount}
+          label="ساخت حساب"
+          buttonVariant="default"
+        >
           <input type="hidden" name="next" value={next} />
           <Field
             label="ایمیل"

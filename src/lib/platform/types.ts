@@ -274,6 +274,31 @@ export interface CalendarConnection {
   created_at: string;
 }
 export type PlatformTables = {
+  payment_settings: Table<{
+    id: boolean;
+    zarinpal_enabled: boolean;
+    card_enabled: boolean;
+    card_number: string;
+    card_holder: string;
+    updated_at: string;
+    updated_by: string | null;
+  }>;
+  card_transfer_receipts: Table<{
+    id: string;
+    payment_id: string;
+    user_id: string;
+    card_number: string;
+    card_holder: string;
+    status: "draft" | "pending" | "approved" | "rejected";
+    receipt_path: string | null;
+    revision: number;
+    rejection_reason: string | null;
+    bank_reference: string | null;
+    submitted_at: string | null;
+    reviewed_at: string | null;
+    reviewed_by: string | null;
+    created_at: string;
+  }>;
   booking_reschedules: Table<{
     id: string;
     booking_id: string;
@@ -387,6 +412,31 @@ export type PlatformTables = {
 };
 type RPC<A, R = string> = { Args: A; Returns: R };
 export type PlatformFunctions = {
+  start_payment: RPC<{
+    p_participant?: string | null;
+    p_registration?: string | null;
+    p_provider?: string;
+  }>;
+  save_payment_settings: RPC<
+    {
+      p_zarinpal: boolean;
+      p_card: boolean;
+      p_number: string;
+      p_holder: string;
+    },
+    undefined
+  >;
+  submit_card_receipt: RPC<{ p_payment: string; p_path: string }, undefined>;
+  review_card_receipt: RPC<
+    {
+      p_receipt: string;
+      p_revision: number;
+      p_accept: boolean;
+      p_reason?: string;
+      p_bank_reference?: string;
+    },
+    undefined
+  >;
   review_booking: RPC<{ p_booking: string }, undefined>;
   expire_booking_proposals: RPC<Record<string, never>, number>;
   propose_booking_slot: RPC<{
