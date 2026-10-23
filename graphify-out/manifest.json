@@ -6,21 +6,21 @@
     "semantic_hash": ""
   },
   "eslint.config.mjs": {
-    "mtime": 1790159157.4669228,
-    "seen": 1792749723.8337119,
-    "ast_hash": "823d2d1051da6018d1d8d13e7a56cf70",
+    "mtime": 1792783266.9343593,
+    "seen": 1792783318.150066,
+    "ast_hash": "202ffa17a3bd38287bd3ffe767fb929e",
     "semantic_hash": ""
   },
   "next-env.d.ts": {
-    "mtime": 1792778761.9054203,
-    "seen": 1792779176.2666783,
-    "ast_hash": "dee7736db219fea7faa69caca958bc62",
+    "mtime": 1792779185.718307,
+    "seen": 1792782877.0898411,
+    "ast_hash": "0e4a65e8b2b9aa3ed0f8957b9406bd41",
     "semantic_hash": ""
   },
   "next.config.ts": {
-    "mtime": 1792774569.632181,
-    "seen": 1792775779.9163606,
-    "ast_hash": "ca8511ae6a8989fdcf91cb7cb8a18392",
+    "mtime": 1792781714.3990178,
+    "seen": 1792782877.0898504,
+    "ast_hash": "e361a62f46d90d4d4c2adbc95ba75484",
     "semantic_hash": ""
   },
   "package.json": {
@@ -252,9 +252,9 @@
     "semantic_hash": ""
   },
   "src/proxy.ts": {
-    "mtime": 1792774567.1315525,
-    "seen": 1792775779.9170961,
-    "ast_hash": "8d239006f13fab4681971923b3ab649e",
+    "mtime": 1792780785.4637842,
+    "seen": 1792782877.0912063,
+    "ast_hash": "cf861ba4e0baceef7ce2544673629672",
     "semantic_hash": ""
   },
   "tests/browser/admin.spec.ts": {
@@ -288,15 +288,15 @@
     "semantic_hash": ""
   },
   "tsconfig.json": {
-    "mtime": 1792749638.5642934,
-    "seen": 1792749723.8344839,
-    "ast_hash": "d6c49266cf0cede60c646394ba5eae86",
+    "mtime": 1792783268.986034,
+    "seen": 1792783318.1515846,
+    "ast_hash": "6c30eb65cfaa0ba4690248593a7efb9d",
     "semantic_hash": ""
   },
   "vitest.config.ts": {
-    "mtime": 1792749638.5663176,
-    "seen": 1792749723.8344889,
-    "ast_hash": "1b010839d0174197aa0bb186f30a19cc",
+    "mtime": 1792781713.5684037,
+    "seen": 1792782877.091606,
+    "ast_hash": "e0c31b131f6d230d16fe66c0896186d4",
     "semantic_hash": ""
   },
   "AGENTS.md": {
@@ -312,9 +312,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1792778932.5665991,
-    "seen": 1792779176.2671115,
-    "ast_hash": "d6a197bfd8625ea05188384b8410a64f",
+    "mtime": 1792781412.2026343,
+    "seen": 1792782877.0916402,
+    "ast_hash": "63cb3148bec721d1a8a5803e62f7cd11",
     "semantic_hash": ""
   },
   "ops/enable-expiry-cron.sql": {
@@ -1407,6 +1407,78 @@
     "mtime": 1792778165.6048799,
     "seen": 1792779176.26717,
     "ast_hash": "a5fff4d874c5d65abda60053cdfcb3c7",
+    "semantic_hash": ""
+  },
+  "deploy/backup.sh": {
+    "mtime": 1792782579.3015065,
+    "seen": 1792782877.0897415,
+    "ast_hash": "fa686670805b8f7237b76a42f58b1073",
+    "semantic_hash": ""
+  },
+  "deploy/configure.mjs": {
+    "mtime": 1792782139.5496595,
+    "seen": 1792782877.0897596,
+    "ast_hash": "98bc9effea500fa74c48e8e8d8dc52d4",
+    "semantic_hash": ""
+  },
+  "deploy/migrate.sh": {
+    "mtime": 1792780937.3596787,
+    "seen": 1792782877.0897694,
+    "ast_hash": "aadc7a9c95796d18954414f66b95e039",
+    "semantic_hash": ""
+  },
+  "deploy/migrations.mjs": {
+    "mtime": 1792782385.7426248,
+    "seen": 1792782877.0897799,
+    "ast_hash": "66539630935df7f127bb54f38ba932cf",
+    "semantic_hash": ""
+  },
+  "deploy/scheduler.mjs": {
+    "mtime": 1792781435.9299557,
+    "seen": 1792782877.08979,
+    "ast_hash": "5344c1b311304c2d1f03b8f94c653540",
+    "semantic_hash": ""
+  },
+  "deploy/setup.sh": {
+    "mtime": 1792781539.5476146,
+    "seen": 1792782877.0897977,
+    "ast_hash": "ab02ff777e9b22860b64de26c7894f26",
+    "semantic_hash": ""
+  },
+  "deploy/stack.sh": {
+    "mtime": 1792780936.2223134,
+    "seen": 1792782877.0898054,
+    "ast_hash": "693163a80218ce9257e4627a98e2b943",
+    "semantic_hash": ""
+  },
+  "deploy/verify.sql": {
+    "mtime": 1792781069.8608792,
+    "seen": 1792782877.0898118,
+    "ast_hash": "86f880fa2ae80878536276fa1fedfb90",
+    "semantic_hash": ""
+  },
+  "src/app/api/health/route.ts": {
+    "mtime": 1792781435.8062654,
+    "seen": 1792782877.0902395,
+    "ast_hash": "f436745ad807da26c1515ce763611911",
+    "semantic_hash": ""
+  },
+  "tests/deployment.test.mjs": {
+    "mtime": 1792782388.432682,
+    "seen": 1792782877.0915163,
+    "ast_hash": "ff5bbdbc75bf6bb2abb3f1c7804292d9",
+    "semantic_hash": ""
+  },
+  "deploy/compose.yml": {
+    "mtime": 1792782126.401068,
+    "seen": 1792782877.0916476,
+    "ast_hash": "c9c4e57e75a8d81e89053a9a9c955a7b",
+    "semantic_hash": ""
+  },
+  "docs/SELF-HOSTING.md": {
+    "mtime": 1792783130.8676403,
+    "seen": 1792783318.1517038,
+    "ast_hash": "a9073399e05ff163f5d5b86c184e3985",
     "semantic_hash": ""
   }
 }

@@ -1,0 +1,23 @@
+{
+  email {$ACME_EMAIL}
+  admin off
+}
+
+{$SITE_HOST} {
+  encode zstd gzip
+  request_body {
+    max_size 7MB
+  }
+  reverse_proxy web:3000
+}
+
+{$API_HOST} {
+  # Studio, pg-meta and other admin paths are NOT exposed publicly.
+  @api path /auth/v1/* /rest/v1/* /storage/v1/* /realtime/v1/* /graphql/v1* /functions/v1/calendar-sync
+  handle @api {
+    reverse_proxy api-gw:8000
+  }
+  handle {
+    respond "Not found" 404
+  }
+}

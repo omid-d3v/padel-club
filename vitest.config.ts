@@ -13,7 +13,9 @@ export default defineConfig({
     },
   },
   test: {
-    include: ["tests/**/*.test.ts"],
+    // Database tests run embedded PostgreSQL/WASM; bound memory on small CI hosts.
+    maxWorkers: 1,
+    include: ["tests/**/*.test.ts", "tests/**/*.test.mjs"],
     testTimeout: 30000,
     hookTimeout: 30000,
   },

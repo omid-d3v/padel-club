@@ -1,0 +1,15 @@
+.git
+.next*
+node_modules
+.env*
+**/.env*
+deploy/runtime
+backups
+.vercel
+.codex
+.agents
+graphify-out
+test-results
+playwright-report
+*.tsbuildinfo
+*.log
