@@ -5,6 +5,7 @@ import { requireMember } from "@/lib/platform/data";
 import { requireAdmin } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { siteUrl } from "@/lib/seo";
+import { safeNext } from "@/lib/platform/format";
 import { isGregorianDate, tehranLocalToISO } from "@/lib/date-time";
 import {
   formText,
@@ -29,7 +30,7 @@ const errors: Record<string, string> = {
     "کد تخفیف معتبر نیست، منقضی شده یا ظرفیت استفاده آن تمام شده است.",
   REASON_REQUIRED: "دلیل معافیت را وارد کنید.",
   NOT_PAYABLE:
-    "ابتدا نگه‌داشت معتبر باشگاه باید ثبت شود و مهلت رزرو باقی مانده باشد.",
+    "این رزرو فعلاً آمادهٔ پرداخت نیست؛ وضعیت رزرو و مهلت پرداخت را بررسی کنید.",
   INVALID_DATE:
     "تاریخ یا ساعت معتبر نیست؛ تاریخ شمسی و ساعت تهران را بررسی کنید.",
   CALENDAR_STALE:
@@ -236,6 +237,15 @@ export async function platformAction(
             message: "پیش از درخواست، شرایط رزرو را بپذیرید.",
           };
         const key = id(form.get("idempotency_key"));
+        if (!m.profile) {
+          const saved = await db.rpc("save_my_profile", {
+            p_name: str(form, "display_name", 2, 100),
+            p_skill: int(form, "skill_level", 0, 5),
+            p_city: optionalId(form, "city_id"),
+            p_avatar: null,
+          });
+          if (saved.error) throw saved.error;
+        }
         out = await db.rpc("request_booking", {
           p_slot: id(form.get("slot_id")),
           p_kind: z.enum(["private", "open"]).parse(form.get("kind")),
@@ -248,6 +258,29 @@ export async function platformAction(
             form.get("max_skill") !== "" ? int(form, "max_skill", 0, 5) : null,
           p_equipment: equip(),
         });
+        if (!out.error && form.get("kind") === "private") {
+          const { data: seat, error: seatError } = await db
+            .from("booking_participants")
+            .select("id,status")
+            .eq("booking_id", String(out.data))
+            .eq("user_id", m.userId)
+            .single();
+          if (seatError) throw seatError;
+          if (seat?.status === "reserved") {
+            const { beginPayment } = await import("@/app/payment-actions");
+            const paymentForm = new FormData();
+            paymentForm.set("participant_id", seat.id);
+            const result = await beginPayment(paymentForm);
+            revalidatePath("/account/bookings");
+            return {
+              ...result,
+              redirect: result.success ? result.redirect : "/account/bookings",
+              message: result.success
+                ? result.message
+                : `${result.message} رزرو در بخش «قرارهای روی زمین» برای ادامهٔ پرداخت محفوظ است.`,
+            };
+          }
+        }
         redirect = "/account/bookings";
         break;
       }
@@ -567,10 +600,13 @@ export async function registerAccount(form: FormData): Promise<PlatformResult> {
     const db = await createClient();
     const email = z.email().parse(form.get("email"));
     const password = z.string().min(10).max(128).parse(form.get("password"));
+    const next = safeNext(form.get("next"), "/account/profile");
     const { data, error } = await db.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: `${siteUrl()}/auth/confirm` },
+      options: {
+        emailRedirectTo: `${siteUrl()}/auth/confirm?next=${encodeURIComponent(next)}`,
+      },
     });
     if (error)
       return {
@@ -583,7 +619,7 @@ export async function registerAccount(form: FormData): Promise<PlatformResult> {
       message: data.session
         ? "حساب ایجاد شد. پروفایل بازی را تکمیل کنید."
         : "درخواست ثبت‌نام ثبت شد. برای فعال‌سازی، ایمیل تأیید را بررسی کنید.",
-      redirect: data.session ? "/account/profile" : undefined,
+      redirect: data.session ? next : undefined,
     };
   } catch (error) {
     return errorResult(error);

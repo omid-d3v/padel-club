@@ -2,6 +2,70 @@ import { test, expect } from "@playwright/test";
 import { formatJalaliInput, tehranDateTime } from "../../src/lib/date-time";
 const uuid = (n: number) =>
   `10000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
+test("inline booking authentication and profile keep selected slot and equipment", async ({
+  page,
+}) => {
+  test.setTimeout(120000);
+  const slot = uuid(test.info().project.name === "mobile" ? 725 : 724);
+  const path = `/clubs/browser-test-club/book?court=${uuid(702)}&slot=${slot}`;
+  await page.goto(path);
+  await expect(page.locator(`[data-slot-id="${slot}"]`)).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await page.getByRole("button", { name: "افزایش تعداد راکت آزمون" }).click();
+  const auth = page.getByRole("region", { name: "ورود و ادامه رزرو" });
+  if (test.info().project.name === "desktop") {
+    await auth.getByRole("button", { name: "ساخت حساب", exact: true }).click();
+    await auth
+      .getByLabel("ایمیل", { exact: true })
+      .fill("checkout-desktop@example.com");
+    await auth
+      .getByLabel("رمز عبور؛ حداقل ۱۰ کاراکتر", { exact: true })
+      .fill("browser-test-password");
+    await auth.getByRole("checkbox").check();
+    await auth.getByRole("button", { name: "ساخت حساب و ادامه رزرو" }).click();
+  } else {
+    await auth
+      .getByLabel("ایمیل", { exact: true })
+      .fill("checkout-mobile@example.com");
+    await auth
+      .getByLabel("رمز عبور", { exact: true })
+      .fill("browser-test-password");
+    await auth
+      .getByRole("button", { name: "ورود به حساب", exact: true })
+      .click();
+  }
+  await expect(auth).toHaveCount(0);
+  await expect(page).toHaveURL(new RegExp(`/clubs/browser-test-club/book\\?`));
+  await expect(page.locator(`[data-slot-id="${slot}"]`)).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(page.getByLabel("تعداد راکت آزمون", { exact: true })).toHaveText(
+    "۱",
+  );
+  await page
+    .getByLabel("نام و نام خانوادگی", { exact: true })
+    .fill("رزروکننده در همان مسیر");
+  await page.getByRole("checkbox").check();
+  await page
+    .getByRole("button", { name: "پرداخت و ثبت رزرو", exact: true })
+    .click();
+  await expect(
+    page.getByRole("alert").filter({ hasText: "درگاه پرداخت هنوز تنظیم نشده" }),
+  ).toBeVisible();
+  await expect(page).toHaveURL(new RegExp(`/clubs/browser-test-club/book\\?`));
+  await page.screenshot({
+    path: `test-results/inline-checkout-${test.info().project.name}.png`,
+    fullPage: true,
+  });
+  await page.goto("/account/bookings");
+  await expect(
+    page.locator("article").filter({ hasText: "آماده پرداخت" }),
+  ).toBeVisible();
+});
+
 test("public SSR, SEO, Persian layout and reduced-motion fallback", async ({
   page,
   request,
@@ -54,7 +118,11 @@ test("member profile → real SQL booking → admin hold → no fake payment wit
   await page.goto("/login");
   await page
     .getByRole("textbox", { name: "ایمیل", exact: true })
-    .fill(test.info().project.name==="mobile"?"mobile@example.com":"player@example.com");
+    .fill(
+      test.info().project.name === "mobile"
+        ? "mobile@example.com"
+        : "player@example.com",
+    );
   await page.getByLabel("رمز عبور").fill("browser-test-password");
   await page.getByRole("button", { name: "ورود به حساب", exact: true }).click();
   await expect(page).toHaveURL("/account");
@@ -74,9 +142,11 @@ test("member profile → real SQL booking → admin hold → no fake payment wit
   const slot = uuid(test.info().project.name === "mobile" ? 721 : 720);
   await page.getByRole("button", { name: "رفتن به نخستین روز آزاد" }).click();
   await page.locator(`[data-slot-id="${slot}"]`).click();
+  await page.getByRole("tab", { name: /بازی باز چهار نفره/ }).click();
+  await page.getByLabel("عنوان بازی").fill("بازی آزمون پیگیری سانس");
   await page.getByRole("checkbox").check();
   await page
-    .getByRole("button", { name: "ارسال درخواست رزرو", exact: true })
+    .getByRole("button", { name: "درخواست زمین و ساخت بازی", exact: true })
     .click();
   await expect(page).toHaveURL("/account/bookings");
   const article = page
@@ -124,6 +194,12 @@ test("member profile → real SQL booking → admin hold → no fake payment wit
     .getByRole("button", { name: "رفتن به نخستین روز آزاد" })
     .click();
   const target = uuid(test.info().project.name === "mobile" ? 723 : 722);
+  // Relative fixture times can cross Tehran midnight; select the target's day,
+  // rather than assuming it is on the first day with any free inventory.
+  for (const day of await replacement.getByRole("group", {name:"انتخاب روز",exact:true}).getByRole("button").all()) {
+    if (await replacement.locator(`[data-slot-id="${target}"]`).count()) break;
+    await day.click();
+  }
   await replacement.locator(`[data-slot-id="${target}"]`).click();
   await admin.screenshot({
     path: `test-results/replacement-calendar-${test.info().project.name}.png`,
@@ -140,7 +216,12 @@ test("member profile → real SQL booking → admin hold → no fake payment wit
     .click();
   await expect(replacement).toHaveCount(0);
   await page.reload();
-  const proposed = page.locator("article").filter({has:page.locator(`input[name="booking_id"][value="${bookingId}"]`)}).getByRole("region", { name: "تغییر زمان رزرو" });
+  const proposed = page
+    .locator("article")
+    .filter({
+      has: page.locator(`input[name="booking_id"][value="${bookingId}"]`),
+    })
+    .getByRole("region", { name: "تغییر زمان رزرو" });
   await expect(proposed.getByText(/مبلغ رزرو تغییر نمی‌کند/)).toBeVisible();
   await page.screenshot({
     path: `test-results/replacement-consent-${test.info().project.name}.png`,
@@ -158,7 +239,7 @@ test("member profile → real SQL booking → admin hold → no fake payment wit
   await expect(
     page
       .getByRole("heading", {
-        name: "زمان پیشنهادی را تأیید کردید؛ منتظر رزرو مدیر",
+        name: "زمان پیشنهادی تأیید شد؛ در انتظار تأیید نهایی",
       })
       .last(),
   ).toBeVisible();

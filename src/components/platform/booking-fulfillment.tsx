@@ -28,6 +28,7 @@ export function BookingFulfillment({
     .toSorted((a, b) => b.created_at.localeCompare(a.created_at))[0];
   if (
     booking.mode !== "MANUAL_APPROVAL" ||
+    (booking.payment_first && booking.status === "awaiting_payment") ||
     ["cancelled", "expired", "completed"].includes(booking.status)
   )
     return null;

@@ -111,6 +111,10 @@ export default async function Operations({
             (b) =>
               tab !== "queue" ||
               (b.mode === "MANUAL_APPROVAL" &&
+                (!b.payment_first ||
+                  ["booking_in_progress", "needs_attention"].includes(
+                    b.status,
+                  )) &&
                 b.fulfillment_state !== "booked" &&
                 !["cancelled", "expired", "completed"].includes(b.status)),
           )

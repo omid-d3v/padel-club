@@ -24,9 +24,9 @@ export function ReplacementNotice({
         {proposal.status === "completed"
           ? "زمان رزرو تغییر کرد"
           : proposal.status === "accepted"
-            ? "زمان پیشنهادی را تأیید کردید؛ منتظر رزرو مدیر"
+            ? "زمان پیشنهادی تأیید شد؛ در انتظار تأیید نهایی"
             : pending
-              ? "مدیر یک زمان جایگزین پیشنهاد داده است"
+              ? "یک زمان جایگزین برای رزرو شما پیشنهاد شده است"
               : "پیشنهاد زمان جایگزین"}
       </h3>
       <dl className="grid gap-3 text-sm sm:grid-cols-2">
@@ -52,8 +52,8 @@ export function ReplacementNotice({
             {!bookingActive
               ? "این رزرو لغو شده یا مهلت آن تمام شده است؛ پیشنهاد قابل پذیرش نیست."
               : expired
-                ? "مهلت این پیشنهاد تمام شده؛ برای پیشنهاد جدید با مدیر هماهنگ کنید."
-                : `مهلت پاسخ: ${moment(proposal.expires_at)}. پذیرش شما به معنی رزرو قطعی زمین نیست؛ مدیر باید سانس جدید را رزرو و تأیید کند.`}
+                ? "مهلت این پیشنهاد تمام شده؛ برای پیشنهاد جدید با پشتیبانی هماهنگ کنید."
+                : `مهلت پاسخ: ${moment(proposal.expires_at)}. پس از پذیرش، زمان جدید وارد مرحلهٔ تأیید نهایی می‌شود.`}
           </p>
           {!expired &&
             bookingActive &&
@@ -62,7 +62,7 @@ export function ReplacementNotice({
                 <ActionForm
                   operation="reply-slot"
                   label="این تاریخ و ساعت را تأیید می‌کنم"
-                  confirm={`تغییر به ${moment(proposal.new_starts_at)} با همان مبلغ را می‌پذیرید؟ پس از تأیید، مدیر رزرو زمین را انجام می‌دهد.`}
+                  confirm={`تغییر به ${moment(proposal.new_starts_at)} با همان مبلغ را می‌پذیرید؟ نتیجهٔ نهایی رزرو اطلاع‌رسانی خواهد شد.`}
                 >
                   <input type="hidden" name="proposal_id" value={proposal.id} />
                   <input type="hidden" name="decision" value="accept" />
@@ -85,12 +85,13 @@ export function ReplacementNotice({
         </>
       ) : proposal.status === "accepted" ? (
         <p className="text-sm">
-          درخواست به صف رزرو مدیر برگشته است. پس از ثبت رزرو واقعی زمین، اعلان
-          دریافت می‌کنید.
+          زمان انتخابی در حال نهایی‌شدن است. نتیجه از طریق اعلان اطلاع‌رسانی
+          خواهد شد.
         </p>
       ) : proposal.status === "rejected" ? (
         <p className="text-sm">
-          پیشنهاد رد شد؛ مدیر باید دوباره درخواست را بررسی کند.
+          پیشنهاد رد شد؛ می‌توانید منتظر پیشنهاد دیگری بمانید یا رزرو را لغو و
+          درخواست استرداد ثبت کنید.
         </p>
       ) : null}
     </section>

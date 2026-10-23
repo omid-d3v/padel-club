@@ -7,6 +7,7 @@ import { LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { platformAction, type PlatformResult } from "@/app/platform-actions";
 import { Dialog } from "@/components/ui/dialog";
+import Link from "next/link";
 export function ActionForm({
   operation,
   children,
@@ -16,6 +17,7 @@ export function ActionForm({
   action,
   disabled = false,
   buttonVariant = "default",
+  onSuccess,
 }: {
   operation?: string;
   children?: React.ReactNode;
@@ -25,6 +27,7 @@ export function ActionForm({
   action?: (form: FormData) => Promise<PlatformResult>;
   disabled?: boolean;
   buttonVariant?: ComponentProps<typeof Button>["variant"];
+  onSuccess?: (result: PlatformResult) => void;
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -40,6 +43,10 @@ export function ActionForm({
         setResult(r);
         if (r.success) {
           toast.success(r.message);
+          if (onSuccess) {
+            onSuccess(r);
+            return;
+          }
           if (r.redirect) {
             if (
               r.redirect.startsWith("https://payment.zarinpal.com/") ||
@@ -81,6 +88,17 @@ export function ActionForm({
             {result.message}
           </p>
         )}
+        {result &&
+          !result.success &&
+          result.redirect?.startsWith("/") &&
+          !result.redirect.startsWith("//") && (
+            <Link
+              href={result.redirect}
+              className="inline-flex min-h-11 items-center text-sm underline"
+            >
+              پیگیری و ادامهٔ پرداخت رزرو
+            </Link>
+          )}
         <Button
           variant={buttonVariant}
           disabled={pending || disabled}

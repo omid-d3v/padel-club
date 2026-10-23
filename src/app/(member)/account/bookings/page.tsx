@@ -94,8 +94,11 @@ export default async function Bookings() {
                         ? "در انتظار پاسخ به پیشنهاد زمان"
                         : b.fulfillment_state === "reserve" &&
                             b.status === "needs_attention"
-                          ? "زمان پذیرفته شد؛ منتظر رزرو مدیر"
-                          : bookingLabels[b.status]}
+                          ? "زمان پذیرفته شد؛ در انتظار تأیید نهایی"
+                          : b.payment_first &&
+                              b.status === "booking_in_progress"
+                            ? "پرداخت موفق؛ در انتظار تأیید نهایی"
+                            : bookingLabels[b.status]}
                     </span>
                     <span className="ms-2 status-pill">
                       {p.status === "paid" &&
@@ -199,7 +202,9 @@ export default async function Bookings() {
                         </div>
                       ))}
                     <p className="text-xs leading-7 text-muted-foreground">
-                      {cancellationText(b.cancellation_snapshot)}
+                      {b.payment_first && b.fulfillment_state !== "booked"
+                        ? "تا پیش از تأیید نهایی، لغو رزرو با درخواست استرداد کامل وجه همراه است."
+                        : cancellationText(b.cancellation_snapshot)}
                     </p>
                     {b.hold_expires_at && (
                       <p>نگه‌داشت باشگاه تا: {moment(b.hold_expires_at)}</p>
@@ -246,7 +251,11 @@ export default async function Bookings() {
                       <ActionForm
                         operation="cancel"
                         label="درخواست لغو"
-                        confirm="رزرو طبق شرایط ثبت‌شده لغو می‌شود. استرداد احتمالی جداگانه قابل پیگیری است."
+                        confirm={
+                          b.payment_first && b.fulfillment_state !== "booked"
+                            ? "رزرو لغو و درخواست استرداد کامل وجه ثبت می‌شود. واریز وجه از بخش پرداخت‌ها قابل پیگیری است."
+                            : "رزرو طبق شرایط ثبت‌شده لغو می‌شود. استرداد احتمالی جداگانه قابل پیگیری است."
+                        }
                       >
                         <input type="hidden" name="booking_id" value={b.id} />
                         <Field

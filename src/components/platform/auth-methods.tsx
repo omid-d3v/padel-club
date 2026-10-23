@@ -12,11 +12,13 @@ export function AuthMethods({
   signup = false,
   next,
   phoneEnabled = false,
+  onAuthenticated,
 }: {
   children: React.ReactNode;
   signup?: boolean;
   next?: string;
   phoneEnabled?: boolean;
+  onAuthenticated?: () => void;
 }) {
   const [mode, setMode] = useState(phoneEnabled ? "phone" : "email");
   const [phone, setPhone] = useState("");
@@ -67,6 +69,10 @@ export function AuthMethods({
               setFailed(!result.success);
               if (result.success) {
                 if (sent && "redirect" in result) {
+                  if (onAuthenticated) {
+                    onAuthenticated();
+                    return;
+                  }
                   router.replace(
                     safeNext(
                       next,

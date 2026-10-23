@@ -75,6 +75,7 @@ export interface Profile {
   created_at: string;
 }
 export interface Booking {
+  payment_first: boolean;
   fulfillment_state: "review" | "reserve" | "awaiting_user" | "booked";
   id: string;
   user_id: string;

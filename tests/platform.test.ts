@@ -409,8 +409,8 @@ describe("discounts and administrator waivers", () => {
       db.query("select apply_booking_benefit($1,null,'هدیه باشگاه')", [p]),
     ).rejects.toThrow("PAYMENT_CONFLICT");
   });
-  it("requires a hold, never fabricates bank receipts and enforces coupon limits", async () => {
-    const b = await request(await slot());
+  it("requires a hold for open matches, never fabricates bank receipts and enforces coupon limits", async () => {
+    const b = await request(await slot(), "open");
     await role("postgres");
     const p = await participant(b);
     await role("authenticated", users[0]);
@@ -431,7 +431,7 @@ describe("discounts and administrator waivers", () => {
           [b],
         )
       )[0].status,
-    ).toBe("confirmed");
+    ).toBe("collecting");
     expect(
       await query("select * from payments where participant_id=$1", [p]),
     ).toHaveLength(0);
@@ -621,6 +621,151 @@ describe("calendar import isolation and scheduling", () => {
     ]);
   });
 });
+describe("payment-first private bookings", () => {
+  it("collects payment without fabricating a hold, queues only paid orders, then requires a real reservation", async () => {
+    const b = await request(await slot(courts[1], 4000001, 60));
+    expect(
+      (
+        await query(
+          "select status,payment_first,club_reference,hold_expires_at from bookings where id=$1",
+          [b],
+        )
+      )[0],
+    ).toMatchObject({
+      status: "awaiting_payment",
+      payment_first: true,
+      club_reference: null,
+      hold_expires_at: null,
+    });
+    await role("postgres");
+    expect(
+      await query("select * from notifications where dedupe_key like $1", [
+        `admin:paid-booking:${b}:%`,
+      ]),
+    ).toHaveLength(0);
+    const paid = await paySeat(b);
+    expect(
+      (
+        await query(
+          "select status,fulfillment_state,payment_deadline from bookings where id=$1",
+          [b],
+        )
+      )[0],
+    ).toMatchObject({
+      status: "booking_in_progress",
+      fulfillment_state: "reserve",
+      payment_deadline: null,
+    });
+    expect(
+      await query("select * from provider_attempts where booking_id=$1", [b]),
+    ).toHaveLength(0);
+    await db.query("select settle_payment($1,$2,$3)", [
+      paid.pid,
+      paid.ref,
+      paid.amount,
+    ]);
+    await role("postgres");
+    expect(
+      await query("select * from notifications where dedupe_key like $1", [
+        `admin:paid-booking:${b}:%`,
+      ]),
+    ).toHaveLength(1);
+    await role("authenticated", users[1]);
+    await expect(
+      db.query("select fulfill_booking($1,'fake',now()+interval '1 hour')", [
+        b,
+      ]),
+    ).rejects.toThrow("ADMIN_REQUIRED");
+    await role("authenticated");
+    await db.query(
+      "select fulfill_booking($1,'real-reference',now()+interval '1 hour')",
+      [b],
+    );
+    expect(
+      (
+        await query(
+          "select status,fulfillment_state,club_reference from bookings where id=$1",
+          [b],
+        )
+      )[0],
+    ).toMatchObject({
+      status: "confirmed",
+      fulfillment_state: "booked",
+      club_reference: "real-reference",
+    });
+  });
+  it("preserves a paid balance through alternative consent and refunds fully before final confirmation", async () => {
+    const b = await request(await slot(courts[1], 4000001, 62));
+    const paid = await paySeat(b);
+    const target = await slot(courts[1], 4000001, 63);
+    await role("authenticated");
+    const p = await id(
+      "select propose_booking_slot($1,$2,'تغییر ظرفیت سانس') id",
+      [b, target],
+    );
+    await role("authenticated", users[0]);
+    await db.query("select reply_booking_slot($1,true)", [p]);
+    await role("authenticated");
+    await db.query(
+      "select fulfill_booking($1,'alternative-reference',now()+interval '1 hour')",
+      [b],
+    );
+    expect(
+      (await query("select slot_id,status from bookings where id=$1", [b]))[0],
+    ).toMatchObject({ slot_id: target, status: "confirmed" });
+    expect(
+      await query("select * from refunds where payment_id=$1", [paid.pid]),
+    ).toHaveLength(0);
+    const cancelled = await request(await slot(courts[1], 4000001, 65));
+    const payment = await paySeat(cancelled);
+    await role("postgres");
+    await db.query(
+      "update bookings set cancellation_snapshot='{" +
+        '"full_refund_hours":9999,"late_refund_percent":0' +
+        "}' where id=$1",
+      [cancelled],
+    );
+    await role("authenticated", users[0]);
+    await db.query("select cancel_booking($1,'انصراف پیش از تأیید نهایی')", [
+      cancelled,
+    ]);
+    expect(
+      Number(
+        (
+          await query<{ amount: string }>(
+            "select amount from refunds where payment_id=$1",
+            [payment.pid],
+          )
+        )[0].amount,
+      ),
+    ).toBe(payment.amount);
+  });
+  it("expires unpaid checkout and unfulfilled paid orders without a false confirmation", async () => {
+    const b = await request(await slot(courts[1], 4000001, 67));
+    await role("postgres");
+    await db.query(
+      "update bookings set payment_deadline=now()-interval '1 minute' where id=$1",
+      [b],
+    );
+    await role("service_role");
+    await db.query("select run_platform_jobs()");
+    expect(
+      (await query("select status from bookings where id=$1", [b]))[0].status,
+    ).toBe("cancelled");
+    const paid = await request(await slot(courts[1], 4000001, 69));
+    const payment = await paySeat(paid);
+    await role("postgres");
+    await db.query(
+      "update bookings set request_expires_at=now()-interval '1 minute' where id=$1",
+      [paid],
+    );
+    await role("service_role");
+    await db.query("select run_platform_jobs()");
+    expect(
+      await query("select * from refunds where payment_id=$1", [payment.pid]),
+    ).toHaveLength(1);
+  });
+});
 describe("platform booking and payment authority", () => {
   it("keeps legacy rankings untouched and all new tables protected by RLS", async () => {
     await role("postgres");
@@ -642,9 +787,8 @@ describe("platform booking and payment authority", () => {
     expect(await request(s, "private", key)).toBe(b);
     await role("authenticated", users[0]);
     const bp = await participant(b);
-    await expect(
-      db.query("select start_checkout($1,null)", [bp]),
-    ).rejects.toThrow("NOT_PAYABLE");
+    const checkout = await id("select start_checkout($1,null) id", [bp]);
+    expect(checkout).toBeTruthy();
     await expect(
       db.query("update bookings set status='confirmed' where id=$1", [b]),
     ).rejects.toThrow("permission denied");

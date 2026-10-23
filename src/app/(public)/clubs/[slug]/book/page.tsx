@@ -4,16 +4,16 @@ import { notFound } from "next/navigation";
 import { catalog, member } from "@/lib/platform/data";
 import { createClient } from "@/lib/supabase/server";
 import { BookingForm } from "@/components/platform/booking-form";
-import { AvailabilityPicker } from "@/components/platform/availability-picker";
 import { providerFor, providerConfigured } from "@/lib/booking/providers";
 import { JalaliDateInput } from "@/components/ui/jalali-date-input";
+import { equipmentSelection } from "@/lib/booking/selection";
 import {
   isGregorianDate,
   tehranLocalToISO,
   tehranToday,
 } from "@/lib/date-time";
 export const metadata = {
-  title: "درخواست رزرو زمین",
+  title: "رزرو زمین",
   robots: { index: false, follow: false },
 };
 export default async function Book({
@@ -21,7 +21,13 @@ export default async function Book({
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ court?: string; date?: string; slot?: string }>;
+  searchParams: Promise<{
+    court?: string;
+    date?: string;
+    slot?: string;
+    kind?: string;
+    equipment?: string;
+  }>;
 }) {
   const now = await requestTime();
   const [{ slug }, q, d, m] = await Promise.all([
@@ -129,53 +135,28 @@ export default async function Book({
           در صورت ناموفق‌بودن خرید زمین، درخواست استرداد کامل ثبت می‌شود.
         </p>
       )}
-      {!m ? (
-        <div className="platform-card">
-          <AvailabilityPicker
-            slots={shownSlots}
-            now={now}
-            startDay={selectedDay}
-            bookingHref={`/clubs/${club.slug}/book?court=${court.id}&date=${selectedDay}`}
-          />
-          <p>برای ثبت درخواست، وارد حساب شوید.</p>
-          <Link
-            href="/login"
-            className="mt-4 inline-block text-emerald-800 underline"
-          >
-            ورود یا عضویت
-          </Link>
-        </div>
-      ) : !m.profile ? (
-        <div className="platform-card">
-          <AvailabilityPicker
-            slots={shownSlots}
-            now={now}
-            startDay={selectedDay}
-          />
-          <p>نام و سطح خود را پیش از رزرو ثبت کنید.</p>
-          <Link
-            href="/account/profile"
-            className="mt-4 inline-block text-emerald-800 underline"
-          >
-            تکمیل پروفایل
-          </Link>
-        </div>
-      ) : (
-        <BookingForm
-          key={`${court.id}:${selectedDay}`}
-          startDay={selectedDay}
-          initialSlotId={
-            shownSlots.find((s) => s.id === q.slot && s.available)?.id ?? ""
-          }
-          now={now}
-          requestKey={crypto.randomUUID()}
-          club={club}
-          court={court}
-          slots={shownSlots}
-          providerReady={ready && !liveError}
-          equipment={d.equipment.filter((e) => e.club_id === club.id)}
-        />
-      )}
+      <BookingForm
+        key={`${court.id}:${selectedDay}`}
+        authenticated={!!m}
+        needsProfile={!!m && !m.profile}
+        phoneEnabled={process.env.PHONE_AUTH_ENABLED === "true"}
+        initialEquipment={equipmentSelection(
+          q.equipment,
+          d.equipment.filter((e) => e.club_id === club.id),
+        )}
+        initialKind={q.kind === "open" ? "open" : "private"}
+        startDay={selectedDay}
+        initialSlotId={
+          shownSlots.find((s) => s.id === q.slot && s.available)?.id ?? ""
+        }
+        now={now}
+        requestKey={crypto.randomUUID()}
+        club={club}
+        court={court}
+        slots={shownSlots}
+        providerReady={ready && !liveError}
+        equipment={d.equipment.filter((e) => e.club_id === club.id)}
+      />
     </section>
   );
 }

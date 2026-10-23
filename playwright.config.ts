@@ -25,10 +25,12 @@ export default defineConfig({
     },
     {
       command:
-        "npm run build && npm run start -- --port 3100 --hostname 127.0.0.1",
+        process.env.PLAYWRIGHT_USE_BUILD === "true"
+          ? "npm run start -- --port 3100 --hostname 127.0.0.1"
+          : "npm run build && npm run start -- --port 3100 --hostname 127.0.0.1",
       url: "http://127.0.0.1:3100/login",
       reuseExistingServer: false,
-      timeout: 240000,
+      timeout: 480000,
       env: {
         NEXT_DIST_DIR: ".next-e2e",
         NEXT_PUBLIC_SITE_URL: "http://127.0.0.1:3100",

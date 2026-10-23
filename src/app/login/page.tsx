@@ -47,7 +47,14 @@ export default async function Login({
             <LoginForm next={next ? safeNext(next) : undefined} />
           </AuthMethods>
           <div className="mt-5 flex justify-between text-sm">
-            <Link href="/register" className="text-emerald-800 underline">
+            <Link
+              href={
+                next
+                  ? `/register?next=${encodeURIComponent(safeNext(next))}`
+                  : "/register"
+              }
+              className="text-emerald-800 underline"
+            >
               هنوز حساب ندارم
             </Link>
             <Link href="/forgot-password" className="text-muted-foreground">

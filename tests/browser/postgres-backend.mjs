@@ -8,6 +8,8 @@ const uuid = (n) => `10000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const admin = uuid(999),
   player = uuid(998),
   mobilePlayer = uuid(997),
+  checkoutDesktop = uuid(996),
+  checkoutMobile = uuid(995),
   tid = uuid(100);
 await db.exec(
   `create schema auth;create role anon;create role authenticated;create role service_role bypassrls;create table auth.users(id uuid primary key);create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;grant usage on schema auth to anon,authenticated,service_role;grant execute on function auth.uid() to anon,authenticated,service_role;`,
@@ -17,10 +19,12 @@ for (const file of readdirSync(directory)
   .filter((f) => f.endsWith(".sql"))
   .sort())
   await db.exec(readFileSync(new URL(file, directory), "utf8"));
-await db.query("insert into auth.users(id) values($1),($2),($3)", [
+await db.query("insert into auth.users(id) values($1),($2),($3),($4),($5)", [
   admin,
   player,
   mobilePlayer,
+  checkoutDesktop,
+  checkoutMobile,
 ]);
 await db.query("insert into admins(user_id) values($1)", [admin]);
 const names = [
@@ -179,14 +183,18 @@ http
       );
     };
     if (url.pathname === "/health") return send({ ok: true });
+    if (url.pathname === "/auth/v1/signup")
+      return send(session(checkoutDesktop));
     if (url.pathname === "/auth/v1/token")
       return send(
         session(
-          body.email === "admin@example.com"
-            ? admin
-            : body.email === "mobile@example.com"
-              ? mobilePlayer
-              : player,
+          body.email === "checkout-mobile@example.com"
+            ? checkoutMobile
+            : body.email === "admin@example.com"
+              ? admin
+              : body.email === "mobile@example.com"
+                ? mobilePlayer
+                : player,
         ),
       );
     if (url.pathname === "/auth/v1/user")
