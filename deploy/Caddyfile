@@ -11,6 +11,10 @@
   reverse_proxy web:3000
 }
 
+www.{$SITE_HOST} {
+  redir https://{$SITE_HOST}{uri} permanent
+}
+
 {$API_HOST} {
   # Studio, pg-meta and other admin paths are NOT exposed publicly.
   @api path /auth/v1/* /rest/v1/* /storage/v1/* /realtime/v1/* /graphql/v1* /functions/v1/calendar-sync

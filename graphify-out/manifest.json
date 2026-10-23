@@ -12,8 +12,8 @@
     "semantic_hash": ""
   },
   "next-env.d.ts": {
-    "mtime": 1792779185.718307,
-    "seen": 1792782877.0898411,
+    "mtime": 1792785264.5694687,
+    "seen": 1792785512.0538368,
     "ast_hash": "0e4a65e8b2b9aa3ed0f8957b9406bd41",
     "semantic_hash": ""
   },
@@ -288,9 +288,9 @@
     "semantic_hash": ""
   },
   "tsconfig.json": {
-    "mtime": 1792783268.986034,
-    "seen": 1792783318.1515846,
-    "ast_hash": "6c30eb65cfaa0ba4690248593a7efb9d",
+    "mtime": 1792785259.3050737,
+    "seen": 1792785512.055152,
+    "ast_hash": "e0bdb3b202c3170b80084a429ac60809",
     "semantic_hash": ""
   },
   "vitest.config.ts": {
@@ -312,9 +312,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1792781412.2026343,
-    "seen": 1792782877.0916402,
-    "ast_hash": "63cb3148bec721d1a8a5803e62f7cd11",
+    "mtime": 1792784324.9333253,
+    "seen": 1792785512.0551775,
+    "ast_hash": "f20458aba61573f229fbaf21ab353c7a",
     "semantic_hash": ""
   },
   "ops/enable-expiry-cron.sql": {
@@ -1410,9 +1410,9 @@
     "semantic_hash": ""
   },
   "deploy/backup.sh": {
-    "mtime": 1792782579.3015065,
-    "seen": 1792782877.0897415,
-    "ast_hash": "fa686670805b8f7237b76a42f58b1073",
+    "mtime": 1792785534.7528982,
+    "seen": 1792785700.29842,
+    "ast_hash": "9c4de4bce6b20f339ef979349f188888",
     "semantic_hash": ""
   },
   "deploy/configure.mjs": {
@@ -1440,15 +1440,15 @@
     "semantic_hash": ""
   },
   "deploy/setup.sh": {
-    "mtime": 1792781539.5476146,
-    "seen": 1792782877.0897977,
-    "ast_hash": "ab02ff777e9b22860b64de26c7894f26",
+    "mtime": 1792784187.1185625,
+    "seen": 1792785512.0537906,
+    "ast_hash": "a3e0b841cefa18f7d01e97fdce752a67",
     "semantic_hash": ""
   },
   "deploy/stack.sh": {
-    "mtime": 1792780936.2223134,
-    "seen": 1792782877.0898054,
-    "ast_hash": "693163a80218ce9257e4627a98e2b943",
+    "mtime": 1792784083.4302728,
+    "seen": 1792785512.053805,
+    "ast_hash": "7c423beba3680fb2e0aa0697b06bd79e",
     "semantic_hash": ""
   },
   "deploy/verify.sql": {
@@ -1470,15 +1470,81 @@
     "semantic_hash": ""
   },
   "deploy/compose.yml": {
-    "mtime": 1792782126.401068,
-    "seen": 1792782877.0916476,
-    "ast_hash": "c9c4e57e75a8d81e89053a9a9c955a7b",
+    "mtime": 1792784569.7966254,
+    "seen": 1792785512.055181,
+    "ast_hash": "d3d07c30fecfd8a323e99443062de339",
     "semantic_hash": ""
   },
   "docs/SELF-HOSTING.md": {
-    "mtime": 1792783130.8676403,
-    "seen": 1792783318.1517038,
-    "ast_hash": "a9073399e05ff163f5d5b86c184e3985",
+    "mtime": 1792784858.4156072,
+    "seen": 1792785512.055242,
+    "ast_hash": "632692b22758ffc0d5964449d0fb7957",
+    "semantic_hash": ""
+  },
+  "deploy/activate.sh": {
+    "mtime": 1792784098.1903408,
+    "seen": 1792785512.053511,
+    "ast_hash": "08e4aabea7c8b43046596c4e9b8b6027",
+    "semantic_hash": ""
+  },
+  "deploy/bootstrap-ubuntu.sh": {
+    "mtime": 1792784314.5716662,
+    "seen": 1792785512.0535347,
+    "ast_hash": "9361fdc089abdd1304b66386e87bc893",
+    "semantic_hash": ""
+  },
+  "deploy/check-ready.sh": {
+    "mtime": 1792784316.8289635,
+    "seen": 1792785512.053542,
+    "ast_hash": "b0857994924616941a9954741b96a9c2",
+    "semantic_hash": ""
+  },
+  "deploy/edge-main/index.ts": {
+    "mtime": 1792784582.5739906,
+    "seen": 1792785512.0535605,
+    "ast_hash": "b6bafc542557b0bf3358e84ede96421f",
+    "semantic_hash": ""
+  },
+  "deploy/package-infra.mjs": {
+    "mtime": 1792785296.9956906,
+    "seen": 1792785512.0535853,
+    "ast_hash": "933e9c44b8bb83f71789c44e1e7850ae",
+    "semantic_hash": ""
+  },
+  "deploy/public-env.sh": {
+    "mtime": 1792784089.6537383,
+    "seen": 1792785512.0535913,
+    "ast_hash": "20e517cdb272ff715058a11b463a2288",
+    "semantic_hash": ""
+  },
+  "deploy/release.sh": {
+    "mtime": 1792785116.0646734,
+    "seen": 1792785512.0535975,
+    "ast_hash": "12af68fb7a69e2c3fcfd7dc013cdc667",
+    "semantic_hash": ""
+  },
+  "tests/deployment-ci.test.mjs": {
+    "mtime": 1792785596.6377935,
+    "seen": 1792785700.2991703,
+    "ast_hash": "0f095079549a94004f0fa93549436eb0",
+    "semantic_hash": ""
+  },
+  "tests/deployment-edge.test.ts": {
+    "mtime": 1792784582.6468127,
+    "seen": 1792785512.0551019,
+    "ast_hash": "3e9030234a23fe7392f5060c4380d846",
+    "semantic_hash": ""
+  },
+  ".github/workflows/production.yml": {
+    "mtime": 1792785594.1198258,
+    "seen": 1792785700.2992158,
+    "ast_hash": "305354b3d784f8eec53d61d03efceebd",
+    "semantic_hash": ""
+  },
+  "docs/UBUNTU-GITHUB-DEPLOY.md": {
+    "mtime": 1792785599.93026,
+    "seen": 1792785700.2992828,
+    "ast_hash": "8bf28e3e74591198bebb266692d29597",
     "semantic_hash": ""
   }
 }

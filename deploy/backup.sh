@@ -12,6 +12,16 @@ cp -- "$root/deploy/.env.app" "$destination/app.env"
 cp -- "$root/deploy/runtime/supabase/docker/.env" "$destination/supabase.env"
 cp -- "$root/deploy/Caddyfile" "$destination/Caddyfile"
 cp -- "$root/deploy/compose.yml" "$destination/compose.yml"
-git -C "$root" rev-parse HEAD > "$destination/release.txt"
-(cd "$destination" && sha256sum database.dump roles.sql storage.tar.gz db-config.tar.gz app.env supabase.env Caddyfile compose.yml release.txt > SHA256SUMS)
+for file in infra-images.json app-image.env; do
+  [[ ! -f "$root/deploy/runtime/$file" ]] || cp -- "$root/deploy/runtime/$file" "$destination/$file"
+done
+if [[ -f "$root/RELEASE" ]]; then
+  cp -- "$root/RELEASE" "$destination/release.txt"
+else
+  git -C "$root" rev-parse HEAD > "$destination/release.txt"
+fi
+(cd "$destination" && {
+  sha256sum database.dump roles.sql storage.tar.gz db-config.tar.gz app.env supabase.env Caddyfile compose.yml release.txt
+  for file in infra-images.json app-image.env; do [[ ! -f "$file" ]] || sha256sum "$file"; done
+} > SHA256SUMS)
 echo "Backup saved to $destination. Contains secrets: encrypt and copy off-host. Online files are not an atomic snapshot; see the restore guide."

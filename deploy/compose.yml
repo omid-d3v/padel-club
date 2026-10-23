@@ -37,6 +37,7 @@ services:
     logging: *logging
   functions:
     volumes:
+      - ${MATCHSHO_ROOT}/deploy/edge-main:/home/deno/functions/main:ro
       - ${MATCHSHO_ROOT}/supabase/functions/calendar-sync:/home/deno/functions/calendar-sync:ro
       - ${MATCHSHO_ROOT}/supabase/functions/_shared:/home/deno/functions/_shared:ro
     logging: *logging
