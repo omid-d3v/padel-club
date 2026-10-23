@@ -39,6 +39,15 @@ jobs:
       - run: npm test
       - name: Check shell syntax
         run: for file in deploy/*.sh; do bash -n "$file"; done
+      - name: Verify Docker image before server configuration
+        if: github.event_name == 'pull_request' || (github.event_name == 'push' && vars.AUTO_DEPLOY != 'true')
+        run: |
+          public_key="$(node --input-type=module -e "import {generateConfig} from './deploy/configure.mjs'; console.log(generateConfig('ci.example.com','api.ci.example.com','ci@example.com').app.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY)")"
+          docker build --platform linux/amd64 -t matchsho-web:ci \
+            --build-arg NEXT_PUBLIC_SITE_URL=https://ci.example.com \
+            --build-arg NEXT_PUBLIC_SUPABASE_URL=https://api.ci.example.com \
+            --build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="$public_key" .
+          bash deploy/smoke-image.sh matchsho-web:ci
   release:
     needs: checks
     if: >-
@@ -104,14 +113,7 @@ jobs:
             args+=(--build-arg "$key=${!key:-}")
           done
           docker build --platform linux/amd64 "${args[@]}" -t "matchsho-web:$GITHUB_SHA" .
-          cid="$(docker run -d -p 127.0.0.1:3100:3000 "matchsho-web:$GITHUB_SHA")"
-          trap 'docker logs "$cid"; docker stop "$cid"' EXIT
-          for attempt in {1..40}; do
-            if curl -fsS http://127.0.0.1:3100/api/health >/dev/null; then break; fi
-            sleep 2
-          done
-          curl -fsS http://127.0.0.1:3100/api/health
-          curl -fsS http://127.0.0.1:3100/brand/matchsho/favicon.svg >/dev/null
+          bash deploy/smoke-image.sh "matchsho-web:$GITHUB_SHA"
           docker image save "matchsho-web:$GITHUB_SHA" | gzip -1 > bundle/web-image.tar.gz
       - name: Refuse a superseded main commit
         env:

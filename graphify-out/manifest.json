@@ -1524,9 +1524,9 @@
     "semantic_hash": ""
   },
   "tests/deployment-ci.test.mjs": {
-    "mtime": 1792785596.6377935,
-    "seen": 1792785700.2991703,
-    "ast_hash": "0f095079549a94004f0fa93549436eb0",
+    "mtime": 1792785900.360069,
+    "seen": 1792785959.5560734,
+    "ast_hash": "f8047dab007f764313d621a8edc33f06",
     "semantic_hash": ""
   },
   "tests/deployment-edge.test.ts": {
@@ -1536,15 +1536,21 @@
     "semantic_hash": ""
   },
   ".github/workflows/production.yml": {
-    "mtime": 1792785594.1198258,
-    "seen": 1792785700.2992158,
-    "ast_hash": "305354b3d784f8eec53d61d03efceebd",
+    "mtime": 1792785877.0716083,
+    "seen": 1792785959.5561757,
+    "ast_hash": "a6d8721653b52c6318f0f98c48474ff8",
     "semantic_hash": ""
   },
   "docs/UBUNTU-GITHUB-DEPLOY.md": {
-    "mtime": 1792785599.93026,
-    "seen": 1792785700.2992828,
-    "ast_hash": "8bf28e3e74591198bebb266692d29597",
+    "mtime": 1792785885.6352408,
+    "seen": 1792785959.5563285,
+    "ast_hash": "211be6af7f69f30d90cb4a38a3eb25f6",
+    "semantic_hash": ""
+  },
+  "deploy/smoke-image.sh": {
+    "mtime": 1792785874.5941772,
+    "seen": 1792785959.5545788,
+    "ast_hash": "b561c5e1a717b64f2de4331b579e3802",
     "semantic_hash": ""
   }
 }

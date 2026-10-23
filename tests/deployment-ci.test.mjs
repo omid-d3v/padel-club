@@ -91,7 +91,10 @@ describe("production delivery safety", () => {
     );
     expect(workflow).toContain("npm test");
     expect(workflow).toContain("docker build --platform linux/amd64");
-    expect(workflow).toContain("/api/health");
+    expect(workflow).toContain(
+      "Verify Docker image before server configuration",
+    );
+    expect(read("deploy/smoke-image.sh")).toContain("/api/health");
     expect(workflow).not.toMatch(
       /--build-arg.*(?:SERVICE_ROLE|POSTGRES_PASSWORD|SECRET_KEY)/,
     );
