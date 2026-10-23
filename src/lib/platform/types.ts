@@ -255,7 +255,7 @@ type Table<T> = {
 };
 export interface CalendarConnection {
   id: string;
-  source: "guilan" | "sabaland";
+  source: "guilan" | "sabaland" | "respina";
   club_id: string | null;
   enabled: boolean;
   interval_minutes: number;

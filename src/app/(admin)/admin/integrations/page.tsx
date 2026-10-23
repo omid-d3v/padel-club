@@ -13,6 +13,10 @@ export const metadata = { title: "اتصال تقویم باشگاه‌ها" };
 const sources = {
   guilan: { name: "گیلان پدل کلاب", url: "https://guilanpadelclub.ir/booking" },
   sabaland: { name: "سرزمین صبا", url: "https://sabalandcomplex.ir/booking/" },
+  respina: {
+    name: "تنیس رسپینا",
+    url: "https://respina.gildev.ir/tennis/book",
+  },
 };
 const statuses: Record<string, string> = {
   pending: "در انتظار بررسی",

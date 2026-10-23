@@ -1,5 +1,5 @@
 // Fixed-origin, read-only adapters. Never call payment, cart, hold or appointment endpoints.
-export type Source = "guilan" | "sabaland";
+export type Source = "guilan" | "sabaland" | "respina";
 export interface ExternalCourt {
   reference: string;
   name: string;
@@ -27,7 +27,7 @@ function amount(value: unknown) {
     value > 10000000000
   )
     throw new CalendarError("SOURCE_CHANGED");
-  return value * 10; // Both official sites currently display/store toman. Internal amounts are IRR.
+  return value * 10; // Supported sources display/store toman. Internal amounts are IRR.
 }
 export function iranDate(date: Date) {
   return new Intl.DateTimeFormat("en-CA", {
@@ -126,6 +126,46 @@ export function parseGuilanSlots(
     throw new CalendarError("SOURCE_CHANGED");
   return result;
 }
+export function parseRespinaCourts(value: unknown): ExternalCourt[] {
+  if (!Array.isArray(value) || !value.length)
+    throw new CalendarError("SOURCE_CHANGED");
+  const courts = value.map((row) => {
+    const court = object(row);
+    if (
+      typeof court.id !== "string" ||
+      !/^[a-z0-9]{20,32}$/.test(court.id) ||
+      typeof court.name !== "string" ||
+      !court.name.trim() ||
+      court.type !== "tennis"
+    )
+      throw new CalendarError("SOURCE_CHANGED");
+    return {
+      reference: court.id,
+      name: court.name,
+      price: amount(court.price_per_hour),
+    };
+  });
+  if (new Set(courts.map((court) => court.reference)).size !== courts.length)
+    throw new CalendarError("SOURCE_CHANGED");
+  return courts;
+}
+export function parseRespinaSlots(
+  value: unknown,
+  court: ExternalCourt,
+  date: string,
+): CalendarSlot[] {
+  if (!Array.isArray(value) || value.length !== 16)
+    throw new CalendarError("INCOMPLETE_CALENDAR");
+  return value.map((row, index) => {
+    const slot = object(row);
+    if (
+      slot.time !== `${String(index + 8).padStart(2, "0")}:00` ||
+      typeof slot.available !== "boolean"
+    )
+      throw new CalendarError("SOURCE_CHANGED");
+    return slotAt(court, date, slot.time, slot.available);
+  });
+}
 export async function openCalendar(source: Source, fetcher: Fetcher = fetch) {
   if (source === "guilan") {
     const html = await (
@@ -146,6 +186,31 @@ export async function openCalendar(source: Source, fetcher: Fetcher = fetch) {
             fetcher,
           );
           slots.push(...parseGuilanSlots(await response.json(), court, day));
+        }
+        return slots;
+      },
+    };
+  }
+  if (source === "respina") {
+    const courts = parseRespinaCourts(
+      await (
+        await request("https://respina.gildev.ir/tennis/courts", {}, fetcher)
+      ).json(),
+    );
+    return {
+      courts,
+      async slots(reference: string, from: Date, to: Date) {
+        const court = courts.find((item) => item.reference === reference);
+        if (!court) throw new CalendarError("COURT_REMOVED");
+        const slots: CalendarSlot[] = [];
+        for (let date = +from; date < +to; date += 86400000) {
+          const day = iranDate(new Date(date));
+          const response = await request(
+            `https://respina.gildev.ir/tennis/availability?${new URLSearchParams({ courtId: reference, date: day })}`,
+            {},
+            fetcher,
+          );
+          slots.push(...parseRespinaSlots(await response.json(), court, day));
         }
         return slots;
       },
