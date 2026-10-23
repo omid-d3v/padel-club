@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { PanelTop, ArrowUpLeft } from "lucide-react";
 import { LoginForm } from "@/components/forms";
+import { AuthMethods } from "@/components/platform/auth-methods";
 import { configured } from "@/lib/supabase/server";
 import { safeNext } from "@/lib/platform/format";
 export const dynamic = "force-dynamic";
@@ -39,7 +40,12 @@ export default async function Login({
               حساب شما دسترسی مدیریت ندارد. با یک حساب ادمین وارد شوید.
             </p>
           )}
-          <LoginForm next={next ? safeNext(next) : undefined} />
+          <AuthMethods
+            phoneEnabled={process.env.PHONE_AUTH_ENABLED === "true"}
+            next={next ? safeNext(next) : undefined}
+          >
+            <LoginForm next={next ? safeNext(next) : undefined} />
+          </AuthMethods>
           <div className="mt-5 flex justify-between text-sm">
             <Link href="/register" className="text-emerald-800 underline">
               هنوز حساب ندارم

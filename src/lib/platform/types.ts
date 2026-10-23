@@ -75,6 +75,7 @@ export interface Profile {
   created_at: string;
 }
 export interface Booking {
+  fulfillment_state: "review" | "reserve" | "awaiting_user" | "booked";
   id: string;
   user_id: string;
   slot_id: string;
@@ -272,6 +273,43 @@ export interface CalendarConnection {
   created_at: string;
 }
 export type PlatformTables = {
+  booking_reschedules: Table<{
+    id: string;
+    booking_id: string;
+    old_slot_id: string;
+    new_slot_id: string;
+    old_starts_at: string;
+    old_ends_at: string;
+    new_starts_at: string;
+    new_ends_at: string;
+    status: "pending" | "accepted" | "rejected" | "completed" | "superseded";
+    prior_status: string | null;
+    note: string;
+    expires_at: string;
+    created_by: string;
+    created_at: string;
+    responded_at: string | null;
+  }>;
+  push_devices: Table<{
+    device_id: string;
+    user_id: string;
+    token: string;
+    updated_at: string;
+  }>;
+  notification_deliveries: Table<{
+    id: number;
+    notification_id: string;
+    channel: "sms" | "push";
+    status: string;
+    attempts: number;
+    next_attempt_at: string;
+    lease_token: string | null;
+    lease_until: string | null;
+    provider_reference: string | null;
+    last_error: string | null;
+    created_at: string;
+    sent_at: string | null;
+  }>;
   discount_codes: Table<{
     id: string;
     code: string;
@@ -348,6 +386,31 @@ export type PlatformTables = {
 };
 type RPC<A, R = string> = { Args: A; Returns: R };
 export type PlatformFunctions = {
+  review_booking: RPC<{ p_booking: string }, undefined>;
+  expire_booking_proposals: RPC<Record<string, never>, number>;
+  propose_booking_slot: RPC<{
+    p_booking: string;
+    p_slot: string;
+    p_note: string;
+  }>;
+  reply_booking_slot: RPC<{ p_proposal: string; p_accept: boolean }, undefined>;
+  fulfill_booking: RPC<
+    { p_booking: string; p_reference: string; p_hold_until: string },
+    undefined
+  >;
+  register_push_device: RPC<{ p_device: string; p_token: string }, undefined>;
+  revoke_push_device: RPC<{ p_device: string }, undefined>;
+  claim_notification_deliveries: RPC<{ p_channels: string[] }, Json>;
+  finish_notification_delivery: RPC<
+    {
+      p_id: number;
+      p_lease: string;
+      p_status: string;
+      p_reference?: string | null;
+      p_error?: string | null;
+    },
+    undefined
+  >;
   apply_booking_benefit: RPC<{
     p_participant: string;
     p_code?: string | null;

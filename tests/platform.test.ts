@@ -145,6 +145,178 @@ beforeAll(async () => {
 });
 afterAll(async () => db.close());
 describe("discounts and administrator waivers", () => {
+  it("requires owner consent and a real new reservation while preserving paid amounts", async () => {
+    const original = await slot(courts[0], 4000001, 7);
+    const replacement = await slot(courts[0], 4000001, 8);
+    const b = await request(original);
+    await approve(b);
+    const paid = await paySeat(b);
+    await role("authenticated", users[1]);
+    await expect(
+      db.query("select propose_booking_slot($1,$2,'زمان قبلی آزاد نیست')", [
+        b,
+        replacement,
+      ]),
+    ).rejects.toThrow("ADMIN_REQUIRED");
+    await role("authenticated");
+    const proposal = await id(
+      "select propose_booking_slot($1,$2,'زمان قبلی آزاد نیست') id",
+      [b, replacement],
+    );
+    expect(
+      (
+        await query<{ slot_id: string }>(
+          "select slot_id from bookings where id=$1",
+          [b],
+        )
+      )[0].slot_id,
+    ).toBe(original);
+    await role("authenticated", users[1]);
+    await expect(
+      db.query("select reply_booking_slot($1,true)", [proposal]),
+    ).rejects.toThrow("FORBIDDEN");
+    await role("authenticated", users[0]);
+    await db.query("select reply_booking_slot($1,true)", [proposal]);
+    await role("service_role");
+    await db.query("select run_platform_jobs()");
+    expect(
+      (
+        await query<{ status: string }>(
+          "select status from bookings where id=$1",
+          [b],
+        )
+      )[0].status,
+    ).toBe("needs_attention");
+    await role("authenticated");
+    await db.query(
+      "select fulfill_booking($1,'new-club-reference',now()+interval '2 hours')",
+      [b],
+    );
+    expect(
+      (
+        await query(
+          "select slot_id,status,fulfillment_state from bookings where id=$1",
+          [b],
+        )
+      )[0],
+    ).toMatchObject({
+      slot_id: replacement,
+      status: "confirmed",
+      fulfillment_state: "booked",
+    });
+    expect(
+      (await query("select status from payments where id=$1", [paid.pid]))[0]
+        .status,
+    ).toBe("paid");
+    expect(
+      await query("select * from refunds where payment_id=$1", [paid.pid]),
+    ).toHaveLength(0);
+  });
+  it("rechecks target inventory on acceptance and keeps rejected requests in the manager queue", async () => {
+    const original = await slot(courts[1], 5000000, 9),
+      replacement = await slot(courts[1], 5000000, 10);
+    const b = await request(original);
+    await role("authenticated");
+    const proposal = await id(
+      "select propose_booking_slot($1,$2,'پیشنهاد جدید') id",
+      [b, replacement],
+    );
+    await request(replacement, "private", crypto.randomUUID(), [], users[1]);
+    await role("authenticated", users[0]);
+    await expect(
+      db.query("select reply_booking_slot($1,true)", [proposal]),
+    ).rejects.toThrow("REPLACEMENT_UNAVAILABLE");
+    await db.query("select reply_booking_slot($1,false)", [proposal]);
+    expect(
+      (
+        await query(
+          "select slot_id,fulfillment_state from bookings where id=$1",
+          [b],
+        )
+      )[0],
+    ).toMatchObject({ slot_id: original, fulfillment_state: "review" });
+  });
+  it("leases notification delivery and prevents stale workers from changing sent records", async () => {
+    await role("postgres");
+    await db.exec("update notification_deliveries set status='sent'");
+    await db.query(
+      "insert into notifications(user_id,title,body,dedupe_key,href) values($1,'آزمون اعلان','پیام آزمون','delivery-test','/account')",
+      [users[0]],
+    );
+    await role("authenticated", users[0]);
+    await expect(
+      db.query("select claim_notification_deliveries(array['sms'])"),
+    ).rejects.toThrow();
+    await role("service_role");
+    const claimed = (
+      await query<{ data: { id: number; lease_token: string }[] }>(
+        "select claim_notification_deliveries(array['sms']) data",
+      )
+    )[0].data[0];
+    await db.query(
+      "select finish_notification_delivery($1,$2,'sent','sms-ref',null)",
+      [claimed.id, crypto.randomUUID()],
+    );
+    expect(
+      (
+        await query("select status from notification_deliveries where id=$1", [
+          claimed.id,
+        ])
+      )[0].status,
+    ).toBe("processing");
+    await db.query(
+      "select finish_notification_delivery($1,$2,'sent','sms-ref',null)",
+      [claimed.id, claimed.lease_token],
+    );
+    expect(
+      (
+        await query("select status from notification_deliveries where id=$1", [
+          claimed.id,
+        ])
+      )[0].status,
+    ).toBe("sent");
+  });
+  it("requires fresh owner consent when an accepted alternative must be replaced again", async () => {
+    const original = await slot(courts[1], 6000000, 20),
+      first = await slot(courts[1], 6000000, 21),
+      second = await slot(courts[1], 6000000, 22);
+    const b = await request(original);
+    await role("authenticated");
+    const firstProposal = await id(
+      "select propose_booking_slot($1,$2,'پیشنهاد اول') id",
+      [b, first],
+    );
+    await role("authenticated", users[0]);
+    await db.query("select reply_booking_slot($1,true)", [firstProposal]);
+    await role("authenticated");
+    const nextProposal = await id(
+      "select propose_booking_slot($1,$2,'زمان اول دوباره اشغال شد') id",
+      [b, second],
+    );
+    expect(
+      (
+        await query("select status from booking_reschedules where id=$1", [
+          firstProposal,
+        ])
+      )[0].status,
+    ).toBe("superseded");
+    await expect(
+      db.query(
+        "select fulfill_booking($1,'premature',now()+interval '1 hour')",
+        [b],
+      ),
+    ).rejects.toThrow();
+    await role("authenticated", users[0]);
+    await db.query("select reply_booking_slot($1,true)", [nextProposal]);
+    await role("authenticated");
+    await db.query(
+      "select fulfill_booking($1,'new-confirmed',now()+interval '1 hour')",
+      [b],
+    );
+    expect(
+      (await query("select slot_id from bookings where id=$1", [b]))[0].slot_id,
+    ).toBe(second);
+  });
   it("settles the discounted bank amount and allows admin waiver of a discounted balance", async () => {
     await role("postgres");
     await db.exec(

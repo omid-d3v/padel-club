@@ -1,5 +1,6 @@
 "use client";
 import { useState, useTransition } from "react";
+import type { ComponentProps } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { LoaderCircle } from "lucide-react";
@@ -14,6 +15,7 @@ export function ActionForm({
   confirm,
   action,
   disabled = false,
+  buttonVariant = "default",
 }: {
   operation?: string;
   children?: React.ReactNode;
@@ -22,6 +24,7 @@ export function ActionForm({
   confirm?: string;
   action?: (form: FormData) => Promise<PlatformResult>;
   disabled?: boolean;
+  buttonVariant?: ComponentProps<typeof Button>["variant"];
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -78,7 +81,12 @@ export function ActionForm({
             {result.message}
           </p>
         )}
-        <Button disabled={pending || disabled} className="w-full" type="submit">
+        <Button
+          variant={buttonVariant}
+          disabled={pending || disabled}
+          className="w-full"
+          type="submit"
+        >
           {pending && <LoaderCircle size={17} className="animate-spin" />}
           {pending ? "در حال بررسی…" : label}
         </Button>

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
 import {
   playerSchema,
   tournamentSchema,
@@ -57,6 +58,11 @@ export async function login(
 }
 export async function logout() {
   const db = await createClient();
+  const jar = await cookies();
+  const device = z.uuid().safeParse(jar.get("rallyyar-push-device")?.value);
+  if (device.success)
+    await db.rpc("revoke_push_device", { p_device: device.data });
+  jar.delete("rallyyar-push-device");
   await db.auth.signOut();
   redirect("/login");
 }

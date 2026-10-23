@@ -9,6 +9,10 @@ import {
 export async function runWorker() {
   const startedAt = Date.now();
   const db = trustedClient();
+  const { error: proposalExpiryError } = await db.rpc(
+    "expire_booking_proposals",
+  );
+  if (proposalExpiryError) throw proposalExpiryError;
   const { data: expired, error: expiryError } =
     await db.rpc("run_platform_jobs");
   if (expiryError) throw expiryError;

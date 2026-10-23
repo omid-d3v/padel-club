@@ -2,6 +2,7 @@ import { MemberNav } from "@/components/platform/member-nav";
 import { requireMember } from "@/lib/platform/data";
 import { PublicShell } from "@/components/platform/public-shell";
 import { logout } from "@/app/actions";
+import { PushOptIn } from "@/components/platform/push-opt-in";
 export const dynamic = "force-dynamic";
 export const metadata = {
   title: "حساب من",
@@ -23,6 +24,7 @@ export default async function AccountLayout({
             </button>
           </form>
         </MemberNav>
+        <PushOptIn userId={m.userId} />
       </div>
       {children}
     </PublicShell>

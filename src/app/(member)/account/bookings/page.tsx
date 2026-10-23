@@ -12,6 +12,7 @@ import { Field } from "@/components/platform/fields";
 import { beginPayment } from "@/app/payment-actions";
 import { paymentConfigured } from "@/lib/payments/zarinpal";
 import { PublicEmpty } from "@/components/platform/cards";
+import { ReplacementNotice } from "@/components/platform/replacement-notice";
 export default async function Bookings() {
   const now = await requestTime();
   const benefits = await ownRows("booking_benefits");
@@ -29,6 +30,11 @@ export default async function Bookings() {
         )
     : { data: [], error: null };
   if (error) throw new Error("دریافت رزرو انجام نشد.");
+  const { data: proposals, error: proposalError } = await m.db
+    .from("booking_reschedules")
+    .select("*")
+    .order("created_at", { ascending: false });
+  if (proposalError) throw new Error("دریافت پیشنهادهای تغییر زمان انجام نشد.");
   const { data: locations, error: locationError } = await m.db.rpc(
     "my_booking_locations",
   );
@@ -57,6 +63,20 @@ export default async function Bookings() {
             if (!b) return null;
             return (
               <article key={p.id} className="platform-card my-5">
+                {proposals?.find(
+                  (proposal) => proposal.booking_id === b.id,
+                ) && (
+                  <ReplacementNotice
+                    proposal={proposals.find(
+                      (proposal) => proposal.booking_id === b.id,
+                    )!}
+                    canReply={b.user_id === m.userId}
+                    bookingActive={
+                      !["cancelled", "expired", "completed"].includes(b.status)
+                    }
+                    now={now}
+                  />
+                )}
                 <div className="mb-5 flex flex-wrap justify-between gap-3">
                   <div>
                     <h2>
@@ -70,7 +90,12 @@ export default async function Bookings() {
                   </div>
                   <div>
                     <span className="status-pill">
-                      {bookingLabels[b.status]}
+                      {b.fulfillment_state === "awaiting_user"
+                        ? "در انتظار پاسخ به پیشنهاد زمان"
+                        : b.fulfillment_state === "reserve" &&
+                            b.status === "needs_attention"
+                          ? "زمان پذیرفته شد؛ منتظر رزرو مدیر"
+                          : bookingLabels[b.status]}
                     </span>
                     <span className="ms-2 status-pill">
                       {p.status === "paid" &&

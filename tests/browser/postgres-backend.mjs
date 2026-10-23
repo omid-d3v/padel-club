@@ -7,6 +7,7 @@ const db = new PGlite();
 const uuid = (n) => `10000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const admin = uuid(999),
   player = uuid(998),
+  mobilePlayer = uuid(997),
   tid = uuid(100);
 await db.exec(
   `create schema auth;create role anon;create role authenticated;create role service_role bypassrls;create table auth.users(id uuid primary key);create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;grant usage on schema auth to anon,authenticated,service_role;grant execute on function auth.uid() to anon,authenticated,service_role;`,
@@ -16,7 +17,11 @@ for (const file of readdirSync(directory)
   .filter((f) => f.endsWith(".sql"))
   .sort())
   await db.exec(readFileSync(new URL(file, directory), "utf8"));
-await db.query("insert into auth.users(id) values($1),($2)", [admin, player]);
+await db.query("insert into auth.users(id) values($1),($2),($3)", [
+  admin,
+  player,
+  mobilePlayer,
+]);
 await db.query("insert into admins(user_id) values($1)", [admin]);
 const names = [
   ["امید", "حسینی"],
@@ -119,7 +124,12 @@ function user(id) {
     id,
     aud: "authenticated",
     role: "authenticated",
-    email: id === admin ? "admin@example.com" : "player@example.com",
+    email:
+      id === admin
+        ? "admin@example.com"
+        : id === mobilePlayer
+          ? "mobile@example.com"
+          : "player@example.com",
     email_confirmed_at: "2026-01-01T00:00:00Z",
     app_metadata: { provider: "email", providers: ["email"] },
     user_metadata: {},
@@ -170,7 +180,15 @@ http
     };
     if (url.pathname === "/health") return send({ ok: true });
     if (url.pathname === "/auth/v1/token")
-      return send(session(body.email === "admin@example.com" ? admin : player));
+      return send(
+        session(
+          body.email === "admin@example.com"
+            ? admin
+            : body.email === "mobile@example.com"
+              ? mobilePlayer
+              : player,
+        ),
+      );
     if (url.pathname === "/auth/v1/user")
       return send(user(subject(req) ?? player));
     if (url.pathname === "/auth/v1/logout") return send({});

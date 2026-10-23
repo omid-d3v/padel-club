@@ -67,7 +67,7 @@ export function AvailabilityPicker({
           <p className="mb-1 text-[11px] font-bold tracking-wide text-emerald-800">
             وقت بازی تو
           </p>
-          <h2 className="!mb-0">یک روز خوب برای پدل</h2>
+          <h2 className="!mb-0">روز و ساعت بازی</h2>
         </div>
         <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-2 text-xs">
           <Clock3 size={13} />

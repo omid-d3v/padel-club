@@ -50,10 +50,11 @@ test("member profile → real SQL booking → admin hold → no fake payment wit
   page,
   browser,
 }) => {
+  test.setTimeout(120000);
   await page.goto("/login");
   await page
     .getByRole("textbox", { name: "ایمیل", exact: true })
-    .fill("player@example.com");
+    .fill(test.info().project.name==="mobile"?"mobile@example.com":"player@example.com");
   await page.getByLabel("رمز عبور").fill("browser-test-password");
   await page.getByRole("button", { name: "ورود به حساب", exact: true }).click();
   await expect(page).toHaveURL("/account");
@@ -112,14 +113,74 @@ test("member profile → real SQL booking → admin hold → no fake payment wit
   const card = admin.getByRole("dialog").first();
   await expect(card).toBeVisible();
   await card
-    .getByRole("textbox", { name: "نام مسئول و مرجع تأیید باشگاه" })
+    .getByRole("button", { name: "پیشنهاد تاریخ و ساعت جایگزین", exact: true })
+    .click();
+  const replacement = admin.getByRole("dialog", {
+    name: "پیشنهاد سانس جایگزین",
+    exact: true,
+  });
+  await expect(replacement.getByText(/مبلغ رزرو تغییر نمی‌کند/)).toBeVisible();
+  await replacement
+    .getByRole("button", { name: "رفتن به نخستین روز آزاد" })
+    .click();
+  const target = uuid(test.info().project.name === "mobile" ? 723 : 722);
+  await replacement.locator(`[data-slot-id="${target}"]`).click();
+  await admin.screenshot({
+    path: `test-results/replacement-calendar-${test.info().project.name}.png`,
+    fullPage: true,
+  });
+  await replacement
+    .getByLabel("دلیل تغییر و توضیح برای کاربر")
+    .fill("سانس فعلی در سایت زمین آزاد نیست؛ پیشنهاد هم‌قیمت");
+  await replacement
+    .getByRole("button", { name: "ارسال پیشنهاد به کاربر", exact: true })
+    .click();
+  await admin
+    .getByRole("button", { name: "تأیید و ادامه", exact: true })
+    .click();
+  await expect(replacement).toHaveCount(0);
+  await page.reload();
+  const proposed = page.locator("article").filter({has:page.locator(`input[name="booking_id"][value="${bookingId}"]`)}).getByRole("region", { name: "تغییر زمان رزرو" });
+  await expect(proposed.getByText(/مبلغ رزرو تغییر نمی‌کند/)).toBeVisible();
+  await page.screenshot({
+    path: `test-results/replacement-consent-${test.info().project.name}.png`,
+    fullPage: true,
+  });
+  await proposed
+    .getByRole("button", {
+      name: "این تاریخ و ساعت را تأیید می‌کنم",
+      exact: true,
+    })
+    .click();
+  await page
+    .getByRole("button", { name: "تأیید و ادامه", exact: true })
+    .click();
+  await expect(
+    page
+      .getByRole("heading", {
+        name: "زمان پیشنهادی را تأیید کردید؛ منتظر رزرو مدیر",
+      })
+      .last(),
+  ).toBeVisible();
+  await admin.reload();
+  await admin
+    .locator(`[data-record-id="${bookingId}"]`)
+    .getByRole("button", { name: /جزئیات/ })
+    .click();
+  await expect(
+    card.getByText(
+      "کاربر تأیید کرده؛ اکنون سانس جدید را در سایت زمین رزرو کنید.",
+    ),
+  ).toBeVisible();
+  await card
+    .getByRole("textbox", { name: "کد رزرو یا نام مسئول و مرجع تأیید زمین" })
     .fill("تأیید واقعی در دیتابیس آزمون");
   const hold = tehranDateTime(new Date(Date.now() + 50 * 60000));
   await card
-    .getByRole("textbox", { name: "اعتبار نگه‌داشت؛ وقت تهران" })
+    .getByRole("textbox", { name: "اعتبار رزرو یا نگه‌داشت زمین؛ ساعت تهران" })
     .fill(formatJalaliInput(hold, true));
   await card
-    .getByRole("button", { name: "ثبت نگه‌داشت باشگاه و فعال‌کردن پرداخت" })
+    .getByRole("button", { name: "زمین را رزرو کردم؛ ثبت مرجع" })
     .click();
   await admin
     .getByRole("button", { name: "تأیید و ادامه", exact: true })
@@ -128,11 +189,10 @@ test("member profile → real SQL booking → admin hold → no fake payment wit
   // specific approval card to disappear before reloading the player's receipt.
   await expect(
     card.getByRole("button", {
-      name: "ثبت نگه‌داشت باشگاه و فعال‌کردن پرداخت",
+      name: "زمین را رزرو کردم؛ ثبت مرجع",
       exact: true,
     }),
   ).toHaveCount(0);
-  await card.getByRole("button", { name: "بستن", exact: true }).click();
   await page.reload();
   const receipt = page.locator("article").filter({
     has: page.locator(`input[name="booking_id"][value="${bookingId}"]`),
@@ -192,7 +252,7 @@ test("member profile → real SQL booking → admin hold → no fake payment wit
   await expect(
     page.getByText(`کد تخفیف: ${code}`, { exact: false }),
   ).toBeVisible();
-  await admin.goto("/admin/operations");
+  await admin.goto("/admin/operations?tab=bookings");
   await admin
     .locator(`[data-record-id="${bookingId}"]`)
     .getByRole("button", { name: /جزئیات/ })

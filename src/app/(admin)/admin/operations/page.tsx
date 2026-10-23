@@ -20,8 +20,13 @@ import { retryVerifyPayment } from "@/app/payment-actions";
 import { number } from "@/lib/utils";
 import { tehranDateTime } from "@/lib/date-time";
 import { requestTime } from "@/lib/platform/request-time";
+import {
+  BookingFulfillment,
+  fulfillmentLabels,
+} from "@/components/platform/booking-fulfillment";
 
 const sections = [
+  ["queue", "صف اقدام رزرو"],
   ["bookings", "رزروها"],
   ["payments", "پرداخت‌ها"],
   ["refunds", "استردادها"],
@@ -69,7 +74,16 @@ export default async function Operations({
     adminRows("players"),
     adminRows("discount_codes"),
   ]);
-  const tab = sections.some(([id]) => id === q.tab) ? q.tab : "bookings";
+  const [proposals, connections] = await Promise.all([
+    adminRows("booking_reschedules"),
+    adminRows("calendar_connections"),
+  ]);
+  const sourceUrls: Record<string, string> = {
+    guilan: "https://guilanpadelclub.ir/booking",
+    sabaland: "https://sabalandcomplex.ir/booking/",
+    respina: "https://respina.gildev.ir/tennis/book",
+  };
+  const tab = sections.some(([id]) => id === q.tab) ? q.tab : "queue";
   const names = (uid: string) =>
     profiles.find((p) => p.user_id === uid)?.display_name ?? "کاربر";
   const pending = bookings.filter((b) => b.status === "pending_club");
@@ -91,8 +105,15 @@ export default async function Operations({
       label: bookingLabels[value] ?? value,
     }));
   const bookingItems: AdminListItem[] =
-    tab === "bookings"
+    tab === "bookings" || tab === "queue"
       ? bookings
+          .filter(
+            (b) =>
+              tab !== "queue" ||
+              (b.mode === "MANUAL_APPROVAL" &&
+                b.fulfillment_state !== "booked" &&
+                !["cancelled", "expired", "completed"].includes(b.status)),
+          )
           .toSorted((a, b) => b.created_at.localeCompare(a.created_at))
           .map((b) => {
             const slot = slots.find((s) => s.id === b.slot_id);
@@ -106,8 +127,11 @@ export default async function Operations({
               id: b.id,
               title: `${names(b.user_id)} · ${kinds[b.kind]}`,
               meta: `${club?.name ?? "باشگاه"} · ${court?.name ?? "زمین"} · ${slot ? moment(slot.starts_at) : moment(b.created_at)}`,
-              badge: bookingLabels[b.status],
-              state: b.status,
+              badge:
+                tab === "queue"
+                  ? fulfillmentLabels[b.fulfillment_state]
+                  : bookingLabels[b.status],
+              state: tab === "queue" ? b.fulfillment_state : b.status,
               search: `${b.club_reference ?? ""} ${seats.map((p) => names(p.user_id)).join(" ")}`,
               content: (
                 <>
@@ -129,39 +153,18 @@ export default async function Operations({
                       <dd>{b.club_reference ?? "در انتظار بررسی"}</dd>
                     </div>
                   </dl>
-                  {b.status === "pending_club" && (
-                    <section className="admin-action-block">
-                      <h3>۱. ثبت نگه‌داشت واقعی باشگاه</h3>
-                      <Countdown
-                        now={now}
-                        deadline={b.request_expires_at}
-                        label="مهلت پاسخ به درخواست"
-                      />
-                      <ActionForm
-                        operation="admin:approve"
-                        label="ثبت نگه‌داشت باشگاه و فعال‌کردن پرداخت"
-                        confirm="با ثبت این فرم، تأیید می‌کنید باشگاه واقعاً زمین را تا مهلت اعلام‌شده نگه داشته است."
-                      >
-                        <input type="hidden" name="booking_id" value={b.id} />
-                        <Field
-                          name="reference"
-                          label="نام مسئول و مرجع تأیید باشگاه"
-                          required
-                          minLength={2}
-                        />
-                        <Field
-                          name="hold_until"
-                          type="datetime-local"
-                          label="اعتبار نگه‌داشت؛ وقت تهران"
-                          required
-                        />
-                        <p className="text-xs leading-7 text-muted-foreground">
-                          مهلت پرداخت کوتاه‌ترین زمان بین ۶۰ دقیقه، اعتبار
-                          باشگاه و مهلت بازی است.
-                        </p>
-                      </ActionForm>
-                    </section>
-                  )}
+                  <BookingFulfillment
+                    booking={b}
+                    proposals={proposals}
+                    currentTime={slot?.starts_at ?? b.created_at}
+                    sourceUrl={
+                      sourceUrls[
+                        connections.find((c) => c.club_id === club?.id)
+                          ?.source ?? ""
+                      ]
+                    }
+                    now={now}
+                  />
                   <section className="admin-action-block">
                     <h3>بازیکنان و تسویه</h3>
                     {seats.length ? (
@@ -624,13 +627,26 @@ export default async function Operations({
           </Link>
         ))}
       </nav>
-      {tab === "bookings" ? (
+      {tab === "bookings" || tab === "queue" ? (
         <AdminList
           key="bookings"
-          title="رزروها"
-          description="جست‌وجو با نام بازیکن، باشگاه، زمین یا شناسه رزرو. برای تأیید، معافیت و لغو، جزئیات همان رزرو را باز کنید."
+          title={
+            tab === "queue" ? "رزروهایی که منتظر اقدام شما هستند" : "رزروها"
+          }
+          description={
+            tab === "queue"
+              ? "درخواست را بررسی کنید، زمین را در سایت باشگاه رزرو کنید و مرجع را ثبت کنید؛ اگر زمان آزاد نبود، از تقویم همان زمین پیشنهاد جایگزین بفرستید."
+              : "جست‌وجو با نام بازیکن، باشگاه، زمین یا شناسه رزرو. جزئیات همان رزرو را باز کنید."
+          }
           items={bookingItems}
-          filters={filters(bookings.map((b) => b.status))}
+          filters={
+            tab === "queue"
+              ? Object.entries(fulfillmentLabels).map(([value, label]) => ({
+                  value,
+                  label,
+                }))
+              : filters(bookings.map((b) => b.status))
+          }
         />
       ) : (
         <AdminList

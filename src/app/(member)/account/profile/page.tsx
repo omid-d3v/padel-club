@@ -15,12 +15,14 @@ import {
 } from "lucide-react";
 import { PlayerAvatar } from "@/components/platform/player-avatar";
 import { AvatarUpload } from "@/components/platform/avatar-upload";
+import { NotificationPhone } from "@/components/platform/notification-phone";
 export default async function Profile() {
   const [m, d, ratings] = await Promise.all([
     requireMember(),
     catalog(),
     ownRows("rating_history"),
   ]);
+  const { data: authUser } = await m.db.auth.getUser();
   return (
     <section className="public-container public-page">
       <header className="profile-heading">
@@ -39,6 +41,11 @@ export default async function Profile() {
         مدیر انجام می‌شود.
       </p>
       <div className="content-grid">
+        <NotificationPhone
+          verifiedPhone={
+            authUser.user?.phone_confirmed_at ? authUser.user.phone : undefined
+          }
+        />
         <div className="platform-card">
           <div className="profile-identity">
             <PlayerAvatar

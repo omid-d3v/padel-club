@@ -1,6 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { runWorker } from "@/lib/booking/worker";
+import { runNotificationWorker } from "@/lib/notifications/worker";
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 export async function GET(request: NextRequest) {
@@ -16,7 +17,27 @@ export async function GET(request: NextRequest) {
   )
     return NextResponse.json({ error: "دسترسی مجاز نیست." }, { status: 401 });
   try {
-    return NextResponse.json(await runWorker());
+    const [booking, notifications] = await Promise.allSettled([
+      runWorker(),
+      runNotificationWorker(),
+    ]);
+    return NextResponse.json(
+      {
+        ...(booking.status === "fulfilled"
+          ? booking.value
+          : { booking_error: "BOOKING_WORKER_FAILED" }),
+        notifications:
+          notifications.status === "fulfilled"
+            ? notifications.value
+            : { error: "NOTIFICATION_WORKER_FAILED" },
+      },
+      {
+        status:
+          booking.status === "fulfilled" && notifications.status === "fulfilled"
+            ? 200
+            : 503,
+      },
+    );
   } catch {
     console.error("Platform worker failed");
     return NextResponse.json(

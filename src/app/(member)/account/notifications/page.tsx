@@ -1,12 +1,15 @@
-import { ownRows } from "@/lib/platform/data";
+import { ownRows, requireMember } from "@/lib/platform/data";
+import { PushOptIn } from "@/components/platform/push-opt-in";
 import { moment } from "@/lib/platform/format";
 import { ActionForm } from "@/components/platform/action-form";
 import Link from "next/link";
 export default async function Notifications() {
   const rows = await ownRows("notifications");
+  const member = await requireMember();
   return (
     <section className="public-container public-page">
       <h1>خبرهای بازی تو</h1>
+      <PushOptIn userId={member.userId} settings />
       <div className="my-6 max-w-xs">
         <ActionForm operation="notifications" label="همه را خواندم" />
       </div>

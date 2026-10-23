@@ -21,6 +21,10 @@ export type PlatformResult = {
   redirect?: string;
 };
 const errors: Record<string, string> = {
+  REPLACEMENT_UNAVAILABLE:
+    "این سانس جایگزین دیگر آزاد نیست یا با مبلغ و مدت رزرو فعلی مطابقت ندارد. تقویم را تازه کنید.",
+  PROPOSAL_EXPIRED:
+    "مهلت پیشنهاد تمام شده یا وضعیت رزرو تغییر کرده است؛ از مدیر بخواهید پیشنهاد تازه‌ای ارسال کند.",
   INVALID_DISCOUNT:
     "کد تخفیف معتبر نیست، منقضی شده یا ظرفیت استفاده آن تمام شده است.",
   REASON_REQUIRED: "دلیل معافیت را وارد کنید.",
@@ -273,6 +277,31 @@ export async function platformAction(
         break;
       case "notifications":
         out = await db.rpc("mark_notifications_read");
+        break;
+      case "reply-slot":
+        out = await db.rpc("reply_booking_slot", {
+          p_proposal: id(form.get("proposal_id")),
+          p_accept: form.get("decision") === "accept",
+        });
+        break;
+      case "admin:review-booking":
+        out = await db.rpc("review_booking", {
+          p_booking: id(form.get("booking_id")),
+        });
+        break;
+      case "admin:propose-slot":
+        out = await db.rpc("propose_booking_slot", {
+          p_booking: id(form.get("booking_id")),
+          p_slot: id(form.get("slot_id")),
+          p_note: str(form, "note", 2, 500),
+        });
+        break;
+      case "admin:fulfill-booking":
+        out = await db.rpc("fulfill_booking", {
+          p_booking: id(form.get("booking_id")),
+          p_reference: str(form, "reference", 2, 200),
+          p_hold_until: iso(form, "hold_until"),
+        });
         break;
       case "event-score":
         out = await db.rpc("save_match_round_winners", {
