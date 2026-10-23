@@ -5,6 +5,13 @@ test("visitor chooses a real day and time before login; switching day clears sel
   await page.goto(
     "/clubs/browser-test-club/book?court=10000000-0000-4000-8000-000000000703",
   );
+  await expect(
+    page.getByRole("button", { name: /رزرو خصوصی زمین/ }).locator("svg"),
+  ).toHaveCount(3);
+  await page.screenshot({
+    path: `test-results/booking-kind-${test.info().project.name}.png`,
+    fullPage: true,
+  });
   await page.getByRole("button", { name: "مرحلهٔ بعد", exact: true }).click();
   const calendar = page.getByRole("region", { name: "تقویم سانس‌ها" });
   await expect(
@@ -62,6 +69,15 @@ test("visitor chooses a real day and time before login; switching day clears sel
   await expect(page).toHaveURL(/\/clubs\/browser-test-club\/book\?/);
   await expect(
     page.getByRole("region", { name: "ورود و ادامه رزرو" }),
+  ).toHaveCount(0);
+  await expect(page.locator("[data-booking-step]")).toHaveAttribute(
+    "data-booking-step",
+    "4",
+  );
+  await expect(
+    page
+      .getByRole("navigation", { name: "مراحل رزرو" })
+      .getByText("اطلاعات", { exact: true }),
   ).toHaveCount(0);
   await page.getByRole("button", { name: "مرحلهٔ قبل", exact: true }).click();
   await page.getByRole("button", { name: "مرحلهٔ قبل", exact: true }).click();

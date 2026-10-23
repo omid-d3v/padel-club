@@ -60,6 +60,17 @@ test("inline booking wizard, private receipt and admin review", async ({
   await page.getByLabel("نام و نام خانوادگی", { exact: true }).fill(person);
   await page.getByRole("button", { name: "مرحلهٔ بعد", exact: true }).click();
   await expect(page.locator("button.bg-primary:visible")).toHaveCount(1);
+  if (project === "mobile") {
+    expect(
+      await page
+        .locator(".booking-actions")
+        .evaluate((el) => getComputedStyle(el).position),
+    ).toBe("fixed");
+    const bounds = await page.locator(".booking-actions").boundingBox();
+    expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(
+      page.viewportSize()!.height + 1,
+    );
+  }
   await expect(page.getByRole("radio", { name: /کارت‌به‌کارت/ })).toBeChecked();
   await page.getByRole("checkbox").check();
   expect(
@@ -80,16 +91,14 @@ test("inline booking wizard, private receipt and admin review", async ({
     page.getByText("کارت آزمایشی بدون واریز واقعی", { exact: true }),
   ).toBeVisible();
   const upload = async (label: string) => {
-    await page
-      .getByLabel("عکس رسید واریز", { exact: true })
-      .setInputFiles({
-        name: "test-only.png",
-        mimeType: "image/png",
-        buffer: Buffer.from(
-          "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jS1sAAAAASUVORK5CYII=",
-          "base64",
-        ),
-      });
+    await page.getByLabel("عکس رسید واریز", { exact: true }).setInputFiles({
+      name: "test-only.png",
+      mimeType: "image/png",
+      buffer: Buffer.from(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jS1sAAAAASUVORK5CYII=",
+        "base64",
+      ),
+    });
     await page.getByRole("checkbox").check();
     await page.getByRole("button", { name: label, exact: true }).click();
     await expect(
@@ -120,12 +129,22 @@ test("inline booking wizard, private receipt and admin review", async ({
     adminPage.getByRole("heading", { name: person, exact: true }),
   ).toHaveCount(0);
   const openReceipt = async () => {
-    await adminPage.goto("/admin/operations?tab=receipts");
+    if (await adminPage.getByRole("dialog").isVisible())
+      await adminPage.keyboard.press("Escape");
+    await adminPage
+      .getByRole("link", { name: "بررسی واریزها", exact: true })
+      .first()
+      .click();
+    await expect(adminPage).toHaveURL(/\/admin\/payments$/);
+    await adminPage.reload();
     await adminPage
       .locator("[data-record-id]")
       .filter({ hasText: person })
       .getByRole("button", { name: /جزئیات/ })
       .click();
+    await expect(
+      adminPage.getByAltText("رسید واریز ارسال‌شده توسط کاربر"),
+    ).toBeVisible();
   };
   await openReceipt();
   if (project === "desktop") {
@@ -262,7 +281,9 @@ test("member profile → real SQL booking → admin hold → no fake payment wit
   await page
     .getByRole("button", { name: "ادامه با این تجهیزات", exact: true })
     .click();
-  await page.getByRole("button", { name: "مرحلهٔ بعد", exact: true }).click();
+  await expect(
+    page.getByRole("region", { name: "اطلاعات رزروکننده" }),
+  ).toHaveCount(0);
   await page.getByRole("checkbox").check();
   await page
     .getByRole("button", { name: "ثبت بازی و درخواست رزرو", exact: true })

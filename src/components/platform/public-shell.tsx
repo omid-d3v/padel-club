@@ -49,7 +49,7 @@ export async function PublicShell({ children }: { children: React.ReactNode }) {
               <BrandLogo dark variant="english" />
             </Link>
             <p className="mt-5 max-w-sm text-sm leading-8 text-white/60">
-              رالی‌یار، جایی برای زمین‌های بهتر، هم‌بازی‌های تازه و رالی‌های
+              مچ شو، جایی برای زمین‌های بهتر، هم‌بازی‌های تازه و رالی‌های
               بیشتر.
             </p>
           </div>
@@ -72,7 +72,7 @@ export async function PublicShell({ children }: { children: React.ReactNode }) {
           </nav>
         </div>
         <p className="public-container mt-12 border-t border-white/10 pt-6 text-xs text-white/45">
-          رالی‌یار · رزرو قطعی فقط پس از تأیید باشگاه و پرداخت معتبر
+          مچ شو · رزرو قطعی فقط پس از تأیید باشگاه و پرداخت معتبر
         </p>
       </footer>
       <nav aria-label="دسترسی سریع موبایل" className="public-bottom md:hidden">

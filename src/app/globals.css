@@ -1212,11 +1212,160 @@ textarea.platform-textarea {
   --rally-ease: cubic-bezier(0.23, 1, 0.32, 1);
 }
 .brand-logo {
+  /* MatchSho assets retain their native aspect ratio. */
   display: inline-flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
   flex-shrink: 0;
+}
+
+.booking-kind-card {
+  position: relative;
+  min-height: 180px;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  padding: 18px 12px;
+  text-align: start;
+  background: white;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+.booking-kind-card.is-selected {
+  border-color: var(--rally-green);
+  background: #edf8f1;
+}
+.booking-kind-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 88px;
+  margin-bottom: 12px;
+  border-radius: 14px;
+  color: var(--rally-green);
+  background: linear-gradient(140deg, #e6f1e9, #f8faf7);
+}
+.booking-kind-check {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid #76897c;
+  border-radius: 50%;
+}
+.is-selected .booking-kind-check {
+  background: var(--rally-green);
+  color: white;
+}
+.booking-progress {
+  margin: 20px 0;
+  padding: 20px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 22px;
+  background: white;
+}
+.booking-progress-item {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+.booking-progress-item:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 22px;
+  right: calc(50% + 24px);
+  width: calc(100% - 48px);
+  height: 2px;
+  background: var(--color-border);
+}
+.booking-progress-item.is-complete::after {
+  background: var(--rally-green);
+}
+.booking-progress-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 72px;
+  font-size: 11px;
+  color: #53685e;
+}
+.booking-progress-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 16px;
+  border: 1px solid #cbd8cf;
+  background: #f8faf7;
+}
+.is-complete .booking-progress-icon {
+  color: white;
+  background: var(--rally-green);
+  border-color: var(--rally-green);
+}
+.booking-progress-button[aria-current="step"] {
+  color: var(--rally-green);
+  font-weight: 800;
+}
+.booking-progress-button[aria-current="step"] .booking-progress-icon {
+  background: var(--rally-lime);
+  border-color: var(--rally-green);
+  box-shadow: 0 0 0 4px #f1f7e9;
+}
+.booking-actions {
+  display: flex;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+}
+.booking-actions > button[type="submit"] {
+  flex: 1;
+  width: auto;
+}
+@media (max-width: 767px) {
+  body:has([data-booking-step]) .public-bottom {
+    display: none;
+  }
+  [data-booking-step] .booking-auth-back {
+    position: fixed;
+    bottom: 0;
+    inset-inline-start: 16px;
+    width: 100px;
+    z-index: 44;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    background: var(--rally-off-white);
+  }
+  .booking-access form button:not([type="button"]) {
+    position: fixed;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    inset-inline-end: 16px;
+    width: calc(100% - 144px);
+    z-index: 45;
+  }
+  [data-booking-step] {
+    padding-bottom: 110px;
+  }
+  .booking-actions {
+    position: fixed;
+    bottom: 0;
+    inset-inline: 0;
+    z-index: 45;
+    background: #f8faf7f5;
+    backdrop-filter: blur(12px);
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    box-shadow: 0 -6px 24px #0b0f0e0a;
+  }
+  [data-booking-step] input,
+  [data-booking-step] select {
+    scroll-margin-bottom: 140px;
+  }
 }
 .brand-wordmark {
   width: 152px;
@@ -1234,9 +1383,7 @@ textarea.platform-textarea {
   letter-spacing: 0;
 }
 .brand-logo-light {
-  background: var(--rally-off-white);
-  padding: 8px 14px;
-  border-radius: 12px;
+  background: transparent;
 }
 .public-header {
   background: var(--rally-off-white);
@@ -1272,7 +1419,7 @@ a:focus-visible {
 }
 @media (max-width: 640px) {
   .brand-wordmark {
-    width: 120px;
+    width: 150px;
   }
   .brand-signature {
     font-size: 9px;

@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { QuantityStepper } from "@/components/ui/quantity-stepper";
 import { AvailabilityPicker } from "./availability-picker";
 import { BookingAccess } from "./booking-access";
+import { EquipmentIcon, SportIcon } from "./sport-icon";
+import { Users, LockKeyhole, Check } from "lucide-react";
 import { BookingProgress, BOOKING_STEPS } from "./booking-progress";
 import { PaymentMethodFields, type PaymentMethods } from "./payment-chooser";
 
@@ -51,10 +53,12 @@ export function BookingForm({
     [slotId, setSlotId] = useState(initialSlotId),
     [quantities, setQuantities] = useState(initialEquipment),
     [key, setKey] = useState(requestKey);
-  const [step, setStep] = useState(
+  const [rawStep, setStep] = useState(
       initialSlotId && initialKind === "private" ? 1 : 0,
     ),
     [error, setError] = useState("");
+  const skipInformation = authenticated && !needsProfile;
+  const step = rawStep === 3 && skipInformation ? 4 : rawStep;
   const [name, setName] = useState(""),
     [skill, setSkill] = useState("1"),
     [title, setTitle] = useState(""),
@@ -105,7 +109,7 @@ export function BookingForm({
           : "";
   const go = (next: number) => {
     setError("");
-    setStep(next);
+    setStep(next === 3 && skipInformation ? (step > next ? 2 : 4) : next);
   };
   const next = () => {
     if (
@@ -144,6 +148,7 @@ export function BookingForm({
     >
       <BookingProgress
         step={step}
+        skipInformation={skipInformation}
         onBack={(i) => {
           if (i < step) go(i);
         }}
@@ -165,7 +170,12 @@ export function BookingForm({
       {step === 3 && !authenticated ? (
         <>
           <BookingAccess phoneEnabled={phoneEnabled} returnTo={returnTo} />
-          <Button variant="outline" type="button" onClick={() => go(2)}>
+          <Button
+            className="booking-auth-back"
+            variant="outline"
+            type="button"
+            onClick={() => go(2)}
+          >
             مرحلهٔ قبل
           </Button>
         </>
@@ -175,6 +185,24 @@ export function BookingForm({
           className="space-y-5"
           showSubmit={step === 4}
           buttonVariant="default"
+          actionBarClassName="booking-actions"
+          navigationActions={
+            <>
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() => go(step - 1)}
+                disabled={step === 0}
+              >
+                مرحلهٔ قبل
+              </Button>
+              {step < 4 && (
+                <Button type="button" className="flex-1" onClick={next}>
+                  {step === 2 ? "ادامه با این تجهیزات" : "مرحلهٔ بعد"}
+                </Button>
+              )}
+            </>
+          }
           label={
             directPay
               ? method === "card_transfer"
@@ -255,8 +283,19 @@ export function BookingForm({
                             setSlotId("");
                         }
                       }}
-                      className={`min-h-24 rounded-2xl border p-3 text-start ${kind === value ? "border-emerald-800 bg-emerald-50" : "border-border"}`}
+                      className={`booking-kind-card ${kind === value ? "is-selected" : ""}`}
                     >
+                      <span className="booking-kind-art" aria-hidden="true">
+                        <SportIcon width={58} height={58} />
+                        {value === "private" ? (
+                          <LockKeyhole size={26} />
+                        ) : (
+                          <Users size={30} />
+                        )}
+                      </span>
+                      <span className="booking-kind-check" aria-hidden="true">
+                        {kind === value && <Check size={16} />}
+                      </span>
                       <b className="block text-sm">{label}</b>
                       <span className="mt-2 block text-xs text-muted-foreground">
                         {detail}
@@ -350,14 +389,19 @@ export function BookingForm({
               {equipment.length ? (
                 equipment.map((e) => (
                   <div className="equipment-choice" key={e.id}>
-                    <span className="text-sm">
-                      {e.name}
-                      <small className="mt-1 block text-muted-foreground">
-                        {money(e.price)} ·{" "}
-                        {e.kind === "shared" && kind === "open"
-                          ? "بین چهار نفر تقسیم می‌شود"
-                          : "برای انتخاب تو"}
-                      </small>
+                    <span className="flex items-center gap-3 text-sm">
+                      <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-emerald-50 text-emerald-900">
+                        <EquipmentIcon name={e.name} />
+                      </span>
+                      <span>
+                        {e.name}
+                        <small className="mt-1 block text-muted-foreground">
+                          {money(e.price)} ·{" "}
+                          {e.kind === "shared" && kind === "open"
+                            ? "بین چهار نفر تقسیم می‌شود"
+                            : "برای انتخاب تو"}
+                        </small>
+                      </span>
                     </span>
                     <QuantityStepper
                       label={e.name}
@@ -487,21 +531,6 @@ export function BookingForm({
               {error}
             </p>
           )}
-          <div className="flex gap-3 border-t border-border pt-4">
-            <Button
-              variant="outline"
-              type="button"
-              onClick={() => go(step - 1)}
-              disabled={step === 0}
-            >
-              مرحلهٔ قبل
-            </Button>
-            {step < 4 && (
-              <Button type="button" className="flex-1" onClick={next}>
-                {step === 2 ? "ادامه با این تجهیزات" : "مرحلهٔ بعد"}
-              </Button>
-            )}
-          </div>
         </ActionForm>
       )}
     </div>

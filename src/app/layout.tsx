@@ -5,14 +5,14 @@ import { siteUrl } from "@/lib/seo";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
   title: {
-    default: "رالی‌یار | زمین، هم‌بازی و رقابت",
-    template: "%s | رالی‌یار",
+    default: "مچ شو | زمین، هم‌بازی و رقابت",
+    template: "%s | مچ شو",
   },
   description:
     "رزرو زمین پدل، پیدا کردن هم‌بازی هم‌سطح، امریکانو و مسابقات با قیمت شفاف و تأیید واقعی باشگاه.",
   openGraph: {
     locale: "fa_IR",
-    siteName: "رالی‌یار",
+    siteName: "مچ شو",
     type: "website",
     images: ["/opengraph-image"],
   },

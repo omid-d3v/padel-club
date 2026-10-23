@@ -5,7 +5,7 @@ import { registerAccount } from "@/app/platform-actions";
 import { AuthMethods } from "@/components/platform/auth-methods";
 import { safeNext } from "@/lib/platform/format";
 export const metadata = {
-  title: "عضویت در رالی‌یار",
+  title: "عضویت در مچ شو",
   robots: { index: false },
 };
 export default async function Register({
@@ -21,7 +21,7 @@ export default async function Register({
       className="mx-auto grid min-h-screen max-w-md content-center gap-6 px-6 py-12"
     >
       <Link href="/" className="text-xl font-extrabold">
-        رالی‌یار ↖
+        مچ شو ↖
       </Link>
       <h1 className="text-3xl font-extrabold">بازی از عضویت شروع می‌شه.</h1>
       <p className="text-sm leading-7 text-muted-foreground">

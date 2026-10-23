@@ -44,7 +44,7 @@ export async function requestGateway(
   const r = await post("request", {
     amount: payment.amount,
     currency: "IRR",
-    description: "پرداخت رزرو یا رویداد رالی‌یار",
+    description: "پرداخت رزرو یا رویداد مچ شو",
     callback_url: callback,
     metadata: { order_id: payment.request_key },
   });

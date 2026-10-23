@@ -301,10 +301,12 @@ export default async function Operations({
   if (tab === "receipts")
     otherItems = receipts
       .filter((r) => r.status !== "draft")
-      .toSorted((a, b) =>
-        (b.submitted_at ?? b.created_at).localeCompare(
-          a.submitted_at ?? a.created_at,
-        ),
+      .toSorted(
+        (a, b) =>
+          Number(b.status === "pending") - Number(a.status === "pending") ||
+          (b.submitted_at ?? b.created_at).localeCompare(
+            a.submitted_at ?? a.created_at,
+          ),
       )
       .map((r) => ({
         id: r.id,
@@ -610,10 +612,27 @@ export default async function Operations({
   return (
     <>
       <PageHeader
-        title="اتاق عملیات باشگاه"
-        description="هر رزرو، یک پرونده روشن؛ بررسی وضعیت و انجام عملیات از پنجره جزئیات."
+        title={
+          tab === "receipts"
+            ? "بررسی واریزهای کارت‌به‌کارت"
+            : "اتاق عملیات باشگاه"
+        }
+        description={
+          tab === "receipts"
+            ? "رسیدهای در انتظار بررسی در ابتدای فهرست‌اند. جزئیات را باز کنید، تصویر و مبلغ را با حساب تطبیق دهید و واریز را تأیید یا با ذکر علت رد کنید."
+            : "هر رزرو، یک پرونده روشن؛ بررسی وضعیت و انجام عملیات از پنجره جزئیات."
+        }
       />
       <div className="admin-overview">
+        {tab === "receipts" && (
+          <div className="admin-kpi">
+            <CircleDollarSign size={21} />
+            <span>رسید منتظر بررسی</span>
+            <strong>
+              {number(receipts.filter((r) => r.status === "pending").length)}
+            </strong>
+          </div>
+        )}
         {[
           {
             label: "در انتظار باشگاه",
@@ -682,12 +701,18 @@ export default async function Operations({
           title={title}
           items={otherItems}
           filters={
-            tab === "discounts"
+            tab === "receipts"
               ? [
-                  { value: "active", label: "فعال" },
-                  { value: "disabled", label: "غیرفعال" },
+                  { value: "pending", label: "در انتظار بررسی" },
+                  { value: "approved", label: "تأییدشده" },
+                  { value: "rejected", label: "ردشده" },
                 ]
-              : filters(otherItems.flatMap((i) => (i.state ? [i.state] : [])))
+              : tab === "discounts"
+                ? [
+                    { value: "active", label: "فعال" },
+                    { value: "disabled", label: "غیرفعال" },
+                  ]
+                : filters(otherItems.flatMap((i) => (i.state ? [i.state] : [])))
           }
           toolbar={tab === "discounts" ? createCode : undefined}
         />

@@ -11,12 +11,13 @@ import {
   LogOut,
   PanelTop,
   Settings,
+  ReceiptText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logout } from "@/app/actions";
 const links = [
-  { href: "/admin/settings", label: "تنظیمات", icon: Settings },
   { href: "/admin", label: "داشبورد", icon: LayoutDashboard },
+  { href: "/admin/payments", label: "بررسی واریزها", icon: ReceiptText },
   {
     href: "/admin/operations",
     label: "عملیات و رزروها",
@@ -28,6 +29,7 @@ const links = [
   { href: "/tournaments", label: "مسابقات", icon: Trophy },
   { href: "/players", label: "بازیکنان", icon: Users },
   { href: "/leaderboard", label: "لیدربرد", icon: ChartNoAxesColumnIncreasing },
+  { href: "/admin/settings", label: "تنظیمات", icon: Settings },
 ];
 export function Shell({
   children,
@@ -46,7 +48,7 @@ export function Shell({
         <p className="mb-3 mt-12 text-xs text-muted-foreground">
           زمین بازی شما
         </p>
-        <nav className="max-h-[55vh] space-y-1 overflow-y-auto">
+        <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto">
           {links.map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
@@ -90,7 +92,7 @@ export function Shell({
       <div className="lg:ps-64">
         <header className="flex h-20 items-center justify-between border-b border-border bg-white/80 px-5 md:px-10">
           <span className="text-sm font-medium">
-            مدیریت رالی‌یار <span className="mx-3 text-border">/</span>
+            مدیریت مچ شو <span className="mx-3 text-border">/</span>
             <span className="text-muted-foreground">
               {links.find((x) =>
                 x.href === "/admin" ? path === x.href : path.startsWith(x.href),
@@ -121,6 +123,8 @@ export function Shell({
               .filter((x) =>
                 [
                   "/admin/clubs",
+                  "/admin/payments",
+                  "/admin/operations",
                   "/admin/integrations",
                   "/admin/events",
                   "/admin/settings",

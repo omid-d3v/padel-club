@@ -82,7 +82,7 @@ export async function runNotificationWorker() {
             phones[index],
             {
               localId: String(delivery.id * 100 + index),
-              message: `رالی‌یار\n${delivery.title}\n${delivery.body}\n${siteUrl()}${delivery.href.startsWith("/") && !delivery.href.startsWith("//") ? delivery.href : "/account"}`,
+              message: `مچ شو\n${delivery.title}\n${delivery.body}\n${siteUrl()}${delivery.href.startsWith("/") && !delivery.href.startsWith("//") ? delivery.href : "/account"}`,
             },
             undefined,
             fetcher,

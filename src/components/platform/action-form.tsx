@@ -19,6 +19,8 @@ export function ActionForm({
   buttonVariant = "outline",
   showSubmit = true,
   onSuccess,
+  navigationActions,
+  actionBarClassName,
 }: {
   operation?: string;
   children?: React.ReactNode;
@@ -30,6 +32,8 @@ export function ActionForm({
   buttonVariant?: ComponentProps<typeof Button>["variant"];
   showSubmit?: boolean;
   onSuccess?: (result: PlatformResult) => void;
+  navigationActions?: React.ReactNode;
+  actionBarClassName?: string;
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -102,17 +106,20 @@ export function ActionForm({
               پیگیری و ادامهٔ پرداخت رزرو
             </Link>
           )}
-        {showSubmit && (
-          <Button
-            variant={buttonVariant}
-            disabled={pending || disabled}
-            className="w-full"
-            type="submit"
-          >
-            {pending && <LoaderCircle size={17} className="animate-spin" />}
-            {pending ? "در حال بررسی…" : label}
-          </Button>
-        )}
+        <div className={actionBarClassName}>
+          {navigationActions}
+          {showSubmit && (
+            <Button
+              variant={buttonVariant}
+              disabled={pending || disabled}
+              className="w-full"
+              type="submit"
+            >
+              {pending && <LoaderCircle size={17} className="animate-spin" />}
+              {pending ? "در حال بررسی…" : label}
+            </Button>
+          )}
+        </div>
       </form>
       {confirm && (
         <Dialog

@@ -7,7 +7,7 @@ import { configured } from "@/lib/supabase/server";
 import { safeNext } from "@/lib/platform/format";
 export const dynamic = "force-dynamic";
 export const metadata = {
-  title: "ورود به رالی‌یار",
+  title: "ورود به مچ شو",
   robots: { index: false, follow: false },
 };
 export default async function Login({
@@ -28,7 +28,7 @@ export default async function Login({
             <span className="grid size-12 place-items-center rounded-2xl bg-primary">
               <PanelTop />
             </span>
-            رالی‌یار
+            مچ شو
           </Link>
           <p className="text-sm text-emerald-700">خوش آمدید</p>
           <h1 className="mb-3 mt-3 text-3xl font-extrabold">زمین آماده است.</h1>

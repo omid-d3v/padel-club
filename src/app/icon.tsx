@@ -4,7 +4,7 @@ export const size = { width: 64, height: 64 };
 export const contentType = "image/png";
 export default async function Icon() {
   const bytes = await readFile(
-    process.cwd() + "/public/brand/rallyyar-mark.png",
+    process.cwd() + "/public/brand/matchsho/icon-64.png",
   );
   return new ImageResponse(
     <div

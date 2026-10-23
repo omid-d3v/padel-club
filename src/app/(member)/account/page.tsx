@@ -52,11 +52,11 @@ export default async function Account() {
             large
           />
           <div>
-            <span className="member-eyebrow">رالی‌یار / فضای بازی تو</span>
+            <span className="member-eyebrow">مچ شو / فضای بازی تو</span>
             <h1>
               {m.profile
                 ? `${m.profile.display_name}، وقت بازیه.`
-                : "به رالی‌یار خوش آمدی."}
+                : "به مچ شو خوش آمدی."}
             </h1>
             <p className="intro">
               {m.profile

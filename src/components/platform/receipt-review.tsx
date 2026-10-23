@@ -13,14 +13,24 @@ export function ReceiptReview({
         کارت مقصد این پرداخت: <bdi>{r.card_number}</bdi> · {r.card_holder}
       </p>
       {r.receipt_path && (
-        <a
-          href={`/api/payment-receipts/${r.id}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex min-h-11 items-center text-sm underline"
-        >
-          بازکردن عکس رسید خصوصی
-        </a>
+        <figure className="rounded-2xl border border-border bg-muted p-3">
+          <a
+            href={`/api/payment-receipts/${r.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex min-h-11 items-center text-sm underline"
+          >
+            {/* Session-checked endpoint; no public receipt URLs. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`/api/payment-receipts/${r.id}`}
+              alt="رسید واریز ارسال‌شده توسط کاربر"
+              className="mb-3 max-h-80 w-full rounded-xl object-contain"
+              loading="lazy"
+            />
+            بازکردن عکس رسید خصوصی
+          </a>
+        </figure>
       )}
       {r.rejection_reason && (
         <p className="text-sm text-red-700">علت رد: {r.rejection_reason}</p>

@@ -20,7 +20,10 @@ export function BookingAccess({
   const router = useRouter();
   const resume = () => router.refresh();
   return (
-    <section className="platform-card mb-6" aria-label="ورود و ادامه رزرو">
+    <section
+      className="booking-access platform-card mb-6"
+      aria-label="ورود و ادامه رزرو"
+    >
       <h2>برای ادامه، وارد حساب شو</h2>
       <p className="mb-5 text-sm leading-7 text-muted-foreground">
         سانس و تجهیزات انتخابی‌ات همین‌جا می‌ماند؛ بعد از ورود یا ساخت حساب،

@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-export const alt = "رالی‌یار؛ هم‌بازیِ هر رالی";
+export const alt = "مچ شو؛ هم‌بازی هر بازی";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 export default async function SocialImage() {
@@ -9,7 +9,7 @@ export default async function SocialImage() {
     ),
   );
   const logo = await import("node:fs/promises").then((fs) =>
-    fs.readFile(process.cwd() + "/public/brand/rallyyar-mark.png"),
+    fs.readFile(process.cwd() + "/public/brand/matchsho/app-icon-light.png"),
   );
   return new ImageResponse(
     <div
@@ -34,7 +34,7 @@ export default async function SocialImage() {
           fontWeight: 700,
         }}
       >
-        <span>رالی‌یار</span>
+        <span>مچ شو</span>
         <span style={{ color: "#f5f5ee", marginTop: 30, fontSize: 40 }}>
           زمین، هم‌بازی و رقابت
         </span>

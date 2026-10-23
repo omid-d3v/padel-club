@@ -232,7 +232,7 @@ export default async function Integrations() {
                     >
                       <input type="hidden" name="connection_id" value={c.id} />
                       <SelectField
-                        label="زمین در رالی‌یار"
+                        label="زمین در مچ شو"
                         name="court_id"
                         options={courts.filter(
                           (ct) => ct.club_id === c.club_id && ct.active,

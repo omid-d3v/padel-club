@@ -1,5 +1,13 @@
 "use client";
 import { persianDigits } from "@/lib/date-time";
+import {
+  MapPin,
+  CalendarDays,
+  ShoppingBag,
+  UserRound,
+  CreditCard,
+  Check,
+} from "lucide-react";
 export const BOOKING_STEPS = [
   "نوع و زمین",
   "سانس",
@@ -7,46 +15,57 @@ export const BOOKING_STEPS = [
   "اطلاعات",
   "پرداخت",
 ];
+const icons = [MapPin, CalendarDays, ShoppingBag, UserRound, CreditCard];
 export function BookingProgress({
   step,
   onBack,
+  skipInformation = false,
 }: {
   step: number;
   onBack?: (step: number) => void;
+  skipInformation?: boolean;
 }) {
+  const steps = BOOKING_STEPS.map((title, id) => ({ title, id })).filter(
+    (s) => !skipInformation || s.id !== 3,
+  );
+  const current = steps.findIndex((s) => s.id === step);
   return (
-    <nav
-      aria-label="مراحل رزرو"
-      className="my-5 rounded-2xl border border-border bg-white p-4"
-    >
-      <p className="mb-3 text-xs leading-6 text-muted-foreground">
-        انتخاب سانس و تجهیزات، تکمیل اطلاعات و پرداخت؛ سپس نتیجهٔ تأیید نهایی
-        رزرو اطلاع‌رسانی می‌شود.
-      </p>
-      <ol className="grid grid-cols-5 gap-1">
-        {BOOKING_STEPS.map((title, i) => (
-          <li key={title}>
-            <button
-              type="button"
-              onClick={() => onBack?.(i)}
-              disabled={!onBack || i >= step}
-              aria-current={step === i ? "step" : undefined}
-              className={`flex min-h-11 w-full flex-col items-center gap-1 rounded-xl px-1 py-2 text-[11px] ${i === step ? "bg-emerald-50 font-bold text-emerald-900" : "text-muted-foreground"}`}
+    <nav aria-label="مراحل رزرو" className="booking-progress">
+      <div className="mb-5 flex items-center justify-between text-xs">
+        <span className="font-bold text-emerald-900">رزرو زمین</span>
+        <span role="status" aria-live="polite">
+          مرحلهٔ {persianDigits(current + 1)} از {persianDigits(steps.length)} ·{" "}
+          {BOOKING_STEPS[step]}
+        </span>
+      </div>
+      <ol className="flex">
+        {steps.map(({ title, id }) => {
+          const Icon = icons[id];
+          return (
+            <li
+              key={id}
+              className={`booking-progress-item ${id < step ? "is-complete" : ""}`}
             >
-              <span
-                className={`grid size-6 place-items-center rounded-full border ${i <= step ? "border-emerald-800" : "border-border"}`}
+              <button
+                type="button"
+                disabled={!onBack || id >= step}
+                onClick={() => onBack?.(id)}
+                aria-current={step === id ? "step" : undefined}
+                className="booking-progress-button"
               >
-                {persianDigits(i + 1)}
-              </span>
-              {title}
-            </button>
-          </li>
-        ))}
+                <span className="booking-progress-icon">
+                  {id < step ? (
+                    <Check size={20} aria-hidden="true" />
+                  ) : (
+                    <Icon size={20} aria-hidden="true" />
+                  )}
+                </span>
+                <span>{title}</span>
+              </button>
+            </li>
+          );
+        })}
       </ol>
-      <p role="status" aria-live="polite" className="mt-3 text-xs">
-        مرحلهٔ {persianDigits(step + 1)} از{" "}
-        {persianDigits(BOOKING_STEPS.length)} · {BOOKING_STEPS[step]}
-      </p>
     </nav>
   );
 }

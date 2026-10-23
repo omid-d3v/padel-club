@@ -63,10 +63,10 @@ export default async function Home() {
           __html: jsonLd({
             "@context": "https://schema.org",
             "@graph": [
-              { "@type": "Organization", name: "رالی‌یار", url: siteUrl() },
+              { "@type": "Organization", name: "مچ شو", url: siteUrl() },
               {
                 "@type": "WebSite",
-                name: "رالی‌یار",
+                name: "مچ شو",
                 url: siteUrl(),
                 inLanguage: "fa-IR",
               },
@@ -89,7 +89,7 @@ export default async function Home() {
             </h1>
             <p className="hero-description">
               زمین موردعلاقه‌ت رو رزرو کن، هم‌بازی‌های هم‌سطحت رو پیدا کن و وارد
-              رقابت شو. از بازی دوستانه تا امریکانو، همه‌چیز توی رالی‌یار کنار
+              رقابت شو. از بازی دوستانه تا امریکانو، همه‌چیز توی مچ شو کنار
               همه.
             </p>
             <div className="hero-actions">
@@ -378,9 +378,9 @@ export default async function Home() {
         data-reveal
       >
         <p className="eyebrow">از گیلان، برای رالی‌های بیشتر</p>
-        <h2>رالی‌یار، فراتر از رزرو زمین.</h2>
+        <h2>مچ شو، فراتر از رزرو زمین.</h2>
         <p className="intro">
-          ما رالی‌یار رو ساختیم تا هماهنگ کردن بازی راحت‌تر بشه. جایی برای پیدا
+          ما مچ شو رو ساختیم تا هماهنگ کردن بازی راحت‌تر بشه. جایی برای پیدا
           کردن هم‌بازی، تجربه رقابت‌های تازه و کنار هم قرار گرفتن آدم‌هایی که از
           بازی لذت می‌برن. شروع ما با پدل در گیلانه؛ زمین‌ها و بازی‌های منتشرشده
           رو همین‌جا ببین.
