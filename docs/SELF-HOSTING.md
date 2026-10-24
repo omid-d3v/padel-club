@@ -67,11 +67,14 @@ build از داخل همین repo اجرا می‌شود. Dockerfile چندمر�
 
 ```bash
 bash deploy/stack.sh pull db auth rest storage imgproxy meta studio api-gw functions realtime supavisor caddy tools
+bash deploy/prepare-db-init.sh
 bash deploy/stack.sh up -d db auth rest storage imgproxy meta studio api-gw functions realtime supavisor
 bash deploy/stack.sh ps
 ```
 
 مسیر bind-mountهای دیتابیس و فایل‌ها به runtime upstream ثابت است؛ تغییر cwd باعث ساخت دیتابیس دیگری نمی‌شود. `db-config` و دادهٔ گواهی Caddy named volume دارند. از `down -v`، `docker volume prune`، reset.sh upstream و حذف `deploy/runtime` استفاده نکنید؛ این‌ها می‌توانند دیتای ماندگار را از بین ببرند. `stop` داده‌ها را حذف نمی‌کند.
+
+`prepare-db-init.sh` فقط دسترسی SQLهای init را به مالک و گروه داخلی PostgreSQL محدود می‌کند (`0640`)؛ فایل‌های env دست‌نخورده می‌مانند. این مرحله مانع شکست init در اثر `umask 077` می‌شود. اگر Caddy در شبکهٔ سرور برای ACME خطای HTTP/2 می‌دهد ولی درخواست HTTP/1.1 موفق است، می‌توان `CADDY_GODEBUG=http2client=0` را در env خصوصی برنامه تنظیم و فقط Caddy را recreate کرد؛ اعتبارسنجی TLS همچنان فعال است.
 
 ### مسیر A: نصب کاملاً خالی، بدون اطلاعات قبلی
 

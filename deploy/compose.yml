@@ -32,7 +32,7 @@ services:
     environment:
       GOTRUE_SMS_AUTOCONFIRM: "false"
       GOTRUE_HOOK_SEND_SMS_ENABLED: ${PHONE_AUTH_ENABLED:-false}
-      GOTRUE_HOOK_SEND_SMS_URI: http://web:3000/api/auth/send-sms
+      GOTRUE_HOOK_SEND_SMS_URI: https://${SITE_HOST}/api/auth/send-sms
       GOTRUE_HOOK_SEND_SMS_SECRETS: ${SUPABASE_SEND_SMS_HOOK_SECRET:-}
     logging: *logging
   functions:
@@ -77,6 +77,8 @@ services:
       SITE_HOST: ${SITE_HOST:?Set site hostname}
       API_HOST: ${API_HOST:?Set API hostname}
       ACME_EMAIL: ${ACME_EMAIL:?Set certificate email}
+      # Optional workaround for networks that interrupt outbound HTTP/2 to ACME.
+      GODEBUG: ${CADDY_GODEBUG:-}
     ports:
       - "80:80"
       - "443:443"
@@ -96,7 +98,11 @@ services:
       web:
         condition: service_healthy
     healthcheck:
-      disable: true
+      test: ["CMD", "node", "-e", "fetch('http://web:3000/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      start_period: 40s
+      retries: 3
     logging: *logging
   tools:
     image: node:24-bookworm-slim@sha256:55fb5f5a527ea2c5c4a95f963e48ef90aa38c7b346054fdc8ee9957a2b55d205

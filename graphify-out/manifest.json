@@ -1470,15 +1470,15 @@
     "semantic_hash": ""
   },
   "deploy/compose.yml": {
-    "mtime": 1792784569.7966254,
-    "seen": 1792785512.055181,
-    "ast_hash": "d3d07c30fecfd8a323e99443062de339",
+    "mtime": 1792879126.4201665,
+    "seen": 1792879588.970341,
+    "ast_hash": "488727c9d6c7f5174ee84c5b57945533",
     "semantic_hash": ""
   },
   "docs/SELF-HOSTING.md": {
-    "mtime": 1792859479.9314308,
-    "seen": 1792859681.0550988,
-    "ast_hash": "80477eeae2a8dc512d58c601bd33d3ca",
+    "mtime": 1792879273.929405,
+    "seen": 1792879588.9704096,
+    "ast_hash": "9c2bc0477af83580ed5eb08cf1167a55",
     "semantic_hash": ""
   },
   "deploy/activate.sh": {
@@ -1617,6 +1617,18 @@
     "mtime": 1792866785.7882683,
     "seen": 1792866946.8398123,
     "ast_hash": "7071ab6f15c165b7abee9f873b3a3651",
+    "semantic_hash": ""
+  },
+  "deploy/prepare-db-init.sh": {
+    "mtime": 1792878131.0301898,
+    "seen": 1792878735.3325813,
+    "ast_hash": "972959d56f5dea66afff8e50024d0892",
+    "semantic_hash": ""
+  },
+  "docs/MIGRATION-2026-10-25.md": {
+    "mtime": 1792879273.9399796,
+    "seen": 1792879588.970382,
+    "ast_hash": "c2a231d034b799a7d3f2d1b9f9ec5949",
     "semantic_hash": ""
   }
 }
