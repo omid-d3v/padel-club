@@ -588,9 +588,9 @@
     "semantic_hash": ""
   },
   "src/components/platform/public-shell.tsx": {
-    "mtime": 1792778617.7555676,
-    "seen": 1792779176.2669122,
-    "ast_hash": "edf22c18b600363c70b44e06898558bf",
+    "mtime": 1792881247.7917912,
+    "seen": 1792881383.2809472,
+    "ast_hash": "35449725fb7d17e489883f1d478792e1",
     "semantic_hash": ""
   },
   "src/lib/booking/providers.ts": {
@@ -1626,9 +1626,15 @@
     "semantic_hash": ""
   },
   "docs/MIGRATION-2026-10-25.md": {
-    "mtime": 1792879273.9399796,
-    "seen": 1792879588.970382,
-    "ast_hash": "c2a231d034b799a7d3f2d1b9f9ec5949",
+    "mtime": 1792879775.242339,
+    "seen": 1792881383.281385,
+    "ast_hash": "a2397198180b354780be57ecb1021cbb",
+    "semantic_hash": ""
+  },
+  "public/33857918.txt": {
+    "mtime": 1792880004.5463438,
+    "seen": 1792881383.2814255,
+    "ast_hash": "68b329da9893e34099c7d8ad5cb9c940",
     "semantic_hash": ""
   }
 }

@@ -74,6 +74,28 @@ export async function PublicShell({ children }: { children: React.ReactNode }) {
         <p className="public-container mt-12 border-t border-white/10 pt-6 text-xs text-white/45">
           مچ شو · رزرو قطعی فقط پس از تأیید باشگاه و پرداخت معتبر
         </p>
+        <div className="public-container mt-6 flex justify-center md:justify-end">
+          <a
+            referrerPolicy="origin"
+            target="_blank"
+            rel="noopener"
+            href="https://trustseal.enamad.ir/?id=8342476&Code=nQiEpA4KgjMRnugUo749y2brWYZEDobp"
+            aria-label="اعتبارسنجی نماد اعتماد الکترونیکی مچ شو (تب جدید)"
+            className="inline-flex rounded-xl bg-white p-3 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+          >
+            {/* Keep the official seal URL and referrer policy intact. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              referrerPolicy="origin"
+              src="https://trustseal.enamad.ir/logo.aspx?id=8342476&Code=nQiEpA4KgjMRnugUo749y2brWYZEDobp"
+              alt="نماد اعتماد الکترونیکی مچ شو"
+              width={125}
+              height={136}
+              style={{ cursor: "pointer", objectFit: "contain" }}
+              {...{ code: "nQiEpA4KgjMRnugUo749y2brWYZEDobp" }}
+            />
+          </a>
+        </div>
       </footer>
       <nav aria-label="دسترسی سریع موبایل" className="public-bottom md:hidden">
         <Link href="/clubs">زمین</Link>
