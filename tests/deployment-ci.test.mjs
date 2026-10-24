@@ -49,7 +49,7 @@ describe("production delivery safety", () => {
       rmSync(temp, { recursive: true, force: true });
     }
   });
-  it("maps infrastructure to offline content IDs, never overriding application images", () => {
+  it("maps infrastructure to archive tags rather than nonportable engine IDs", () => {
     const id = `sha256:${"a".repeat(64)}`;
     expect(
       imageMap(
@@ -60,7 +60,14 @@ describe("production delivery safety", () => {
         },
         { "postgres:fixed": id },
       ),
-    ).toEqual({ services: { db: { image: id, pull_policy: "never" } } });
+    ).toEqual({
+      services: {
+        db: {
+          image: `matchsho-infra:sha256-${id.slice(7)}`,
+          pull_policy: "never",
+        },
+      },
+    });
     expect(() => imageMap({ db: { image: "postgres:fixed" } }, {})).toThrow();
     expect(() =>
       imageMap(

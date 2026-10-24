@@ -34,7 +34,9 @@ mounts=()
 # A CI release's runtime is a symlink to persistent state outside the code tree.
 runtime_real="$(cd "$root/deploy/runtime" && pwd -P)"
 [[ "$runtime_real" == "$root/deploy/runtime" ]] || mounts+=(-v "$runtime_real:$runtime_real")
-docker run --rm --user "$(id -u):$(id -g)" -v "$root:/workspace" "${mounts[@]}" -w /workspace \
+pull=()
+[[ "$node_image" != matchsho-infra:* ]] || pull+=(--pull=never)
+docker run --rm "${pull[@]}" --platform=linux/amd64 --user "$(id -u):$(id -g)" -v "$root:/workspace" "${mounts[@]}" -w /workspace \
   "$node_image" node deploy/configure.mjs "$site" "$api" "$email"
 echo 'Prepared pinned Supabase v0.8.3 and private configuration. Nothing has been started.'
 echo 'Review deploy/.env.app and deploy/runtime/supabase/docker/.env, especially SMTP.'

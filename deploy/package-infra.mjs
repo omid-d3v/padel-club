@@ -1,6 +1,7 @@
 // Run only on the GitHub runner after setup.sh. Its random .env files stay there.
 import { execFileSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
+import { offlineImageTag } from "./offline-images.mjs";
 export function imageMap(services, ids) {
   const result = {};
   for (const [name, service] of Object.entries(services)) {
@@ -8,7 +9,7 @@ export function imageMap(services, ids) {
     const id = ids[service.image];
     if (!/^sha256:[a-f0-9]{64}$/.test(id ?? ""))
       throw new Error("Invalid image identity");
-    result[name] = { image: id, pull_policy: "never" };
+    result[name] = { image: offlineImageTag(id), pull_policy: "never" };
   }
   return { services: result };
 }
@@ -38,7 +39,7 @@ if (process.argv[1]?.endsWith("package-infra.mjs")) {
       ["image", "inspect", "--format", "{{.Id}}", image],
       { encoding: "utf8" },
     ).trim();
-    const tag = `matchsho-infra:sha256-${ids[image].slice(7)}`;
+    const tag = offlineImageTag(ids[image]);
     execFileSync("docker", ["image", "tag", image, tag], { stdio: "inherit" });
     offlineTags.push(tag);
   }
@@ -46,8 +47,11 @@ if (process.argv[1]?.endsWith("package-infra.mjs")) {
     "bundle/infra-images.json",
     JSON.stringify(imageMap(services, ids), null, 2),
   );
-  writeFileSync("bundle/node-image.txt", `${ids[services.tools.image]}\n`);
-  // docker save/load does not preserve RepoDigests. Compose uses verified local IDs.
+  writeFileSync(
+    "bundle/node-image.txt",
+    `${offlineImageTag(ids[services.tools.image])}\n`,
+  );
+  // Archive tags survive load; raw .Id values can change across image stores.
   execFileSync(
     "bash",
     [

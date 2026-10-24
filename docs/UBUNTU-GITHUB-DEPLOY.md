@@ -197,7 +197,7 @@ GitHub → **Actions → Test, build and deploy MatchSho → Run workflow**:
 3. `include_infrastructure`: **true** بماند.
 4. Run workflow و منتظر checks سپس release بمانید.
 
-این اجرا کد commit دقیق، Docker Compose رسمی commit-pinned سوپابیس، و همه ایمیج‌های لازم Node/Supabase/Caddy را با SSH می‌فرستد؛ بسته اولیه بزرگ است و ممکن است طول بکشد. هیچ کانتینر production راه نمی‌افتد، دیتای Cloud دست نمی‌خورد و دامنه عوض نمی‌شود. `Docker save/load` digest رجیستری را حفظ نمی‌کند؛ map جدا با **شناسه محتوایی ایمیج** ساخته می‌شود تا سرور حتی برای resolve کردن digest به رجیستری نیاز نداشته باشد.
+این اجرا کد commit دقیق، Docker Compose رسمی commit-pinned سوپابیس، و همه ایمیج‌های لازم Node/Supabase/Caddy را با SSH می‌فرستد؛ بسته اولیه بزرگ است و ممکن است طول بکشد. هیچ کانتینر production راه نمی‌افتد، دیتای Cloud دست نمی‌خورد و دامنه عوض نمی‌شود. map جدا از **tagهای دقیق آرشیو** با pull_policy برابر never استفاده می‌کند؛ ID داخلی image store مبدأ و digest رجیستری برای lookup در مقصد استفاده نمی‌شوند. برای شکست بسته قدیمی، [بازیابی prepare بدون دانلود مجدد](PREPARE-IMAGE-RECOVERY.md) را ببینید.
 
 روتر مخصوص `calendar-sync` در `deploy/edge-main` وابستگی دانلود JSR/npm ندارد. فقط مسیر تقویم را می‌پذیرد؛ worker همچنان توکن را در Vault تأیید می‌کند. این تغییر، مجوز عمومی به سایر Edge Functionها نیست.
 
@@ -219,7 +219,7 @@ bash deploy/stack.sh config --quiet
   shared/app.env                 فقط runtime برنامه، mode 600
   shared/runtime/supabase/docker/.env
   shared/runtime/supabase/docker/volumes/   DB و Storage دائمی
-  shared/runtime/infra-images.json         فقط شناسه ایمیج‌ها، بدون secret
+  shared/runtime/infra-images.json         فقط tagهای ایمیج‌ها، بدون secret
   shared/runtime/app-image.env            نسخه فعال برنامه، بعد از activate
   shared/backups/                 بکاپ محرمانه؛ نسخه خارج سرور لازم است
 ```

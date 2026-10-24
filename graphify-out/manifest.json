@@ -1440,9 +1440,9 @@
     "semantic_hash": ""
   },
   "deploy/setup.sh": {
-    "mtime": 1792784187.1185625,
-    "seen": 1792785512.0537906,
-    "ast_hash": "a3e0b841cefa18f7d01e97fdce752a67",
+    "mtime": 1792866710.31693,
+    "seen": 1792866946.839507,
+    "ast_hash": "447a3aff69ddf257f6876d6cbf7d79d7",
     "semantic_hash": ""
   },
   "deploy/stack.sh": {
@@ -1506,9 +1506,9 @@
     "semantic_hash": ""
   },
   "deploy/package-infra.mjs": {
-    "mtime": 1792785296.9956906,
-    "seen": 1792785512.0535853,
-    "ast_hash": "933e9c44b8bb83f71789c44e1e7850ae",
+    "mtime": 1792866792.7826853,
+    "seen": 1792866946.8394985,
+    "ast_hash": "6dc6540d9012d23f48aabf291485dd0c",
     "semantic_hash": ""
   },
   "deploy/public-env.sh": {
@@ -1524,9 +1524,9 @@
     "semantic_hash": ""
   },
   "tests/deployment-ci.test.mjs": {
-    "mtime": 1792859532.5159647,
-    "seen": 1792859681.0547526,
-    "ast_hash": "8667f988e41891e213be768e9140869e",
+    "mtime": 1792866792.817075,
+    "seen": 1792866946.8397708,
+    "ast_hash": "5eeea4b8ee8b5d882ab7fa288a38b29c",
     "semantic_hash": ""
   },
   "tests/deployment-edge.test.ts": {
@@ -1542,9 +1542,9 @@
     "semantic_hash": ""
   },
   "docs/UBUNTU-GITHUB-DEPLOY.md": {
-    "mtime": 1792859479.9365628,
-    "seen": 1792859681.055118,
-    "ast_hash": "ffd255306a9de519031aed82988b10b8",
+    "mtime": 1792866932.1592383,
+    "seen": 1792866946.8398204,
+    "ast_hash": "56f9488689fa572f7b85d8246fb572e0",
     "semantic_hash": ""
   },
   "deploy/smoke-image.sh": {
@@ -1593,6 +1593,30 @@
     "mtime": 1792859484.1502898,
     "seen": 1792859681.0551088,
     "ast_hash": "c5b5c7ef582ce0b3f690a993791aa1e0",
+    "semantic_hash": ""
+  },
+  "deploy/offline-images.mjs": {
+    "mtime": 1792866792.7596693,
+    "seen": 1792866946.8394961,
+    "ast_hash": "a7da02c6482017be5e2dc34c4cad5a32",
+    "semantic_hash": ""
+  },
+  "deploy/recover-prepare.sh": {
+    "mtime": 1792867077.8656664,
+    "seen": 1792867125.8757193,
+    "ast_hash": "55e3d3e89ac0dea7cf8c7c958f115c99",
+    "semantic_hash": ""
+  },
+  "tests/offline-images.test.mjs": {
+    "mtime": 1792867084.437547,
+    "seen": 1792867125.8760004,
+    "ast_hash": "a0d12fb8a7d34f1816f3866d89c479c8",
+    "semantic_hash": ""
+  },
+  "docs/PREPARE-IMAGE-RECOVERY.md": {
+    "mtime": 1792866785.7882683,
+    "seen": 1792866946.8398123,
+    "ast_hash": "7071ab6f15c165b7abee9f873b3a3651",
     "semantic_hash": ""
   }
 }
