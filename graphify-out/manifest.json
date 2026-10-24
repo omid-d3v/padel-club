@@ -312,9 +312,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1792790514.07199,
-    "seen": 1792790872.1071923,
-    "ast_hash": "e3cf5ce315d622e0c2d10b5270c4aa0c",
+    "mtime": 1792859484.1482842,
+    "seen": 1792859681.05495,
+    "ast_hash": "6cd23dcac82189d30833465e3dff4e50",
     "semantic_hash": ""
   },
   "ops/enable-expiry-cron.sql": {
@@ -1476,9 +1476,9 @@
     "semantic_hash": ""
   },
   "docs/SELF-HOSTING.md": {
-    "mtime": 1792786222.864571,
-    "seen": 1792790872.1072989,
-    "ast_hash": "68a736f08db2b4d390812eab1ac2f54a",
+    "mtime": 1792859479.9314308,
+    "seen": 1792859681.0550988,
+    "ast_hash": "80477eeae2a8dc512d58c601bd33d3ca",
     "semantic_hash": ""
   },
   "deploy/activate.sh": {
@@ -1524,9 +1524,9 @@
     "semantic_hash": ""
   },
   "tests/deployment-ci.test.mjs": {
-    "mtime": 1792786117.1422951,
-    "seen": 1792786149.5509503,
-    "ast_hash": "72d5dde28e85f4f28b6b2121a78fde6f",
+    "mtime": 1792859532.5159647,
+    "seen": 1792859681.0547526,
+    "ast_hash": "8667f988e41891e213be768e9140869e",
     "semantic_hash": ""
   },
   "tests/deployment-edge.test.ts": {
@@ -1536,15 +1536,15 @@
     "semantic_hash": ""
   },
   ".github/workflows/production.yml": {
-    "mtime": 1792785877.0716083,
-    "seen": 1792785959.5561757,
-    "ast_hash": "a6d8721653b52c6318f0f98c48474ff8",
+    "mtime": 1792859230.013237,
+    "seen": 1792859681.0549052,
+    "ast_hash": "63316e9e09ba790553751dbc5cd285b0",
     "semantic_hash": ""
   },
   "docs/UBUNTU-GITHUB-DEPLOY.md": {
-    "mtime": 1792786226.6221037,
-    "seen": 1792790872.1073048,
-    "ast_hash": "00b9aeae2b05a61c40921e5ef4ac263d",
+    "mtime": 1792859479.9365628,
+    "seen": 1792859681.055118,
+    "ast_hash": "ffd255306a9de519031aed82988b10b8",
     "semantic_hash": ""
   },
   "deploy/smoke-image.sh": {
@@ -1578,9 +1578,21 @@
     "semantic_hash": ""
   },
   "docs/OFFLINE-DEPLOY.md": {
-    "mtime": 1792790509.8578517,
-    "seen": 1792790872.107265,
-    "ast_hash": "85d4d1d6ce6201959a24c90d02a7a11b",
+    "mtime": 1792859484.1452825,
+    "seen": 1792859681.0550387,
+    "ast_hash": "5b022cff453559f099956f9fc5f482f9",
+    "semantic_hash": ""
+  },
+  "deploy/verify-ssh.sh": {
+    "mtime": 1792859230.0102372,
+    "seen": 1792859681.0529177,
+    "ast_hash": "385f90672701338a6485dcbaec3d7456",
+    "semantic_hash": ""
+  },
+  "docs/SERVER-IP-CHANGE.md": {
+    "mtime": 1792859484.1502898,
+    "seen": 1792859681.0551088,
+    "ast_hash": "c5b5c7ef582ce0b3f690a993791aa1e0",
     "semantic_hash": ""
   }
 }

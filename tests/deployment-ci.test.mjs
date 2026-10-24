@@ -85,7 +85,7 @@ describe("production delivery safety", () => {
     expect(workflow).toContain("vars.AUTO_DEPLOY == 'true'");
     expect(workflow).toContain("cancel-in-progress: false");
     expect(workflow).toContain("Refuse a superseded main commit");
-    expect(workflow).toContain("StrictHostKeyChecking yes");
+    expect(read("deploy/verify-ssh.sh")).toContain("StrictHostKeyChecking yes");
     expect(workflow).not.toMatch(
       /ssh-keyscan|StrictHostKeyChecking no|pull_request_target/,
     );
@@ -114,6 +114,24 @@ describe("production delivery safety", () => {
     expect(
       release.indexOf('mv "$state/runtime/app-image.env.next"'),
     ).toBeGreaterThan(release.indexOf("if ! bash"));
+  });
+  it("offers a connection-only check and keeps host verification after IP changes", () => {
+    const workflow = read(".github/workflows/production.yml");
+    const script = read("deploy/verify-ssh.sh");
+    expect(workflow).toContain("default: check-connection");
+    expect(workflow).toContain("inputs.task != 'check-connection'");
+    expect(workflow).toContain("inputs.task == 'check-connection'");
+    expect(workflow.match(/run: bash deploy\/verify-ssh.sh/g)).toHaveLength(2);
+    expect(script).toContain('ssh-keygen -F "$host"');
+    expect(script).toContain("ConnectTimeout 15");
+    expect(script).toContain("ConnectionAttempts 2");
+    expect(script).not.toMatch(
+      /ssh-keyscan|accept-new|StrictHostKeyChecking no|docker (?:run|pull|load|build|compose)/,
+    );
+    expect(script).not.toContain("85.198.55.121");
+    expect(script.indexOf('ssh-keygen -F "$host"')).toBeLessThan(
+      script.indexOf("ssh matchsho"),
+    );
   });
   it("keeps TLS and package signing enabled when configuring mirrors", () => {
     expect(read("deploy/stack.sh")).toContain(

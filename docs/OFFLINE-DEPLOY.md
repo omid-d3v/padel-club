@@ -1,5 +1,7 @@
 # انتشار موقت بدون اتصال مستقیم GitHub و سرور
 
+> مسیر جایگزین است. پس از تغییر IP به `85.198.54.103`، برای بازگشت به انتشار مستقیم از [راهنمای تغییر IP](SERVER-IP-CHANGE.md) استفاده کنید. توصیه‌های خاموش‌کردن workflow مستقیم در ادامه فقط زمانی است که مشکل ارتباطی هنوز برقرار باشد.
+
 وقتی SSH از GitHub به سرور و HTTPS از سرور به GitHub timeout می‌شود، از کامپیوتر به‌عنوان واسط استفاده می‌کنیم. بیلد و تست روی GitHub است؛ شما ZIP بسته آماده را دانلود و با SCP می‌فرستید. سرور build/pull/git clone نمی‌کند. Docker/Compose باید از مرحله bootstrap قبلی نصب شده باشند. بسته‌ها فقط از workflow معتبر مخزن خودتان دریافت شوند؛ checksum خرابی انتقال را کشف می‌کند، اما جای اعتماد به سازنده بسته یا تأیید میزبان SSH را نمی‌گیرد.
 
 این راه تغییر دادهٔ Cloud، restore یا تغییر DNS را خودکار انجام نمی‌دهد. قبل از انتقال نهایی، دستورهای [انتقال دیتابیس و Storage](SELF-HOSTING.md) را انجام دهید. محدودیت دسترسی به ACME/SMTP/پیامک/بانک/FCM/تقویم‌ها هم جداست؛ بسته آفلاین قطع اینترنت سرویس‌های خارجی را حل نمی‌کند.
@@ -25,8 +27,8 @@ ZIP را روی کامپیوتر Extract کنید؛ پوشه‌ای که مست�
 $bundlePath = 'C:/Users/hp/Downloads/matchsho-offline-prepare-EXACT_SHA'
 $releaseSha = (Get-Content -LiteralPath "$bundlePath/RELEASE" -Raw).Trim()
 if ($releaseSha -notmatch '^[a-f0-9]{40}$') { throw 'Invalid RELEASE' }
-ssh -i "$env:USERPROFILE/.ssh/matchsho-ci" matchsho@85.198.55.121 "mkdir -p /opt/matchsho/incoming/$releaseSha"
-scp -i "$env:USERPROFILE/.ssh/matchsho-ci" "$bundlePath/*" "matchsho@85.198.55.121:/opt/matchsho/incoming/$releaseSha/"
+ssh -i "$env:USERPROFILE/.ssh/matchsho-ci" matchsho@85.198.54.103 "mkdir -p /opt/matchsho/incoming/$releaseSha"
+scp -i "$env:USERPROFILE/.ssh/matchsho-ci" "$bundlePath/*" "matchsho@85.198.54.103:/opt/matchsho/incoming/$releaseSha/"
 Write-Output $releaseSha
 ```
 

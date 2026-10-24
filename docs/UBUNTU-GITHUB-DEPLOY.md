@@ -1,6 +1,6 @@
 # از سرور خام ایران تا انتشار خودکار مچ شو
 
-مقصد این راهنما: Ubuntu LTS **amd64**، دو هسته/۴GB RAM، IP `85.198.55.121`، سایت `match-sho.com`، API `api.match-sho.com`، مخزن `omid-d3v/padel-club` و شاخه `main`.
+مقصد این راهنما: Ubuntu LTS **amd64**، دو هسته/۴GB RAM، IP `85.198.54.103`، سایت `match-sho.com`، API `api.match-sho.com`، مخزن `omid-d3v/padel-club` و شاخه `main`.
 این فایل دستورالعمل است؛ سرور، DNS، GitHub Secrets و انتقال داده هنوز با نوشتن این فایل انجام نشده‌اند. رمز یا کلید خصوصی را در چت/گیت نفرستید.
 
 ## نقشه راه و ظرفیت
@@ -22,7 +22,7 @@ push main → lint + typecheck + tests → Docker build روی GitHub → smoke 
 روی **PowerShell کامپیوتر خودتان**:
 
 ```powershell
-ssh root@85.198.55.121
+ssh root@85.198.54.103
 ```
 
 رمز اولیه را از پنل شرکت سرور بگیرید. اگر نام کاربر اولیه `ubuntu` است، با همان وارد شوید و برای دستورهای روت `sudo -i` بزنید. اثرانگشت SSH را با کنسول معتبر شرکت سرور تطبیق دهید؛ پیام ناشناخته را کورکورانه تأیید نکنید.
@@ -61,8 +61,8 @@ ssh-keygen -t ed25519 -C "matchsho-github-actions" -f "$env:USERPROFILE/.ssh/mat
 ```powershell
 cd C:/Users/hp/Desktop/Dev/padel-club
 git pull --ff-only origin main
-scp deploy/bootstrap-ubuntu.sh root@85.198.55.121:/tmp/matchsho-bootstrap.sh
-scp "$env:USERPROFILE/.ssh/matchsho-ci.pub" root@85.198.55.121:/tmp/matchsho-ci.pub
+scp deploy/bootstrap-ubuntu.sh root@85.198.54.103:/tmp/matchsho-bootstrap.sh
+scp "$env:USERPROFILE/.ssh/matchsho-ci.pub" root@85.198.54.103:/tmp/matchsho-ci.pub
 ```
 
 سرور برای این مرحله لازم نیست به GitHub وصل شود؛ فایل اسکریپت و **کلید عمومی** از کامپیوتر شما می‌رسند. اگر SSH شما پورت دیگری دارد، در ssh گزینه `-p PORT` و در scp گزینه `-P PORT` اضافه کنید.
@@ -107,7 +107,7 @@ systemctl is-enabled docker
 در **PowerShell یک پنجره جدید**، بدون بستن جلسه root:
 
 ```powershell
-ssh -i "$env:USERPROFILE/.ssh/matchsho-ci" matchsho@85.198.55.121 "docker info >/dev/null && id"
+ssh -i "$env:USERPROFILE/.ssh/matchsho-ci" matchsho@85.198.54.103 "docker info >/dev/null && id"
 ```
 
 این کلید عمداً PTY ندارد؛ برای دستورهای تعاملی سرور از حساب مدیریتی خودتان استفاده کنید. روی سرور root، برای کار تعاملی به کاربر اپلیکیشن بروید: `sudo -iu matchsho`؛ خروج با `exit`.
@@ -152,10 +152,10 @@ swapon --show
 
 ```bash
 ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub
-awk '{print "85.198.55.121 " $1 " " $2}' /etc/ssh/ssh_host_ed25519_key.pub
+awk '{print "85.198.54.103 " $1 " " $2}' /etc/ssh/ssh_host_ed25519_key.pub
 ```
 
-خروجی دوم یک خط `85.198.55.121 ssh-ed25519 AAAA...` است؛ همین را برای known_hosts استفاده کنید. اگر پورت SSH غیر 22 است، فیلد اول باید `[85.198.55.121]:PORT` باشد. public key میزبان محرمانه نیست، اما باید از مسیر معتبر تأیید شده باشد. در CI خودکار `ssh-keyscan` نمی‌کنیم و StrictHostKeyChecking روشن است.
+خروجی دوم یک خط `85.198.54.103 ssh-ed25519 AAAA...` است؛ همین را برای known_hosts استفاده کنید. اگر پورت SSH غیر 22 است، فیلد اول باید `[85.198.54.103]:PORT` باشد. public key میزبان محرمانه نیست، اما باید از مسیر معتبر تأیید شده باشد. در CI خودکار `ssh-keyscan` نمی‌کنیم و StrictHostKeyChecking روشن است.
 
 در ریپو GitHub → **Settings → Secrets and variables → Actions**، بخش **Repository secrets**:
 
@@ -176,7 +176,7 @@ Get-Content -Raw "$env:USERPROFILE/.ssh/matchsho-ci" | Set-Clipboard
 
 | Variable | مقدار |
 |---|---|
-| `DEPLOY_HOST` | `85.198.55.121` |
+| `DEPLOY_HOST` | `85.198.54.103` |
 | `DEPLOY_USER` | `matchsho` |
 | `DEPLOY_PORT` | `22` یا پورت واقعی |
 | `ACME_EMAIL` | ایمیل واقعی تحت کنترل شما؛ برای اطلاعیه گواهی، نه SMTP password |
@@ -294,8 +294,8 @@ Resolve-DnsName match-sho.com -Type NS
 
 | نوع | نام | مقدار | TTL |
 |---|---|---|---|
-| A | `@` | `85.198.55.121` | 300 |
-| A | `api` | `85.198.55.121` | 300 |
+| A | `@` | `85.198.54.103` | 300 |
+| A | `api` | `85.198.54.103` | 300 |
 | CNAME | `www` | `match-sho.com` | 300 |
 
 برای تست مرحله انتقال می‌توانید فقط `api` را زودتر ببرید؛ apex تا cutover روی Vercel بماند. A/CNAME متعارض Vercel برای همان host را جایگزین کنید؛ سایر TXT/MX را دست نزنید. اگر IPv6 ندارید، AAAA قدیمی این hostها را حذف کنید. اگر CAA محدودکننده هست، مجوز CA مورد استفاده Caddy را بررسی کنید. ابتدا DNS-only، **بدون proxy/CDN آروان**. بعداً CDN با TLS origin معتبر و عدم cache حساب/ادمین/API.

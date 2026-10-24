@@ -7,10 +7,10 @@ on:
   workflow_dispatch:
     inputs:
       task:
-        description: prepare = first installation only; deploy = build and ship site
+        description: check-connection = SSH checks only; prepare = first install; deploy = ship site
         type: choice
-        options: [deploy, prepare]
-        default: deploy
+        options: [check-connection, prepare, deploy]
+        default: check-connection
       include_infrastructure:
         description: Prepare only - ship Supabase/Node/Caddy images too (large, avoids registry access in Iran)
         type: boolean
@@ -21,7 +21,28 @@ concurrency:
   group: matchsho-${{ github.event_name == 'pull_request' && github.ref || 'production' }}
   cancel-in-progress: false
 jobs:
+  connection:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && inputs.task == 'check-connection'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
+      DEPLOY_USER: ${{ vars.DEPLOY_USER }}
+      DEPLOY_PORT: ${{ vars.DEPLOY_PORT || '22' }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Verify SSH without building or changing server state
+        env:
+          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: bash deploy/verify-ssh.sh
+      - name: Remove ephemeral SSH credentials
+        if: always()
+        run: rm -f ~/.ssh/matchsho ~/.ssh/config ~/.ssh/known_hosts
   checks:
+    if: github.event_name != 'workflow_dispatch' || inputs.task != 'check-connection'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
@@ -52,7 +73,7 @@ jobs:
     needs: checks
     if: >-
       github.ref == 'refs/heads/main' &&
-      (github.event_name == 'workflow_dispatch' ||
+      ((github.event_name == 'workflow_dispatch' && inputs.task != 'check-connection') ||
       (github.event_name == 'push' && vars.AUTO_DEPLOY == 'true'))
     # Repository secrets work on private GitHub Free repos too. Optionally add
     # `environment: production` if your plan supports deployment protection.
@@ -76,16 +97,7 @@ jobs:
         env:
           SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
-        run: |
-          set -euo pipefail
-          [[ "$DEPLOY_HOST" =~ ^[a-zA-Z0-9.-]+$ && "$DEPLOY_USER" =~ ^[a-z_][a-z0-9_-]*$ && "$DEPLOY_PORT" =~ ^[0-9]+$ ]]
-          test -n "$SSH_KEY" && test -n "$KNOWN_HOSTS"
-          install -m 700 -d ~/.ssh
-          printf '%s\n' "$SSH_KEY" > ~/.ssh/matchsho
-          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/matchsho ~/.ssh/known_hosts
-          printf 'Host matchsho\n HostName %s\n User %s\n Port %s\n IdentityFile ~/.ssh/matchsho\n IdentitiesOnly yes\n BatchMode yes\n StrictHostKeyChecking yes\n ServerAliveInterval 30\n ServerAliveCountMax 10\n' "$DEPLOY_HOST" "$DEPLOY_USER" "$DEPLOY_PORT" > ~/.ssh/config
-          ssh matchsho 'test -d /opt/matchsho/incoming && docker info >/dev/null && test "$(uname -m)" = x86_64'
+        run: bash deploy/verify-ssh.sh
       - name: Package source and pinned upstream (no private environment files)
         run: |
           mkdir bundle
