@@ -776,6 +776,27 @@ describe("payment-first private bookings", () => {
       `corrected-${receipt}`,
     ]);
   });
+  it("accepts a receipt after a real club hold without extending beyond that hold", async () => {
+    const { b, pid } = await transfer(207);
+    await approve(b, 45);
+    await submitReceipt(pid);
+    const [row] = await query<{
+      status: string;
+      within_hold: boolean;
+      same_deadline: boolean;
+    }>(
+      `select p.status, p.expires_at<=b.hold_expires_at as within_hold,
+       p.expires_at=b.payment_deadline as same_deadline
+       from payments p join booking_participants bp on bp.id=p.participant_id
+       join bookings b on b.id=bp.booking_id where p.id=$1`,
+      [pid],
+    );
+    expect(row).toEqual({
+      status: "pending",
+      within_hold: true,
+      same_deadline: true,
+    });
+  });
   it("records late claims but refunds verified late money without resurrecting inventory", async () => {
     const { b, pid, receipt } = await transfer(208);
     await role("postgres");

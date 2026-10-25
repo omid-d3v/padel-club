@@ -1,5 +1,6 @@
 import "server-only";
 import { iranMobile } from "@/lib/iran-phone";
+import { smsTemplates, type NotificationSmsTemplate } from "./sms-templates";
 
 type SmsConfig = { apiKey: string; sender?: string; otpTemplate?: string };
 export class SmsError extends Error {
@@ -17,40 +18,37 @@ export function smsConfig(): SmsConfig {
   return {
     apiKey,
     sender: process.env.ONLINEPAYAMAK_SENDER?.trim(),
-    otpTemplate: process.env.ONLINEPAYAMAK_OTP_TEMPLATE?.trim(),
+    otpTemplate: process.env.ONLINEPAYAMAK_OTP_TEMPLATE?.trim() || "loginotp",
   };
 }
 
 /** Never expose request URLs or provider bodies: they contain credentials and personal data. */
 export async function sendSms(
   phone: string,
-  payload: { message: string; localId: string } | { otp: string },
+  payload:
+    { template: NotificationSmsTemplate; token: string } | { otp: string },
   config = smsConfig(),
   fetcher: typeof fetch = fetch,
 ): Promise<string> {
   const receptor = iranMobile(phone).replace(/^\+98/, "0");
-  let method: "sms/send" | "verify/lookup";
   let fields: Record<string, string>;
   if ("otp" in payload) {
     if (!config.otpTemplate) throw new SmsError("SMS_TEMPLATE_NOT_CONFIGURED");
     if (!/^\d{6,10}$/.test(payload.otp)) throw new SmsError("INVALID_OTP");
-    method = "verify/lookup";
     fields = { receptor, template: config.otpTemplate, token: payload.otp };
   } else {
     if (
-      !payload.message.trim() ||
-      payload.message.length > 1500 ||
-      !/^[1-9]\d{0,14}$/.test(payload.localId)
+      !Object.hasOwn(smsTemplates, payload.template) ||
+      payload.template === ("loginotp" as string) ||
+      !/^\d{1,20}$/.test(payload.token)
     )
       throw new SmsError("INVALID_SMS");
-    method = "sms/send";
-    fields = { receptor, message: payload.message, localid: payload.localId };
-    if (config.sender) fields.sender = config.sender;
+    fields = { receptor, template: payload.template, token: payload.token };
   }
   let response: Response;
   try {
     response = await fetcher(
-      `https://api.onlinepayamak.com/v1/${encodeURIComponent(config.apiKey)}/${method}.json`,
+      `https://api.onlinepayamak.com/v1/${encodeURIComponent(config.apiKey)}/verify/lookup.json`,
       {
         method: "POST",
         redirect: "error",

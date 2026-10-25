@@ -4,9 +4,9 @@ import { trustedClient } from "@/lib/supabase/trusted";
 import { sendSms, SmsError } from "./online-payamak";
 import { pushConfigured, sendPush } from "./firebase";
 import { iranMobile } from "@/lib/iran-phone";
-import { siteUrl } from "@/lib/seo";
+import { notificationSmsTemplate } from "./sms-templates";
 const deliverySchema = z.object({
-  id: z.number().int().positive(),
+  id: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
   notification_id: z.uuid(),
   channel: z.enum(["sms", "push"]),
   lease_token: z.uuid(),
@@ -20,7 +20,12 @@ const deliverySchema = z.object({
 
 export async function runNotificationWorker() {
   const channels: string[] = [];
-  if (process.env.ONLINEPAYAMAK_API_KEY) channels.push("sms");
+  // Enable only after registering and approving the catalog in the provider panel.
+  if (
+    process.env.ONLINEPAYAMAK_API_KEY?.trim() &&
+    process.env.ONLINEPAYAMAK_NOTIFICATION_SMS_ENABLED === "true"
+  )
+    channels.push("sms");
   if (pushConfigured()) channels.push("push");
   if (!channels.length) return { sent: 0, failed: 0, configured: false };
   const db = trustedClient(),
@@ -51,42 +56,48 @@ export async function runNotificationWorker() {
         status = "skipped";
         errorCode = "NOTICE_TOO_OLD";
       } else if (delivery.channel === "sms") {
-        const { data: user, error: lookupError } =
-          await db.auth.admin.getUserById(delivery.user_id);
-        if (lookupError) throw new Error("RECIPIENT_LOOKUP_FAILED");
-        const phone = user.user?.phone_confirmed_at
-          ? user.user.phone
-          : undefined;
-        let phones = phone ? [phone] : [];
-        if (!phone) {
-          const { data: admins, error: adminsError } = await db
-            .from("admins")
-            .select("user_id")
-            .order("user_id");
-          if (adminsError) throw new Error("RECIPIENT_LOOKUP_FAILED");
-          if (admins?.[0]?.user_id === delivery.user_id)
-            phones = (process.env.ADMIN_NOTIFICATION_PHONES ?? "")
-              .split(",")
-              .map((p) => p.trim())
-              .filter(Boolean);
-        }
-        phones = [...new Set(phones.map(iranMobile))];
-        if (!phones.length) {
+        const template = notificationSmsTemplate(delivery.dedupe_key);
+        if (!template) {
+          // New notification types must get a reviewed template before sending SMS.
           status = "skipped";
-          errorCode = "NO_VERIFIED_PHONE";
-        }
-        for (let index = 0; index < phones.length; index++) {
-          // Reserve two decimal digits for distinct configured admin recipients.
-          if (index >= 20) break;
-          reference = await sendSms(
-            phones[index],
-            {
-              localId: String(delivery.id * 100 + index),
-              message: `مچ شو\n${delivery.title}\n${delivery.body}\n${siteUrl()}${delivery.href.startsWith("/") && !delivery.href.startsWith("//") ? delivery.href : "/account"}`,
-            },
-            undefined,
-            fetcher,
-          );
+          errorCode = "SMS_TEMPLATE_UNMAPPED";
+        } else {
+          const { data: user, error: lookupError } =
+            await db.auth.admin.getUserById(delivery.user_id);
+          if (lookupError) throw new Error("RECIPIENT_LOOKUP_FAILED");
+          const phone = user.user?.phone_confirmed_at
+            ? user.user.phone
+            : undefined;
+          let phones = phone ? [phone] : [];
+          if (!phone) {
+            const { data: admins, error: adminsError } = await db
+              .from("admins")
+              .select("user_id")
+              .order("user_id");
+            if (adminsError) throw new Error("RECIPIENT_LOOKUP_FAILED");
+            if (admins?.[0]?.user_id === delivery.user_id)
+              phones = (process.env.ADMIN_NOTIFICATION_PHONES ?? "")
+                .split(",")
+                .map((p) => p.trim())
+                .filter(Boolean);
+          }
+          phones = [...new Set(phones.map(iranMobile))];
+          if (!phones.length) {
+            status = "skipped";
+            errorCode = "NO_VERIFIED_PHONE";
+          }
+          for (let index = 0; index < phones.length; index++) {
+            if (index >= 20) break;
+            reference = await sendSms(
+              phones[index],
+              {
+                template,
+                token: String(delivery.id),
+              },
+              undefined,
+              fetcher,
+            );
+          }
         }
       } else {
         const { data: devices, error: deviceError } = await db
@@ -123,7 +134,7 @@ export async function runNotificationWorker() {
       failed++;
       errorCode =
         error instanceof SmsError
-          ? error.code
+          ? `${error.code}${error.providerStatus === undefined ? "" : `:${error.providerStatus}`}`
           : error instanceof Error && /^[A-Z_]+$/.test(error.message)
             ? error.message
             : "DELIVERY_FAILED";
