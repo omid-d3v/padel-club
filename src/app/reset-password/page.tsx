@@ -19,6 +19,16 @@ export default async function Reset() {
           minLength={10}
           autoComplete="new-password"
         />
+        <Field
+          label="تکرار رمز جدید"
+          name="password_confirmation"
+          type="password"
+          required
+          dir="ltr"
+          minLength={10}
+          maxLength={128}
+          autoComplete="new-password"
+        />
       </ActionForm>
     </main>
   );

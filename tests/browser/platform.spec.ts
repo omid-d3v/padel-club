@@ -38,17 +38,23 @@ test("inline booking wizard, private receipt and admin review", async ({
   if (project === "desktop") {
     await auth.getByRole("button", { name: "ساخت حساب", exact: true }).click();
     await auth
-      .getByLabel("ایمیل", { exact: true })
-      .fill("checkout-desktop@example.com");
-    await auth
-      .getByLabel("رمز عبور؛ حداقل ۱۰ کاراکتر", { exact: true })
-      .fill("browser-test-password");
+      .getByLabel("شماره موبایل ایران", { exact: true })
+      .fill("09120000004");
     await auth.getByRole("checkbox").check();
-    await auth.getByRole("button", { name: "ساخت حساب و ادامه رزرو" }).click();
+    await auth
+      .getByRole("button", { name: "دریافت کد تأیید", exact: true })
+      .click();
+    await auth.getByLabel("کد تأیید", { exact: true }).fill("123456");
+    await auth
+      .getByRole("button", { name: "تأیید کد و ادامه", exact: true })
+      .click();
   } else {
     await auth
-      .getByLabel("ایمیل", { exact: true })
-      .fill("checkout-mobile@example.com");
+      .getByRole("button", { name: "ورود با رمز", exact: true })
+      .click();
+    await auth
+      .getByLabel("شماره موبایل ایران", { exact: true })
+      .fill("09120000005");
     await auth
       .getByLabel("رمز عبور", { exact: true })
       .fill("browser-test-password");
@@ -56,9 +62,14 @@ test("inline booking wizard, private receipt and admin review", async ({
       .getByRole("button", { name: "ورود به حساب", exact: true })
       .click();
   }
+  await auth.getByLabel("نام و نام خانوادگی", { exact: true }).fill(person);
+  await auth
+    .getByRole("combobox", { name: "سطح بازی", exact: true })
+    .selectOption("1");
+  await auth
+    .getByRole("button", { name: "تکمیل اطلاعات و ادامه", exact: true })
+    .click();
   await expect(auth).toHaveCount(0);
-  await page.getByLabel("نام و نام خانوادگی", { exact: true }).fill(person);
-  await page.getByRole("button", { name: "مرحلهٔ بعد", exact: true }).click();
   await expect(page.locator("button.bg-primary:visible")).toHaveCount(1);
   if (project === "mobile") {
     expect(
@@ -115,8 +126,11 @@ test("inline booking wizard, private receipt and admin review", async ({
     adminPage = await context.newPage();
   await adminPage.goto("/login");
   await adminPage
-    .getByLabel("ایمیل", { exact: true })
-    .fill("admin@example.com");
+    .getByRole("button", { name: "ورود با رمز", exact: true })
+    .click();
+  await adminPage
+    .getByLabel("شماره موبایل ایران", { exact: true })
+    .fill("09120000001");
   await adminPage
     .getByLabel("رمز عبور", { exact: true })
     .fill("browser-test-password");
@@ -249,15 +263,23 @@ test("member profile → real SQL booking → admin hold → no fake payment wit
 }) => {
   test.setTimeout(120000);
   await page.goto("/login");
+  await page.getByRole("button", { name: "ورود با رمز", exact: true }).click();
   await page
-    .getByRole("textbox", { name: "ایمیل", exact: true })
+    .getByRole("textbox", { name: "شماره موبایل ایران", exact: true })
     .fill(
-      test.info().project.name === "mobile"
-        ? "mobile@example.com"
-        : "player@example.com",
+      test.info().project.name === "mobile" ? "09120000003" : "09120000002",
     );
   await page.getByLabel("رمز عبور").fill("browser-test-password");
   await page.getByRole("button", { name: "ورود به حساب", exact: true }).click();
+  await page
+    .getByLabel("نام و نام خانوادگی", { exact: true })
+    .fill("بازیکن آزمون");
+  await page
+    .getByRole("combobox", { name: "سطح بازی", exact: true })
+    .selectOption("1");
+  await page
+    .getByRole("button", { name: "تکمیل اطلاعات و ادامه", exact: true })
+    .click();
   await expect(page).toHaveURL("/account");
   await page.goto("/account/profile");
   await page.getByRole("textbox", { name: "نام نمایشی" }).fill("بازیکن آزمون");
@@ -311,9 +333,10 @@ test("member profile → real SQL booking → admin hold → no fake payment wit
   });
   const admin = await context.newPage();
   await admin.goto("/login");
+  await admin.getByRole("button", { name: "ورود با رمز", exact: true }).click();
   await admin
-    .getByRole("textbox", { name: "ایمیل", exact: true })
-    .fill("admin@example.com");
+    .getByRole("textbox", { name: "شماره موبایل ایران", exact: true })
+    .fill("09120000001");
   await admin.getByLabel("رمز عبور").fill("browser-test-password");
   await admin
     .getByRole("button", { name: "ورود به حساب", exact: true })
@@ -550,9 +573,10 @@ test("admin calendar interval and pause persist through real SQL", async ({
   page,
 }) => {
   await page.goto("/login");
+  await page.getByRole("button", { name: "ورود با رمز", exact: true }).click();
   await page
-    .getByRole("textbox", { name: "ایمیل", exact: true })
-    .fill("admin@example.com");
+    .getByRole("textbox", { name: "شماره موبایل ایران", exact: true })
+    .fill("09120000001");
   await page.getByLabel("رمز عبور").fill("browser-test-password");
   await page.getByRole("button", { name: "ورود به حساب", exact: true }).click();
   await expect(page).toHaveURL("/admin");

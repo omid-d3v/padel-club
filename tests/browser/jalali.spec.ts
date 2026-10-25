@@ -58,9 +58,10 @@ test("admin creates an exact Tehran slot using Persian date/time from a foreign 
   page,
 }) => {
   await page.goto("/login");
+  await page.getByRole("button", { name: "ورود با رمز", exact: true }).click();
   await page
-    .getByRole("textbox", { name: "ایمیل", exact: true })
-    .fill("admin@example.com");
+    .getByRole("textbox", { name: "شماره موبایل ایران", exact: true })
+    .fill("09120000001");
   await page.getByLabel("رمز عبور").fill("browser-test-password");
   await page.getByRole("button", { name: "ورود به حساب", exact: true }).click();
   await expect(page).toHaveURL("/admin");

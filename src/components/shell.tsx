@@ -90,7 +90,7 @@ export function Shell({
         )}
       </aside>
       <div className="lg:ps-64">
-        <header className="flex h-20 items-center justify-between border-b border-border bg-white/80 px-5 md:px-10">
+        <header className="admin-glass-header flex h-20 items-center justify-between border-b border-border bg-white/80 px-5 md:px-10">
           <span className="text-sm font-medium">
             مدیریت مچ شو <span className="mx-3 text-border">/</span>
             <span className="text-muted-foreground">

@@ -33,6 +33,7 @@ export default defineConfig({
       timeout: 480000,
       env: {
         NEXT_DIST_DIR: ".next-e2e",
+        PHONE_AUTH_ENABLED: "true",
         NEXT_PUBLIC_SITE_URL: "http://127.0.0.1:3100",
         NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321",
         NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:

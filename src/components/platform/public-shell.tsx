@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowUpLeft, Menu, UserRound } from "lucide-react";
 import { member } from "@/lib/platform/data";
 import { Button } from "@/components/ui/button";
+import { MobileBottomNav } from "./mobile-bottom-nav";
 export async function PublicShell({ children }: { children: React.ReactNode }) {
   const user = await member();
   return (
@@ -22,9 +23,9 @@ export async function PublicShell({ children }: { children: React.ReactNode }) {
         </nav>
         <div className="flex items-center gap-2">
           <Button asChild variant="outline" className="public-login">
-            <Link href={user ? "/account" : "/login"}>
+            <Link href={user?.admin ? "/admin" : user ? "/account" : "/login"}>
               <UserRound size={17} />
-              {user ? "حساب من" : "ورود / عضویت"}
+              {user?.admin ? "پنل مدیریت" : user ? "حساب من" : "ورود / عضویت"}
             </Link>
           </Button>
           <details className="mobile-menu md:hidden">
@@ -49,8 +50,7 @@ export async function PublicShell({ children }: { children: React.ReactNode }) {
               <BrandLogo dark variant="english" />
             </Link>
             <p className="mt-5 max-w-sm text-sm leading-8 text-white/60">
-              مچ شو، جایی برای زمین‌های بهتر، هم‌بازی‌های تازه و رالی‌های
-              بیشتر.
+              مچ شو، جایی برای زمین‌های بهتر، هم‌بازی‌های تازه و رالی‌های بیشتر.
             </p>
           </div>
           <nav className="space-y-3 text-sm" aria-label="کاوش">
@@ -97,12 +97,7 @@ export async function PublicShell({ children }: { children: React.ReactNode }) {
           </a>
         </div>
       </footer>
-      <nav aria-label="دسترسی سریع موبایل" className="public-bottom md:hidden">
-        <Link href="/clubs">زمین</Link>
-        <Link href="/matches">هم‌بازی</Link>
-        <Link href="/events">رویداد</Link>
-        <Link href="/account">حساب من</Link>
-      </nav>
+      <MobileBottomNav admin={user?.admin} />
     </div>
   );
 }

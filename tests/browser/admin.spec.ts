@@ -2,7 +2,10 @@ import { test, expect } from "@playwright/test";
 const tid = "10000000-0000-4000-8000-000000000100";
 test.beforeEach(async ({ page }) => {
   await page.goto("/login");
-  await page.getByRole("textbox", { name: "ایمیل" }).fill("admin@example.com");
+  await page.getByRole("button", { name: "ورود با رمز", exact: true }).click();
+  await page
+    .getByRole("textbox", { name: "شماره موبایل ایران" })
+    .fill("09120000001");
   await page.getByLabel("رمز عبور").fill("browser-test-password");
   await page.getByRole("button", { name: "ورود به حساب" }).click();
   await expect(page).toHaveURL("/admin");

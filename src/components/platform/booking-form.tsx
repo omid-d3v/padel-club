@@ -167,9 +167,13 @@ export function BookingForm({
         {BOOKING_STEPS[step]}
       </h2>
       {step === 0 && navigation}
-      {step === 3 && !authenticated ? (
+      {step === 3 && (!authenticated || needsProfile) ? (
         <>
-          <BookingAccess phoneEnabled={phoneEnabled} returnTo={returnTo} />
+          <BookingAccess
+            phoneEnabled={phoneEnabled}
+            returnTo={returnTo}
+            needsProfile={authenticated && needsProfile}
+          />
           <Button
             className="booking-auth-back"
             variant="outline"

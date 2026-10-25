@@ -17,12 +17,7 @@ import { JalaliDateInput } from "@/components/ui/jalali-date-input";
 import { tehranToday } from "@/lib/date-time";
 import { Dialog } from "@/components/ui/dialog";
 import { PlayerAvatar } from "@/components/shared";
-import {
-  savePlayer,
-  deletePlayer,
-  createTournament,
-  login,
-} from "@/app/actions";
+import { savePlayer, deletePlayer, createTournament } from "@/app/actions";
 import type { Player } from "@/lib/types";
 import { fullName, number, cn } from "@/lib/utils";
 export function Pending({
@@ -37,74 +32,6 @@ export function Pending({
       {pending && <LoaderCircle size={18} className="animate-spin" />}
       {pending ? "در حال ثبت…" : label}
     </>
-  );
-}
-export function LoginForm({
-  next,
-  onAuthenticated,
-}: {
-  next?: string;
-  onAuthenticated?: () => void;
-}) {
-  const router = useRouter();
-  const [pending, start] = useTransition();
-  const [error, setError] = useState("");
-  return (
-    <form
-      className="space-y-5"
-      onSubmit={(e) => {
-        e.preventDefault();
-        const d = new FormData(e.currentTarget);
-        setError("");
-        start(async () => {
-          try {
-            const r = await login(
-              String(d.get("email")).trim(),
-              String(d.get("password")),
-            );
-            if (!r.success) setError(r.error);
-            else {
-              if (onAuthenticated) onAuthenticated();
-              else router.replace(next ?? r.id ?? "/account");
-            }
-          } catch {
-            setError("اتصال برقرار نشد؛ دوباره تلاش کنید.");
-          }
-        });
-      }}
-    >
-      <label className="block text-sm">
-        ایمیل
-        <Input
-          className="mt-2 text-left"
-          dir="ltr"
-          type="email"
-          name="email"
-          autoComplete="username"
-          required
-          placeholder="you@example.com"
-        />
-      </label>
-      <label className="block text-sm">
-        رمز عبور
-        <Input
-          className="mt-2 text-left"
-          dir="ltr"
-          type="password"
-          name="password"
-          autoComplete="current-password"
-          required
-        />
-      </label>
-      {error && (
-        <p role="alert" className="text-sm text-red-700">
-          {error}
-        </p>
-      )}
-      <Button disabled={pending} className="w-full">
-        <Pending pending={pending} label="ورود به حساب" />
-      </Button>
-    </form>
   );
 }
 export function PlayerForm({ player }: { player?: Player }) {
