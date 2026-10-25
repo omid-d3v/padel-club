@@ -1,5 +1,5 @@
 import { Webhook } from "standardwebhooks";
-import { sendSms } from "@/lib/notifications/online-payamak";
+import { sendSms, SmsError } from "@/lib/notifications/online-payamak";
 
 export async function POST(request: Request) {
   const secret = process.env.SUPABASE_SEND_SMS_HOOK_SECRET;
@@ -27,7 +27,14 @@ export async function POST(request: Request) {
         fetch(input, { ...init, signal: AbortSignal.timeout(4000) }),
     );
     return Response.json({});
-  } catch {
+  } catch (error) {
+    // Log only our codes and numeric statuses; provider messages/URLs can contain PII and keys.
+    console.error("[sms-hook] delivery failed", {
+      code: error instanceof SmsError ? error.code : "SMS_UNEXPECTED_ERROR",
+      httpStatus: error instanceof SmsError ? error.httpStatus : undefined,
+      providerStatus:
+        error instanceof SmsError ? error.providerStatus : undefined,
+    });
     return Response.json(
       { error: { http_code: 503, message: "SMS delivery unavailable" } },
       { status: 503 },

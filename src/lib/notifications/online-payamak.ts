@@ -3,17 +3,21 @@ import { iranMobile } from "@/lib/iran-phone";
 
 type SmsConfig = { apiKey: string; sender?: string; otpTemplate?: string };
 export class SmsError extends Error {
-  constructor(public readonly code: string) {
+  constructor(
+    public readonly code: string,
+    public readonly httpStatus?: number,
+    public readonly providerStatus?: number,
+  ) {
     super(code);
   }
 }
 export function smsConfig(): SmsConfig {
-  const apiKey = process.env.ONLINEPAYAMAK_API_KEY;
+  const apiKey = process.env.ONLINEPAYAMAK_API_KEY?.trim();
   if (!apiKey) throw new SmsError("SMS_NOT_CONFIGURED");
   return {
     apiKey,
-    sender: process.env.ONLINEPAYAMAK_SENDER,
-    otpTemplate: process.env.ONLINEPAYAMAK_OTP_TEMPLATE,
+    sender: process.env.ONLINEPAYAMAK_SENDER?.trim(),
+    otpTemplate: process.env.ONLINEPAYAMAK_OTP_TEMPLATE?.trim(),
   };
 }
 
@@ -69,7 +73,14 @@ export async function sendSms(
     entries?: { messageid?: unknown }[];
   } | null;
   if (!response.ok || data?.return?.status !== 200)
-    throw new SmsError("SMS_PROVIDER_REJECTED");
+    throw new SmsError(
+      "SMS_PROVIDER_REJECTED",
+      response.status,
+      typeof data?.return?.status === "number" &&
+        Number.isInteger(data.return.status)
+        ? data.return.status
+        : undefined,
+    );
   const messageId = data.entries?.[0]?.messageid;
   if (
     (typeof messageId !== "number" && typeof messageId !== "string") ||
