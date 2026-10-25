@@ -155,7 +155,7 @@ https://match-sho.com/account/payments
 https://match-sho.com/admin/operations?tab=queue
 ```
 
-### adminreceipt
+### msreceipt
 
 ```text
 مچ شو - مدیر
@@ -164,7 +164,7 @@ https://match-sho.com/admin/operations?tab=queue
 https://match-sho.com/admin/operations?tab=receipts
 ```
 
-### adminreschedule
+### msreschedule
 
 ```text
 مچ شو - مدیر
