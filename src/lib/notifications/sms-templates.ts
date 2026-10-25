@@ -32,9 +32,9 @@ export const smsTemplates = {
     "مچ شو\nاسترداد وجه شما انجام شد. مرجع بانکی را در سوابق پرداخت خود ببینید.\nشناسه اعلان: %token\nhttps://match-sho.com/account/payments",
   adminbooking:
     "مچ شو - مدیر\nیک درخواست رزرو نیازمند اقدام شماست. وضعیت پرداخت و رزرو را در صف مدیریت بررسی کنید.\nشناسه اعلان: %token\nhttps://match-sho.com/admin/operations?tab=queue",
-  adminreceipt:
+  msreceipt:
     "مچ شو - مدیر\nرسید کارت‌به‌کارت جدید برای بررسی ثبت شد. پیش از تأیید، واریز را با گردش حساب تطبیق دهید.\nشناسه اعلان: %token\nhttps://match-sho.com/admin/operations?tab=receipts",
-  adminreschedule:
+  msreschedule:
     "مچ شو - مدیر\nپاسخ کاربر به پیشنهاد زمان جایگزین ثبت شد. نتیجه را در صف مدیریت بررسی کنید.\nشناسه اعلان: %token\nhttps://match-sho.com/admin/operations?tab=queue",
 } as const;
 
@@ -61,8 +61,8 @@ const eventTemplates: Record<string, NotificationSmsTemplate> = {
   "refund-completed": "refundcompleted",
   "admin:new-booking": "adminbooking",
   "admin:paid-booking": "adminbooking",
-  "admin:receipt": "adminreceipt",
-  "reschedule-reply": "adminreschedule",
+  "admin:receipt": "msreceipt",
+  "reschedule-reply": "msreschedule",
 };
 
 export function notificationSmsTemplate(

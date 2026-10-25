@@ -60,7 +60,7 @@ describe("notification SMS patterns", () => {
     ["confirmed-seat:x:u", "bookingconfirmed"],
     ["fulfilled:x:p:u", "bookingfulfilled"],
     ["reschedule:x:u", "bookingreschedule"],
-    ["reschedule-reply:x:u", "adminreschedule"],
+    ["reschedule-reply:x:u", "msreschedule"],
     ["seat-expired:x", "bookingexpired"],
     ["external-quote:x", "bookingquote"],
     ["joined:x:u", "playerjoined"],
@@ -71,7 +71,7 @@ describe("notification SMS patterns", () => {
     ["refund-completed:x", "refundcompleted"],
     ["admin:new-booking:x:u", "adminbooking"],
     ["admin:paid-booking:x:u", "adminbooking"],
-    ["admin:receipt:x:1:u", "adminreceipt"],
+    ["admin:receipt:x:1:u", "msreceipt"],
   ])("maps %s to the registered %s pattern", (key, template) => {
     expect(notificationSmsTemplate(key)).toBe(template);
   });
