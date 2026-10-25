@@ -40,22 +40,6 @@ function refresh(id?: string) {
   revalidatePath("/", "layout");
   if (id) revalidatePath(`/tournaments/${id}`);
 }
-export async function login(
-  email: string,
-  password: string,
-): Promise<ActionResult> {
-  if (!z.email().safeParse(email).success || !password)
-    return { success: false, error: "ایمیل و رمز عبور را وارد کنید." };
-  const db = await createClient();
-  const { error } = await db.auth.signInWithPassword({ email, password });
-  if (error)
-    return {
-      success: false,
-      error: "ایمیل یا رمز عبور درست نیست، یا اتصال برقرار نشد.",
-    };
-  const { data: admin } = await db.rpc("is_admin");
-  return { success: true, id: admin ? "/admin" : "/account" };
-}
 export async function logout() {
   const db = await createClient();
   const jar = await cookies();

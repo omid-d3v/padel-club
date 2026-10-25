@@ -4,12 +4,24 @@ import { createClient } from "@/lib/supabase/server";
 import { iranMobile } from "@/lib/iran-phone";
 import { requireMember } from "@/lib/platform/data";
 import { revalidatePath } from "next/cache";
+import { legacyAdminIdentity, phoneAuthState } from "@/lib/phone-auth";
+import type { PhoneAuthResult } from "@/lib/auth-flow";
 
-export async function requestPhoneCode(phone: string, signup: boolean) {
+export async function requestPhoneCode(
+  phone: string,
+  signup: boolean,
+  acceptedTerms = false,
+) {
   if (process.env.PHONE_AUTH_ENABLED !== "true")
     return {
       success: false,
-      message: "ورود پیامکی هنوز فعال نشده است؛ از ایمیل استفاده کنید.",
+      message:
+        "ارسال کد پیامکی فعلاً فعال نیست؛ اگر رمز دارید با رمز وارد شوید.",
+    };
+  if (signup && acceptedTerms !== true)
+    return {
+      success: false,
+      message: "برای عضویت، قوانین و حریم خصوصی را بپذیرید.",
     };
   let normalizedPhone: string;
   try {
@@ -21,6 +33,12 @@ export async function requestPhoneCode(phone: string, signup: boolean) {
     };
   }
   try {
+    if (signup && (await legacyAdminIdentity(normalizedPhone)))
+      return {
+        success: false,
+        message:
+          "این حساب از قبل وجود دارد؛ با شماره و رمز فعلی وارد شوید و شماره را در پروفایل تأیید کنید.",
+      };
     const db = await createClient();
     const { error } = await db.auth.signInWithOtp({
       phone: normalizedPhone,
@@ -37,7 +55,7 @@ export async function requestPhoneCode(phone: string, signup: boolean) {
         case "otp_disabled":
         case "user_not_found":
           message =
-            "برای ورود با موبایل، ابتدا از بخش عضویت ثبت‌نام کنید؛ اگر حساب ایمیلی دارید، با ایمیل وارد شوید و شماره را در پروفایل تأیید کنید.";
+            "برای این شماره ابتدا از بخش عضویت حساب بسازید؛ اگر حساب قبلی دارید، ورود با رمز را امتحان کنید.";
           break;
         case "over_sms_send_rate_limit":
         case "over_request_rate_limit":
@@ -47,14 +65,14 @@ export async function requestPhoneCode(phone: string, signup: boolean) {
         case "phone_provider_disabled":
         case "signup_disabled":
           message =
-            "ورود یا عضویت پیامکی هنوز آماده نیست؛ از ایمیل استفاده کنید.";
+            "ورود یا عضویت پیامکی فعلاً آماده نیست؛ کمی بعد دوباره تلاش کنید.";
           break;
         case "sms_send_failed":
         case "hook_timeout":
         case "hook_timeout_after_retry":
         case "unexpected_failure":
           message =
-            "سرویس ارسال پیامک در دسترس نیست؛ کمی بعد تلاش کنید یا با ایمیل وارد شوید.";
+            "سرویس ارسال پیامک در دسترس نیست؛ کمی بعد تلاش کنید یا با رمز وارد شوید.";
           break;
       }
       return {
@@ -69,12 +87,14 @@ export async function requestPhoneCode(phone: string, signup: boolean) {
     });
     return {
       success: false,
-      message:
-        "ارتباط با سرویس ورود برقرار نشد؛ کمی بعد تلاش کنید یا با ایمیل وارد شوید.",
+      message: "ارتباط با سرویس ورود برقرار نشد؛ کمی بعد دوباره تلاش کنید.",
     };
   }
 }
-export async function verifyPhoneCode(phone: string, code: string) {
+export async function verifyPhoneCode(
+  phone: string,
+  code: string,
+): Promise<PhoneAuthResult> {
   if (process.env.PHONE_AUTH_ENABLED !== "true")
     return { success: false, message: "ورود پیامکی فعال نیست." };
   try {
@@ -97,14 +117,142 @@ export async function verifyPhoneCode(phone: string, code: string) {
         success: false,
         message: "کد نادرست یا منقضی شده است. دوباره بررسی کنید.",
       };
-    const { data: admin } = await db.rpc("is_admin");
-    return {
-      success: true,
-      message: "شماره تأیید شد.",
-      redirect: admin ? "/admin" : "/account",
-    };
+    return await phoneAuthState(db);
   } catch {
     return { success: false, message: "شماره و کد تأیید را بررسی کنید." };
+  }
+}
+export async function signInPhonePassword(
+  phone: string,
+  password: string,
+): Promise<PhoneAuthResult> {
+  const failure = {
+    success: false,
+    message:
+      "شماره یا رمز عبور درست نیست؛ دوباره بررسی کنید یا کد تأیید بگیرید.",
+  };
+  try {
+    const normalized = iranMobile(phone);
+    z.string().min(1).max(128).parse(password);
+    const db = await createClient();
+    const result = await db.auth.signInWithPassword({
+      phone: normalized,
+      password,
+    });
+    if (result.error) {
+      if (result.error.code !== "invalid_credentials") return failure;
+      const identity = await legacyAdminIdentity(normalized);
+      if (!identity) return failure;
+      const alias = await db.auth.signInWithPassword({
+        email: identity.email,
+        password,
+      });
+      if (alias.error) return failure;
+      const { data: admin, error } = await db.rpc("is_admin");
+      if (alias.data.user?.id !== identity.id || error || !admin) {
+        await db.auth.signOut();
+        return failure;
+      }
+    }
+    return await phoneAuthState(db);
+  } catch {
+    return failure;
+  }
+}
+
+export async function completePhoneProfile(
+  input: unknown,
+): Promise<PhoneAuthResult> {
+  try {
+    const values = z
+      .object({
+        displayName: z.string().trim().min(2).max(100),
+        skillLevel: z.union([
+          z.number().int().min(0).max(5),
+          z
+            .string()
+            .regex(/^[0-5]$/)
+            .transform(Number),
+        ]),
+        cityId: z.uuid().nullable(),
+        password: z.union([z.literal(""), z.string().min(10).max(128)]),
+        passwordConfirmation: z.string(),
+      })
+      .refine((v) => v.password === v.passwordConfirmation)
+      .parse(input);
+    const { db, admin, profile } = await requireMember();
+    const {
+      data: { user },
+      error,
+    } = await db.auth.getUser();
+    if (error || !user || (!user.phone_confirmed_at && !admin))
+      return {
+        success: false,
+        message: "پیش از تکمیل اطلاعات، شماره موبایل را تأیید کنید.",
+      };
+    const { error: saveError } = await db.rpc("save_my_profile", {
+      p_name: values.displayName,
+      p_skill: values.skillLevel,
+      p_city: values.cityId,
+      p_avatar: profile?.avatar_path ?? null,
+    });
+    if (saveError)
+      return {
+        success: false,
+        message: "ذخیره اطلاعات انجام نشد؛ دوباره تلاش کنید.",
+      };
+    if (values.password) {
+      const { error: passwordError } = await db.auth.updateUser({
+        password: values.password,
+      });
+      if (passwordError)
+        return {
+          success: false,
+          message:
+            "اطلاعات ذخیره شد؛ تنظیم رمز انجام نشد. رمز را بررسی و دوباره تلاش کنید.",
+        };
+    }
+    revalidatePath("/", "layout");
+    return await phoneAuthState(db);
+  } catch {
+    return {
+      success: false,
+      message:
+        "نام، سطح بازی و یکسان بودن رمزها را بررسی کنید؛ رمز تازه حداقل ۱۰ کاراکتر باشد.",
+    };
+  }
+}
+
+export async function setPhonePassword(
+  password: string,
+  confirmation: string,
+): Promise<PhoneAuthResult> {
+  try {
+    z.string().min(10).max(128).parse(password);
+    if (password !== confirmation)
+      return { success: false, message: "رمز و تکرار آن یکسان نیستند." };
+    const { db, admin } = await requireMember();
+    const {
+      data: { user },
+      error,
+    } = await db.auth.getUser();
+    if (error || !user || (!user.phone_confirmed_at && !admin))
+      return {
+        success: false,
+        message: "ابتدا شماره موبایل را با کد تأیید کنید.",
+      };
+    const { error: updateError } = await db.auth.updateUser({ password });
+    if (updateError)
+      return {
+        success: false,
+        message: "ذخیره رمز انجام نشد؛ دوباره تلاش کنید.",
+      };
+    return await phoneAuthState(db);
+  } catch {
+    return {
+      success: false,
+      message: "رمز تازه باید بین ۱۰ تا ۱۲۸ کاراکتر باشد.",
+    };
   }
 }
 export async function requestNotificationPhone(phone: string) {

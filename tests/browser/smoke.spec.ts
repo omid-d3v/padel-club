@@ -3,12 +3,15 @@ test("login is Persian RTL, usable on mobile, and has no horizontal overflow", a
   page,
 }) => {
   await page.goto("/login");
+  await page.getByRole("button", { name: "ورود با رمز", exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("lang", "fa");
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
   await expect(
     page.getByRole("heading", { name: "زمین آماده است." }),
   ).toBeVisible();
-  await page.getByRole("textbox", { name: "ایمیل" }).fill("admin@example.com");
+  await page
+    .getByRole("textbox", { name: "شماره موبایل ایران" })
+    .fill("09120000001");
   await page.getByLabel("رمز عبور").fill("example-password");
   await expect(
     page.getByRole("button", { name: "ورود به حساب" }),

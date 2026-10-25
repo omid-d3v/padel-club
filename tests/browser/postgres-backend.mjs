@@ -10,6 +10,10 @@ const admin = uuid(999),
   mobilePlayer = uuid(997),
   checkoutDesktop = uuid(996),
   checkoutMobile = uuid(995),
+  onboardingDesktop = uuid(994),
+  onboardingMobile = uuid(993),
+  recoveryDesktop = uuid(992),
+  recoveryMobile = uuid(991),
   tid = uuid(100);
 await db.exec(
   `create schema auth;create role anon;create role authenticated;create role service_role bypassrls;create table auth.users(id uuid primary key);create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;grant usage on schema auth to anon,authenticated,service_role;grant execute on function auth.uid() to anon,authenticated,service_role;`,
@@ -22,13 +26,20 @@ for (const file of readdirSync(directory)
   .filter((f) => f.endsWith(".sql"))
   .sort())
   await db.exec(readFileSync(new URL(file, directory), "utf8"));
-await db.query("insert into auth.users(id) values($1),($2),($3),($4),($5)", [
-  admin,
-  player,
-  mobilePlayer,
-  checkoutDesktop,
-  checkoutMobile,
-]);
+await db.query(
+  "insert into auth.users(id) values($1),($2),($3),($4),($5),($6),($7),($8),($9)",
+  [
+    admin,
+    player,
+    mobilePlayer,
+    checkoutDesktop,
+    checkoutMobile,
+    onboardingDesktop,
+    onboardingMobile,
+    recoveryDesktop,
+    recoveryMobile,
+  ],
+);
 await db.query("insert into admins(user_id) values($1)", [admin]);
 // Test-only destination, never seeded into the product database.
 await db.query("select set_config('request.jwt.claim.sub',$1,false)", [admin]);
@@ -53,6 +64,10 @@ for (let i = 0; i < 8; i++)
 await db.query(
   "insert into user_profiles(user_id,player_id,display_name,skill_level) values($1,$2,'مدیر آزمون',1)",
   [admin, uuid(1)],
+);
+await db.query(
+  "insert into user_profiles(user_id,player_id,display_name,skill_level) values($1,$2,'بازیکن بازیابی دسکتاپ',1),($3,$4,'بازیکن بازیابی موبایل',1)",
+  [recoveryDesktop, uuid(2), recoveryMobile, uuid(3)],
 );
 await db.query(
   "insert into tournaments(id,title,date,status) values($1,'پدل پنجشنبه‌های باشگاه',current_date,'active')",
@@ -131,19 +146,41 @@ for (let i = 0; i < 10; i++)
     "insert into discount_codes(code,kind,value,max_uses,expires_at,active) values($1,'percent',10,5,now()+interval '1 day',false)",
     ["UI_AUDIT_" + String(i).padStart(2, "0")],
   );
+const phones = new Map([
+  [admin, "989120000001"],
+  [player, "989120000002"],
+  [mobilePlayer, "989120000003"],
+  [checkoutDesktop, "989120000004"],
+  [checkoutMobile, "989120000005"],
+  [onboardingDesktop, "989120000006"],
+  [onboardingMobile, "989120000007"],
+  [recoveryDesktop, "989120000008"],
+  [recoveryMobile, "989120000009"],
+]);
+const passwords = new Map(
+  [...phones.keys()].map((id) => [id, "browser-test-password"]),
+);
+const phoneFor = (id) => phones.get(id);
+const idFor = (phone) =>
+  [...phones].find(
+    ([, value]) => value === String(phone).replace(/^\+/, ""),
+  )?.[0];
+const verified = new Set([
+  admin,
+  player,
+  mobilePlayer,
+  checkoutMobile,
+  recoveryDesktop,
+  recoveryMobile,
+]);
 function user(id) {
   return {
     id,
     aud: "authenticated",
     role: "authenticated",
-    email:
-      id === admin
-        ? "admin@example.com"
-        : id === mobilePlayer
-          ? "mobile@example.com"
-          : "player@example.com",
-    email_confirmed_at: "2026-01-01T00:00:00Z",
-    app_metadata: { provider: "email", providers: ["email"] },
+    phone: phoneFor(id),
+    phone_confirmed_at: verified.has(id) ? "2026-01-01T00:00:00Z" : null,
+    app_metadata: { provider: "phone", providers: ["phone"] },
     user_metadata: {},
     created_at: "2026-01-01T00:00:00Z",
   };
@@ -195,22 +232,47 @@ http
       );
     };
     if (url.pathname === "/health") return send({ ok: true });
-    if (url.pathname === "/auth/v1/signup")
-      return send(session(checkoutDesktop));
-    if (url.pathname === "/auth/v1/token")
-      return send(
-        session(
-          body.email === "checkout-mobile@example.com"
-            ? checkoutMobile
-            : body.email === "admin@example.com"
-              ? admin
-              : body.email === "mobile@example.com"
-                ? mobilePlayer
-                : player,
-        ),
-      );
-    if (url.pathname === "/auth/v1/user")
-      return send(user(subject(req) ?? player));
+    // Local Auth test double only: no SMS provider, no real OTP or real account is touched.
+    if (url.pathname === "/auth/v1/otp") {
+      if (!idFor(body.phone))
+        return send(
+          { code: "otp_disabled", msg: "Test account not found" },
+          422,
+        );
+      return send({});
+    }
+    if (url.pathname === "/auth/v1/verify") {
+      const id = idFor(body.phone);
+      if (!id || body.token !== "123456")
+        return send({ code: "otp_expired", msg: "Invalid test OTP" }, 400);
+      verified.add(id);
+      return send(session(id));
+    }
+    if (url.pathname === "/auth/v1/token") {
+      if (url.searchParams.get("grant_type") === "refresh_token") {
+        const id = body.refresh_token?.replace("test-refresh-", "");
+        return phones.has(id)
+          ? send(session(id))
+          : send({ code: "invalid_credentials" }, 400);
+      }
+      const id = idFor(body.phone);
+      if (!id || passwords.get(id) !== body.password)
+        return send(
+          { code: "invalid_credentials", msg: "Invalid credentials" },
+          400,
+        );
+      return send(session(id));
+    }
+    if (url.pathname === "/auth/v1/user") {
+      const id = subject(req);
+      if (!id || !phones.has(id))
+        return send({ code: "bad_jwt", msg: "Not authenticated" }, 401);
+      if (req.method === "PUT" && body.password)
+        passwords.set(id, body.password);
+      if (req.method === "PUT" && body.phone)
+        phones.set(id, String(body.phone).replace(/^\+/, ""));
+      return send(user(id));
+    }
     if (url.pathname === "/auth/v1/logout") return send({});
     const task = queue.then(async () => {
       try {

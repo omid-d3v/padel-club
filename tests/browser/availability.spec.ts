@@ -62,8 +62,8 @@ test("visitor chooses a real day and time before login; switching day clears sel
     .getByRole("button", { name: "ادامه با این تجهیزات", exact: true })
     .click();
   await page
-    .getByRole("textbox", { name: "ایمیل", exact: true })
-    .fill("admin@example.com");
+    .getByRole("textbox", { name: "شماره موبایل ایران", exact: true })
+    .fill("09120000001");
   await page.getByLabel("رمز عبور").fill("browser-test-password");
   await page.getByRole("button", { name: "ورود به حساب", exact: true }).click();
   await expect(page).toHaveURL(/\/clubs\/browser-test-club\/book\?/);

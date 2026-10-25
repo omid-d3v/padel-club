@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireMember, catalog, ownRows } from "@/lib/platform/data";
 import { SKILLS } from "@/lib/platform/types";
 import { ActionForm } from "@/components/platform/action-form";
@@ -47,6 +48,14 @@ export default async function Profile() {
           }
         />
         <div className="platform-card">
+          <div className="mb-5">
+            <Link
+              href="/reset-password"
+              className="inline-flex min-h-11 items-center text-sm font-bold text-emerald-900 underline"
+            >
+              تعیین یا تغییر رمز ورود
+            </Link>
+          </div>
           <div className="profile-identity">
             <PlayerAvatar
               name={m.profile?.display_name ?? "بازیکن"}

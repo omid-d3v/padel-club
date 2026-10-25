@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import {
   requestNotificationPhone,
@@ -11,6 +12,7 @@ export function NotificationPhone({
 }: {
   verifiedPhone?: string;
 }) {
+  const router = useRouter();
   const [phone, setPhone] = useState(""),
     [sent, setSent] = useState(false),
     [message, setMessage] = useState("");
@@ -21,7 +23,7 @@ export function NotificationPhone({
       <p className="text-sm leading-7">
         {verifiedPhone
           ? `شمارهٔ تأییدشده: ${verifiedPhone}. برای تغییر، شمارهٔ جدید را تأیید کنید.`
-          : "اگر با ایمیل عضو شده‌اید، موبایل خود را برای دریافت تغییر ساعت، عضو جدید و قطعی‌شدن رزرو تأیید کنید."}
+          : "شماره موبایل خود را برای ورود و دریافت تغییر ساعت، عضو جدید و قطعی‌شدن رزرو تأیید کنید."}
       </p>
       <form
         className="space-y-4"
@@ -33,7 +35,10 @@ export function NotificationPhone({
               ? await confirmNotificationPhone(phone, String(form.get("code")))
               : await requestNotificationPhone(phone);
             setMessage(result.message);
-            if (result.success) setSent(!sent);
+            if (result.success) {
+              setSent(!sent);
+              if (sent) router.refresh();
+            }
           });
         }}
       >

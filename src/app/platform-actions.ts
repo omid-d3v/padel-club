@@ -4,8 +4,6 @@ import { z } from "zod";
 import { requireMember } from "@/lib/platform/data";
 import { requireAdmin } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { siteUrl } from "@/lib/seo";
-import { safeNext } from "@/lib/platform/format";
 import { isGregorianDate, tehranLocalToISO } from "@/lib/date-time";
 import {
   formText,
@@ -603,75 +601,10 @@ export async function platformAction(
     return errorResult(error);
   }
 }
-export async function registerAccount(form: FormData): Promise<PlatformResult> {
-  try {
-    const db = await createClient();
-    const email = z.email().parse(form.get("email"));
-    const password = z.string().min(10).max(128).parse(form.get("password"));
-    const next = safeNext(form.get("next"), "/account/profile");
-    const { data, error } = await db.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${siteUrl()}/auth/confirm?next=${encodeURIComponent(next)}`,
-      },
-    });
-    if (error)
-      return {
-        success: false,
-        message:
-          "ثبت‌نام انجام نشد؛ ایمیل، شرایط رمز و امکان ثبت‌نام پروژه را بررسی کنید.",
-      };
-    return {
-      success: true,
-      message: data.session
-        ? "حساب ایجاد شد. پروفایل بازی را تکمیل کنید."
-        : "درخواست ثبت‌نام ثبت شد. برای فعال‌سازی، ایمیل تأیید را بررسی کنید.",
-      redirect: data.session ? next : undefined,
-    };
-  } catch (error) {
-    return errorResult(error);
-  }
-}
-export async function requestPasswordReset(
-  form: FormData,
-): Promise<PlatformResult> {
-  try {
-    const db = await createClient();
-    const email = z.email().parse(form.get("email"));
-    const { error } = await db.auth.resetPasswordForEmail(email, {
-      redirectTo: `${siteUrl()}/auth/confirm?next=/reset-password`,
-    });
-    if (error)
-      return {
-        success: false,
-        message: "درخواست بازیابی ارسال نشد؛ دوباره تلاش کنید.",
-      };
-    return {
-      success: true,
-      message:
-        "اگر حسابی با این ایمیل وجود داشته باشد، راهنمای بازیابی برای آن ارسال می‌شود.",
-    };
-  } catch (error) {
-    return errorResult(error);
-  }
-}
 export async function updatePassword(form: FormData): Promise<PlatformResult> {
-  try {
-    const { db } = await requireMember();
-    const password = z.string().min(10).max(128).parse(form.get("password"));
-    const { error } = await db.auth.updateUser({ password });
-    if (error)
-      return {
-        success: false,
-        message: "تغییر رمز انجام نشد؛ لینک بازیابی تازه دریافت کنید.",
-      };
-    return {
-      success: true,
-      message: "رمز جدید ذخیره شد.",
-      redirect: "/account",
-    };
-  } catch (error) {
-    return errorResult(error);
-  }
+  const { setPhonePassword } = await import("@/app/phone-auth-actions");
+  return setPhonePassword(
+    String(form.get("password") ?? ""),
+    String(form.get("password_confirmation") ?? ""),
+  );
 }

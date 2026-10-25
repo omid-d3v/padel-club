@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { MemberNav } from "@/components/platform/member-nav";
 import { requireMember } from "@/lib/platform/data";
 import { PublicShell } from "@/components/platform/public-shell";
@@ -14,6 +15,7 @@ export default async function AccountLayout({
   children: React.ReactNode;
 }) {
   const m = await requireMember();
+  if (!m.profile) redirect("/onboarding");
   return (
     <PublicShell>
       <div className="public-container pt-6">

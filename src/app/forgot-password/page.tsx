@@ -1,17 +1,35 @@
-import { ActionForm } from "@/components/platform/action-form";
-import { Field } from "@/components/platform/fields";
-import { requestPasswordReset } from "@/app/platform-actions";
-export const metadata = { title: "بازیابی رمز", robots: { index: false } };
-export default function Forgot() {
+import Link from "next/link";
+import { AuthPage } from "@/components/platform/auth-page";
+import { AuthMethods } from "@/components/platform/auth-methods";
+import { publicRows } from "@/lib/platform/data";
+export const dynamic = "force-dynamic";
+export const metadata = {
+  title: "بازیابی رمز با موبایل",
+  robots: { index: false },
+};
+export default async function Forgot({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}) {
+  const [{ next }, cities] = await Promise.all([
+    searchParams,
+    publicRows("cities"),
+  ]);
   return (
-    <main id="main" className="mx-auto max-w-md space-y-6 px-6 py-20">
-      <h1 className="text-2xl font-bold">برگرد به بازی.</h1>
-      <p className="text-sm text-muted-foreground">
-        راهنمای بازیابی را به ایمیل حسابت می‌فرستیم.
+    <AuthPage
+      title="برگرد به بازی."
+      description="شماره موبایل حسابت را با پیامک تأیید کن، سپس رمز تازه بساز."
+    >
+      <AuthMethods
+        recovery
+        next={next}
+        cities={cities.rows.map(({ id, name }) => ({ id, name }))}
+        phoneEnabled={process.env.PHONE_AUTH_ENABLED === "true"}
+      />
+      <p className="auth-switch">
+        <Link href="/login">بازگشت به ورود</Link>
       </p>
-      <ActionForm action={requestPasswordReset} label="درخواست لینک بازیابی">
-        <Field label="ایمیل" name="email" type="email" required dir="ltr" />
-      </ActionForm>
-    </main>
+    </AuthPage>
   );
 }
