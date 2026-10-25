@@ -71,12 +71,27 @@ export async function submitTransferReceipt(
         contentType: extension === "jpg" ? "image/jpeg" : `image/${extension}`,
         upsert: false,
       });
-    if (uploadError)
+    if (uploadError) {
+      // Storage failures are not evidence of an expired reservation. Keep logs free of paths/PII.
+      console.error("[transfer-receipt] upload failed", {
+        status: /^\d{3}$/.test(String(uploadError.statusCode))
+          ? Number(uploadError.statusCode)
+          : undefined,
+        code:
+          "code" in uploadError &&
+          typeof uploadError.code === "string" &&
+          /^[A-Za-z]{1,48}$/.test(uploadError.code)
+            ? uploadError.code
+            : "StorageUploadFailed",
+      });
       return {
         success: false,
         message:
-          "بارگذاری عکس انجام نشد. مهلت پرداخت و اتصال را بررسی کنید؛ دوباره واریز نکنید.",
+          uploadError.statusCode === "401"
+            ? "اعتبار ورود شما تمام شده است؛ دوباره وارد شوید و همان رسید را ثبت کنید. دوباره واریز نکنید."
+            : "بارگذاری عکس رسید انجام نشد؛ صفحه را تازه کنید و دوباره تلاش کنید. اگر خطا تکرار شد با پشتیبانی تماس بگیرید؛ دوباره واریز نکنید.",
       };
+    }
     const { error } = await m.db.rpc("submit_card_receipt", {
       p_payment: payment,
       p_path: path,

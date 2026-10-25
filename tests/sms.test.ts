@@ -62,7 +62,7 @@ describe("Online Payamak transport", () => {
     });
     expect(init.method).toBe("POST");
   });
-  it("uses a stable provider localid for retry and rejects logical failures", async () => {
+  it("sends notifications through an approved pattern and rejects logical failures", async () => {
     const fetcher = vi
       .fn()
       .mockResolvedValue(
@@ -71,12 +71,42 @@ describe("Online Payamak transport", () => {
     await expect(
       sendSms(
         "09123456789",
-        { message: "رزرو ثبت شد", localId: "12300" },
+        { template: "receiptsubmitted", token: "12300" },
         { apiKey: "secret" },
         fetcher,
       ),
     ).rejects.toThrow("SMS_PROVIDER_REJECTED");
-    expect(fetcher.mock.calls[0][1].body.get("localid")).toBe("12300");
+    expect(fetcher.mock.calls[0][0]).toBe(
+      "https://api.onlinepayamak.com/v1/secret/verify/lookup.json",
+    );
+    expect(Object.fromEntries(fetcher.mock.calls[0][1].body)).toEqual({
+      receptor: "09123456789",
+      template: "receiptsubmitted",
+      token: "12300",
+    });
+  });
+  it("defaults OTP to loginotp and blocks unregistered notification templates", async () => {
+    vi.stubEnv("ONLINEPAYAMAK_API_KEY", "key");
+    vi.stubEnv("ONLINEPAYAMAK_OTP_TEMPLATE", "");
+    expect(smsConfig().otpTemplate).toBe("loginotp");
+    const fetcher = vi.fn();
+    await expect(
+      sendSms(
+        "09123456789",
+        { template: "unknown" as never, token: "42" },
+        { apiKey: "key" },
+        fetcher,
+      ),
+    ).rejects.toThrow("INVALID_SMS");
+    await expect(
+      sendSms(
+        "09123456789",
+        { template: "receiptsubmitted", token: "متن آزاد" },
+        { apiKey: "key" },
+        fetcher,
+      ),
+    ).rejects.toThrow("INVALID_SMS");
+    expect(fetcher).not.toHaveBeenCalled();
   });
   it("does not expose a secret URL in network failures", async () => {
     await expect(
