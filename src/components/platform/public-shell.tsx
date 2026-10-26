@@ -1,6 +1,6 @@
 import { BrandLogo } from "@/components/brand-logo";
 import Link from "next/link";
-import { ArrowUpLeft, Menu, UserRound } from "lucide-react";
+import { Menu, UserRound } from "lucide-react";
 import { member } from "@/lib/platform/data";
 import { Button } from "@/components/ui/button";
 import { MobileBottomNav } from "./mobile-bottom-nav";
@@ -64,11 +64,6 @@ export async function PublicShell({ children }: { children: React.ReactNode }) {
             <Link href="/help">راهنمای بازی و رزرو</Link>
             <Link href="/terms">قوانین و لغو رزرو</Link>
             <Link href="/privacy">حریم خصوصی</Link>
-            {user?.admin && (
-              <Link href="/admin">
-                ورود به مدیریت <ArrowUpLeft size={14} className="inline" />
-              </Link>
-            )}
           </nav>
         </div>
         <p className="public-container mt-12 border-t border-white/10 pt-6 text-xs text-white/45">

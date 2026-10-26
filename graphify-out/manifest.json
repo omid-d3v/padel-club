@@ -588,9 +588,9 @@
     "semantic_hash": ""
   },
   "src/components/platform/public-shell.tsx": {
-    "mtime": 1793027460.0835054,
-    "seen": 1793028776.0476408,
-    "ast_hash": "435bae55cad71ad3517fb4633b4aa233",
+    "mtime": 1793048820.4203618,
+    "seen": 1793048843.7698383,
+    "ast_hash": "dc91ec4f1fa1a186a2f9a7556087f99e",
     "semantic_hash": ""
   },
   "src/lib/booking/providers.ts": {
