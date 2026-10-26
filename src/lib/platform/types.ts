@@ -412,6 +412,7 @@ export type PlatformTables = {
 };
 type RPC<A, R = string> = { Args: A; Returns: R };
 export type PlatformFunctions = {
+  set_club_availability: RPC<{ p_club: string; p_enabled: boolean }, undefined>;
   start_payment: RPC<{
     p_participant?: string | null;
     p_registration?: string | null;

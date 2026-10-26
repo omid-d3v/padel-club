@@ -20,6 +20,8 @@ export type PlatformResult = {
   redirect?: string;
 };
 const errors: Record<string, string> = {
+  CLUB_UNAVAILABLE:
+    "این باشگاه غیرفعال است و رزرو یا پرداخت جدید برای آن امکان‌پذیر نیست.",
   PAYMENT_METHOD_DISABLED:
     "این روش پرداخت فعلاً فعال نیست؛ روش دیگری انتخاب کنید.",
   INVALID_CARD: "شماره کارت و نام صاحب حساب را کامل و معتبر وارد کنید.",
@@ -402,7 +404,9 @@ export async function platformAction(
             .map((s) => s.trim())
             .filter(Boolean)
             .slice(0, 20),
-          published: bool(form, "published"),
+          ...(!optionalId(form, "id")
+            ? { published: bool(form, "published") }
+            : {}),
           featured: bool(form, "featured"),
           booking_mode: z
             .enum(["MANUAL_APPROVAL", "EXTERNAL_AUTOMATED"])
@@ -421,6 +425,13 @@ export async function platformAction(
         out = await db.from("clubs").upsert(values);
         break;
       }
+      case "admin:club-status":
+        out = await db.rpc("set_club_availability", {
+          p_club: id(form.get("club_id")),
+          p_enabled:
+            z.enum(["true", "false"]).parse(form.get("enabled")) === "true",
+        });
+        break;
       case "admin:court":
         out = await db.from("courts").upsert({
           sport: z

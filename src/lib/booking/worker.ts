@@ -47,6 +47,8 @@ export async function runWorker() {
         .select("*")
         .eq("id", c.club_id)
         .single();
+      if (attempt.operation === "quote_hold" && !club?.published)
+        throw new Error("CLUB_UNAVAILABLE");
       const provider = providerFor(club?.provider_key ?? null);
       if (attempt.operation === "quote_hold") {
         const available = await provider.getAvailability(

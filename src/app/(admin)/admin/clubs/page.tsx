@@ -130,11 +130,17 @@ export default async function ManageClubs({
             )}
             <AdminList
               title="باشگاه‌ها"
+              description="باشگاه‌های غیرفعال فقط در مدیریت باقی می‌مانند و رزرو جدید نمی‌پذیرند. برای تغییر وضعیت، ویرایش باشگاه را باز کنید."
+              filters={[
+                { value: "active", label: "فعال" },
+                { value: "inactive", label: "غیرفعال" },
+              ]}
               items={clubs.map((c) => ({
                 id: c.id,
                 title: c.name,
                 meta: c.address,
-                badge: c.published ? "منتشرشده" : "پیش‌نویس",
+                badge: c.published ? "فعال" : "غیرفعال",
+                state: c.published ? "active" : "inactive",
                 href: `/admin/clubs?club=${c.id}#clubs`,
                 content: <></>,
               }))}
@@ -146,6 +152,43 @@ export default async function ManageClubs({
                 label={club ? "ویرایش اطلاعات" : "افزودن باشگاه"}
                 initiallyOpen={!!club || q.create === "clubs"}
               >
+                {club && (
+                  <section
+                    className="mb-6 rounded-2xl border border-border bg-muted/30 p-5"
+                    aria-label="وضعیت فعالیت باشگاه"
+                  >
+                    <h3 className="font-bold">
+                      باشگاه {club.published ? "فعال است" : "غیرفعال است"}
+                    </h3>
+                    <p className="my-3 text-sm leading-7 text-muted-foreground">
+                      {club.published
+                        ? "با غیرفعال‌سازی، باشگاه و بازی‌ها و رویدادهای آن از نمایش عمومی حذف می‌شوند و رزرو یا شروع پرداخت جدید مسدود می‌شود. سوابق و رسیدهای قبلی حفظ می‌شوند."
+                        : "باشگاه در سایت عمومی نمایش داده نمی‌شود و رزرو جدید نمی‌پذیرد. فعال‌سازی، اطلاعات و سانس‌های منتشرشدهٔ آن را دوباره در دسترس قرار می‌دهد."}
+                    </p>
+                    <ActionForm
+                      key={`${club.id}-${club.published}`}
+                      operation="admin:club-status"
+                      label={
+                        club.published
+                          ? "غیرفعال کردن باشگاه"
+                          : "فعال کردن باشگاه"
+                      }
+                      buttonVariant="outline"
+                      confirm={
+                        club.published
+                          ? `باشگاه «${club.name}» غیرفعال شود؟ رزرو جدید متوقف می‌شود؛ رزروها و پرداخت‌های قبلی حذف یا خودکار لغو نمی‌شوند.`
+                          : `باشگاه «${club.name}» دوباره در سایت نمایش داده شود و رزرو جدید بپذیرد؟`
+                      }
+                    >
+                      <input type="hidden" name="club_id" value={club.id} />
+                      <input
+                        type="hidden"
+                        name="enabled"
+                        value={String(!club.published)}
+                      />
+                    </ActionForm>
+                  </section>
+                )}
                 <ActionForm
                   key={club?.id ?? "new-club"}
                   operation="admin:club"
@@ -260,11 +303,12 @@ export default async function ManageClubs({
                     defaultValue={late}
                     required
                   />
-                  <CheckField
-                    name="published"
-                    label="انتشار عمومی پس از بررسی"
-                    checked={club?.published}
-                  />
+                  {!club && (
+                    <CheckField
+                      name="published"
+                      label="باشگاه فعال و قابل نمایش و رزرو باشد"
+                    />
+                  )}
                   <CheckField
                     name="featured"
                     label="نمایش در باشگاه‌های منتخب"

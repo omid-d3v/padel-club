@@ -33,15 +33,27 @@ export const catalog = cache(async () => {
     publicRows("courts"),
     publicRows("equipment"),
   ]);
+  const visibleClubs = clubs.rows.filter((c) => c.published);
+  const clubIds = new Set(visibleClubs.map((c) => c.id));
   return {
     cities: cities.rows,
-    clubs: clubs.rows.filter((c) => c.published),
-    courts: courts.rows.filter((c) => c.active),
-    equipment: equipment.rows.filter((e) => e.active),
+    clubs: visibleClubs,
+    courts: courts.rows.filter((c) => c.active && clubIds.has(c.club_id)),
+    equipment: equipment.rows.filter((e) => e.active && clubIds.has(e.club_id)),
     unavailable: clubs.unavailable,
   };
 });
-export const events = cache(() => publicRows("platform_events"));
+export const events = cache(async () => {
+  const [result, data] = await Promise.all([
+    publicRows("platform_events"),
+    catalog(),
+  ]);
+  const clubIds = new Set(data.clubs.map((c) => c.id));
+  return {
+    rows: result.rows.filter((e) => e.published && clubIds.has(e.club_id)),
+    unavailable: result.unavailable || data.unavailable,
+  };
+});
 export async function matches(
   id?: string,
   offset = 0,
