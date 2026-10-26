@@ -1,12 +1,19 @@
 "use client";
 import { useState } from "react";
-export function InviteButton({ title }: { title: string }) {
+export function InviteButton({
+  title,
+  href,
+}: {
+  title: string;
+  href?: string;
+}) {
   const [status, setStatus] = useState("");
   async function invite() {
+    const url = href ? new URL(href, location.origin).href : location.href;
     try {
-      if (navigator.share) await navigator.share({ title, url: location.href });
+      if (navigator.share) await navigator.share({ title, url });
       else {
-        await navigator.clipboard.writeText(location.href);
+        await navigator.clipboard.writeText(url);
         setStatus("لینک بازی کپی شد.");
       }
     } catch {

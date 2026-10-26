@@ -27,7 +27,7 @@ export function BookingAccess({
         سانس و تجهیزات انتخابی‌ات همین‌جا می‌ماند؛ شماره و اطلاعات بازی که تأیید
         شد، همین رزرو را ادامه می‌دهی.
       </p>
-      {!needsProfile && (
+      {!needsProfile && !phoneEnabled && (
         <div className="mb-5 flex gap-3" role="group" aria-label="حساب کاربری">
           <Button
             type="button"
@@ -50,6 +50,7 @@ export function BookingAccess({
       <AuthMethods
         key={String(signup)}
         signup={signup}
+        unified={phoneEnabled}
         phoneEnabled={phoneEnabled}
         next={returnTo}
         initialProfileRequired={needsProfile}

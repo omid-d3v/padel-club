@@ -87,9 +87,14 @@ export const member = cache(async () => {
   ]);
   return { db, userId: data.claims.sub, profile, admin: !!admin };
 });
-export async function requireMember() {
+export async function requireMember(next?: string) {
   const m = await member();
-  if (!m) redirect("/login");
+  if (!m)
+    redirect(
+      next && next.startsWith("/") && !next.startsWith("//")
+        ? `/login?next=${encodeURIComponent(next)}`
+        : "/login",
+    );
   return m;
 }
 export async function ownRows<

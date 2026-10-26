@@ -22,6 +22,12 @@ export type PlatformResult = {
 const errors: Record<string, string> = {
   CLUB_UNAVAILABLE:
     "این باشگاه غیرفعال است و رزرو یا پرداخت جدید برای آن امکان‌پذیر نیست.",
+  DISCOUNT_CHANGED:
+    "مبلغ یا شرایط تخفیف تغییر کرده؛ تخفیف را دوباره بررسی و مبلغ تازه را تأیید کنید.",
+  REFUND_CHANGED:
+    "مبلغ قابل بازگشت تغییر کرده است؛ شرایط لغو را دوباره بررسی کنید.",
+  SUPPORT_RATE_LIMIT:
+    "درخواست‌های اخیر شما ثبت شده‌اند؛ پاسخ را در همین صفحه دنبال کنید و کمی بعد درخواست تازه ثبت کنید.",
   PAYMENT_METHOD_DISABLED:
     "این روش پرداخت فعلاً فعال نیست؛ روش دیگری انتخاب کنید.",
   INVALID_CARD: "شماره کارت و نام صاحب حساب را کامل و معتبر وارد کنید.",
@@ -69,6 +75,8 @@ const errors: Record<string, string> = {
     "این درخواست به بررسی مدیر نیاز دارد؛ از بخش پیگیری رزرو اقدام کنید.",
   PROVIDER_REQUIRES_LIVE_QUOTE:
     "رزرو خودکار این باشگاه تا پیکربندی اتصال معتبر فعال نیست.",
+  FOUR_PAID_PLAYERS_REQUIRED:
+    "برای شروع تورنمنت، ثبت‌نام حداقل چهار بازیکن باید قطعی شود.",
   EIGHT_PAID_PLAYERS_REQUIRED: "ابتدا ثبت‌نام هشت بازیکن باید قطعی شود.",
   VERIFIED_PLAYERS_REQUIRED:
     "برای تغییر رتبه رقابتی، سطح هر چهار بازیکن باید تأیید شده باشد.",
@@ -127,6 +135,13 @@ const bool = (f: FormData, k: string) => f.get(k) === "on";
 const optionalId = (f: FormData, k: string) => (f.get(k) ? id(f.get(k)) : null);
 function iso(f: FormData, k: string) {
   return tehranLocalToISO(str(f, k));
+}
+function timeMinutes(form: FormData, name: string) {
+  const value = str(form, name, 5, 5);
+  if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(value))
+    throw new FormValueError("ساعت معتبر با قالب ۲۴ ساعته وارد کنید.");
+  const [h, m] = value.split(":").map(Number);
+  return h * 60 + m || (name === "end_time" ? 1440 : 0);
 }
 async function upload(
   f: FormData,
@@ -253,10 +268,14 @@ export async function platformAction(
           });
           if (saved.error) throw saved.error;
         }
-        out = await db.rpc("request_booking", {
+        out = await db.rpc("request_booking_checkout", {
           p_slot: id(form.get("slot_id")),
           p_kind: z.enum(["private", "open"]).parse(form.get("kind")),
           p_key: key,
+          p_code: String(form.get("discount_code") ?? ""),
+          p_expected_total: form.get("discount_total")
+            ? int(form, "discount_total", 0)
+            : null,
           p_title: String(form.get("title") ?? ""),
           p_description: String(form.get("description") ?? "").slice(0, 2000),
           p_min_skill:
@@ -298,6 +317,55 @@ export async function platformAction(
           p_equipment: equip(),
         });
         redirect = "/account/bookings";
+        break;
+      case "cancel-quoted":
+        out = await db.rpc("cancel_booking_quoted", {
+          p_booking: id(form.get("booking_id")),
+          p_reason: str(form, "reason", 2, 500),
+          p_refund: int(form, "refund", 0),
+        });
+        break;
+      case "withdraw-event":
+        out = await db.rpc("withdraw_event", {
+          p_event: id(form.get("event_id")),
+          p_refund: int(form, "refund", 0),
+        });
+        break;
+      case "support":
+        out = await db.rpc("create_support_request", {
+          p_key: id(form.get("request_key")),
+          p_subject: str(form, "subject", 3, 120),
+          p_body: str(form, "body", 10, 3000),
+          p_booking: optionalId(form, "booking_id"),
+          p_payment: optionalId(form, "payment_id"),
+          p_event: optionalId(form, "event_id"),
+        });
+        redirect = "/account/support";
+        break;
+      case "admin:support-reply":
+        out = await db.rpc("answer_support_request", {
+          p_request: id(form.get("request_id")),
+          p_reply: str(form, "reply", 3, 3000),
+        });
+        break;
+      case "notification-read":
+        out = await db
+          .from("notifications")
+          .update({ read_at: new Date().toISOString() })
+          .eq("id", id(form.get("notification_id")))
+          .eq("user_id", m.userId);
+        break;
+      case "admin:slot-visibility":
+        out = await db.rpc("set_slot_visibility", {
+          p_slot: id(form.get("slot_id")),
+          p_enabled: form.get("enabled") === "true",
+        });
+        break;
+      case "admin:delete-rule":
+        out = await db
+          .from("availability_rules")
+          .delete()
+          .eq("id", id(form.get("rule_id")));
         break;
       case "withdraw":
         out = await db.rpc("withdraw_match", {
@@ -372,7 +440,10 @@ export async function platformAction(
           p_decision: z
             .enum(["confirm", "dispute"])
             .parse(form.get("decision")),
-          p_reason: String(form.get("reason") ?? "").slice(0, 1000),
+          p_reason:
+            form.get("decision") === "dispute"
+              ? str(form, "reason", 3, 1000)
+              : String(form.get("reason") ?? "").slice(0, 1000),
         });
         break;
       case "admin:city":
@@ -400,7 +471,7 @@ export async function platformAction(
             ? formNumber(form, "longitude", -180, 180, false)
             : null,
           facilities: String(form.get("facilities") ?? "")
-            .split("،")
+            .split(/[،,]/)
             .map((s) => s.trim())
             .filter(Boolean)
             .slice(0, 20),
@@ -482,8 +553,8 @@ export async function platformAction(
           ...(optionalId(form, "id") ? { id: id(form.get("id")) } : {}),
           court_id: id(form.get("court_id")),
           weekday: int(form, "weekday", 0, 6),
-          start_minute: int(form, "start_minute", 0, 1439),
-          end_minute: int(form, "end_minute", 1, 1440),
+          start_minute: timeMinutes(form, "start_time"),
+          end_minute: timeMinutes(form, "end_time"),
           slot_minutes: int(form, "slot_minutes", 60, 120),
           price: int(form, "price") * 10,
         });

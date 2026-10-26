@@ -21,22 +21,8 @@ test("inline booking wizard, private receipt and admin review", async ({
     "true",
   );
   await page.getByRole("button", { name: "مرحلهٔ بعد", exact: true }).click();
-  await page.getByRole("button", { name: "افزایش تعداد راکت آزمون" }).click();
-  await page.getByRole("button", { name: "مرحلهٔ قبل", exact: true }).click();
-  await expect(page.locator(`[data-slot-id="${slot}"]`)).toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
-  await page.getByRole("button", { name: "مرحلهٔ بعد", exact: true }).click();
-  await expect(page.getByLabel("تعداد راکت آزمون", { exact: true })).toHaveText(
-    "۱",
-  );
-  await page
-    .getByRole("button", { name: "ادامه با این تجهیزات", exact: true })
-    .click();
   const auth = page.getByRole("region", { name: "ورود و ادامه رزرو" });
   if (project === "desktop") {
-    await auth.getByRole("button", { name: "ساخت حساب", exact: true }).click();
     await auth
       .getByLabel("شماره موبایل ایران", { exact: true })
       .fill("09120000004");
@@ -70,6 +56,10 @@ test("inline booking wizard, private receipt and admin review", async ({
     .getByRole("button", { name: "تکمیل اطلاعات و ادامه", exact: true })
     .click();
   await expect(auth).toHaveCount(0);
+  await page.locator("summary").filter({ hasText: "تجهیزات اجاره‌ای" }).click();
+  await page
+    .getByRole("button", { name: "افزایش تعداد راکت آزمون", exact: true })
+    .click();
   await expect(page.locator("button.bg-primary:visible")).toHaveCount(1);
   if (project === "mobile") {
     expect(
@@ -300,9 +290,6 @@ test("member profile → real SQL booking → admin hold → no fake payment wit
   const slot = uuid(test.info().project.name === "mobile" ? 721 : 720);
   await page.getByRole("button", { name: "رفتن به نخستین روز آزاد" }).click();
   await page.locator(`[data-slot-id="${slot}"]`).click();
-  await page
-    .getByRole("button", { name: "ادامه با این تجهیزات", exact: true })
-    .click();
   await expect(
     page.getByRole("region", { name: "اطلاعات رزروکننده" }),
   ).toHaveCount(0);
@@ -320,9 +307,7 @@ test("member profile → real SQL booking → admin hold → no fake payment wit
   await expect(countdown).toBeVisible();
   const firstTick = await countdown.innerText();
   await expect.poll(() => countdown.innerText()).not.toBe(firstTick);
-  const bookingId = await article
-    .locator('input[name="booking_id"]')
-    .getAttribute("value");
+  const bookingId = (await article.getAttribute("id"))!.replace("booking-", "");
   await expect(
     page
       .getByRole("link", { name: "پیگیری پرداخت و استرداد", exact: true })
@@ -387,10 +372,7 @@ test("member profile → real SQL booking → admin hold → no fake payment wit
   await expect(replacement).toHaveCount(0);
   await page.reload();
   const proposed = page
-    .locator("article")
-    .filter({
-      has: page.locator(`input[name="booking_id"][value="${bookingId}"]`),
-    })
+    .locator(`#booking-${bookingId}`)
     .getByRole("region", { name: "تغییر زمان رزرو" });
   await expect(proposed.getByText(/مبلغ رزرو تغییر نمی‌کند/)).toBeVisible();
   await page.screenshot({
@@ -413,7 +395,7 @@ test("member profile → real SQL booking → admin hold → no fake payment wit
       })
       .last(),
   ).toBeVisible();
-  await admin.reload();
+  await admin.goto("/admin/operations");
   await admin
     .locator(`[data-record-id="${bookingId}"]`)
     .getByRole("button", { name: /جزئیات/ })
@@ -445,9 +427,7 @@ test("member profile → real SQL booking → admin hold → no fake payment wit
     }),
   ).toHaveCount(0);
   await page.reload();
-  const receipt = page.locator("article").filter({
-    has: page.locator(`input[name="booking_id"][value="${bookingId}"]`),
-  });
+  const receipt = page.locator(`#booking-${bookingId}`);
   await expect(
     page.getByRole("button", { name: "ادامهٔ پرداخت" }).first(),
   ).toBeEnabled();

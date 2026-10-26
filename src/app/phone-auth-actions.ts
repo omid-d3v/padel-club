@@ -271,6 +271,25 @@ export async function requestNotificationPhone(phone: string) {
     return { success: false, message: "شماره موبایل ایران را کامل وارد کنید." };
   }
 }
+export async function resendNotificationPhone(phone: string) {
+  if (process.env.PHONE_AUTH_ENABLED !== "true")
+    return { success: false, message: "تأیید موبایل هنوز فعال نشده است." };
+  const { db } = await requireMember();
+  try {
+    const { error } = await db.auth.resend({
+      type: "phone_change",
+      phone: iranMobile(phone),
+    });
+    return {
+      success: !error,
+      message: error
+        ? "ارسال دوباره انجام نشد؛ کمی صبر کنید و دوباره تلاش کنید."
+        : "کد تازه برای شمارهٔ جدید ارسال شد.",
+    };
+  } catch {
+    return { success: false, message: "شماره موبایل ایران را کامل وارد کنید." };
+  }
+}
 export async function confirmNotificationPhone(phone: string, code: string) {
   if (process.env.PHONE_AUTH_ENABLED !== "true")
     return { success: false, message: "تأیید موبایل هنوز فعال نشده است." };

@@ -14,13 +14,13 @@ test("dashboard and round winner entry render with mobile-safe controls", async 
   page,
 }) => {
   await expect(
-    page.getByRole("heading", { name: "سلام، به زمین خوش آمدید 👋" }),
+    page.getByRole("heading", { name: "کارهای امروز باشگاه" }),
   ).toBeVisible();
   await page.screenshot({
     path: `test-results/dashboard-${test.info().project.name}.png`,
     fullPage: true,
   });
-  await page.getByRole("link", { name: "مشاهده مسابقات", exact: true }).click();
+  await page.goto(`/tournaments/${tid}`);
   await expect(page).toHaveURL(`/tournaments/${tid}`);
   await expect(page.getByRole("heading", { name: "جدول زنده" })).toBeVisible();
   expect(

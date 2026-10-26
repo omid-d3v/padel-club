@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { sportName } from "@/lib/product";
 import Image from "next/image";
 import { ArrowUpLeft, MapPin, Clock3, Users, ShieldCheck } from "lucide-react";
 import type {
@@ -22,12 +23,28 @@ export function DataNotice({ unavailable }: { unavailable: boolean }) {
     </p>
   ) : null;
 }
-export function PublicEmpty({ title, body }: { title: string; body: string }) {
+export function PublicEmpty({
+  title,
+  body,
+  href = "/clubs",
+  action = "دیدن زمین‌ها و شروع بازی",
+}: {
+  title: string;
+  body: string;
+  href?: string;
+  action?: string;
+}) {
   return (
     <div className="public-empty">
       <span aria-hidden>↗</span>
       <h3>{title}</h3>
       <p>{body}</p>
+      <Link
+        className="mt-5 inline-flex min-h-11 items-center rounded-xl bg-primary px-5 font-bold"
+        href={href}
+      >
+        {action}
+      </Link>
     </div>
   );
 }
@@ -35,20 +52,30 @@ export function ClubCard({
   club,
   courts,
   city,
+  sport = "padel",
+  kind,
 }: {
   club: Club;
   courts: Court[];
   city?: City;
+  sport?: string;
+  kind?: string;
 }) {
+  const sports = [
+    ...new Set(courts.filter((c) => c.club_id === club.id).map((c) => c.sport)),
+  ];
   const prices = courts
-    .filter((c) => c.club_id === club.id)
+    .filter((c) => c.club_id === club.id && c.sport === sport)
     .map((c) => c.hourly_price);
   const url =
     club.photo_path && process.env.NEXT_PUBLIC_SUPABASE_URL
       ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/club-images/${club.photo_path}`
       : null;
   return (
-    <Link href={`/clubs/${club.slug}`} className="discovery-card">
+    <Link
+      href={`/clubs/${club.slug}?${new URLSearchParams({ sport, ...(kind === "open" ? { kind: "open" } : {}) })}`}
+      className="discovery-card"
+    >
       <div className="club-cover">
         {url ? (
           <Image
@@ -69,6 +96,7 @@ export function ClubCard({
       </div>
       <div className="p-6">
         <h3 className="text-xl font-bold">{club.name}</h3>
+        <p className="mt-2 text-sm">{sports.map(sportName).join(" · ")}</p>
         <p className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
           <MapPin size={14} />
           {club.address}
@@ -79,8 +107,8 @@ export function ClubCard({
         <div className="flex items-center justify-between border-t border-border pt-4">
           <span className="text-xs">
             {prices.length
-              ? `از ${money(Math.min(...prices))} / ساعت`
-              : "قیمت در سانس‌های منتشرشده"}
+              ? `${sportName(sport)} از ${money(Math.min(...prices))} / ساعت`
+              : `سانس ${sportName(sport)} منتشر نشده`}
           </span>
           <ArrowUpLeft size={19} />
         </div>

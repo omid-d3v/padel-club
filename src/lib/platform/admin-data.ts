@@ -19,3 +19,10 @@ export async function adminRows<K extends keyof Tables>(table: K) {
     if (batch.length < 500) return rows;
   }
 }
+
+export async function operationsSummary() {
+  const db = await requireAdmin();
+  const { data, error } = await db.rpc("operations_summary");
+  if (error || !data) throw new Error("دریافت صف اقدام انجام نشد.");
+  return data;
+}

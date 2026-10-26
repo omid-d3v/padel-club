@@ -14,6 +14,8 @@ export function ActionForm({
   label = "ذخیره",
   className = "form-stack",
   confirm,
+  confirmWhen,
+  clearDraft,
   action,
   disabled = false,
   buttonVariant = "outline",
@@ -23,10 +25,12 @@ export function ActionForm({
   actionBarClassName,
 }: {
   operation?: string;
+  clearDraft?: string;
   children?: React.ReactNode;
   label?: string;
   className?: string;
   confirm?: string;
+  confirmWhen?: { field: string; original: string; message: string };
   action?: (form: FormData) => Promise<PlatformResult>;
   disabled?: boolean;
   buttonVariant?: ComponentProps<typeof Button>["variant"];
@@ -38,6 +42,7 @@ export function ActionForm({
   const router = useRouter();
   const [pending, start] = useTransition();
   const [result, setResult] = useState<PlatformResult | null>(null);
+  const [confirmationText, setConfirmationText] = useState(confirm ?? "");
   const [confirmation, setConfirmation] = useState<FormData | null>(null);
   const run = (form: FormData) => {
     setConfirmation(null);
@@ -48,6 +53,11 @@ export function ActionForm({
           : await platformAction(operation ?? "", form);
         setResult(r);
         if (r.success) {
+          if (clearDraft) {
+            try {
+              sessionStorage.removeItem(clearDraft);
+            } catch {}
+          }
           toast.success(r.message);
           if (onSuccess) {
             onSuccess(r);
@@ -80,8 +90,15 @@ export function ActionForm({
           if (!showSubmit) return;
           if (pending) return;
           const f = new FormData(e.currentTarget);
-          if (confirm) setConfirmation(f);
-          else run(f);
+          const prompt =
+            confirmWhen &&
+            String(f.get(confirmWhen.field) ?? "") !== confirmWhen.original
+              ? confirmWhen.message
+              : confirm;
+          if (prompt) {
+            setConfirmationText(prompt);
+            setConfirmation(f);
+          } else run(f);
         }}
       >
         <fieldset disabled={pending} className="contents">
@@ -121,14 +138,14 @@ export function ActionForm({
           )}
         </div>
       </form>
-      {confirm && (
+      {(confirm || confirmWhen) && (
         <Dialog
           open={confirmation !== null}
           onOpenChange={(o) => {
             if (!o) setConfirmation(null);
           }}
           title="تأیید درخواست"
-          description={confirm}
+          description={confirmationText}
         >
           <div className="flex gap-3">
             <Button

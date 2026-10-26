@@ -23,13 +23,14 @@ import {
   type AuthProfile,
   type PhoneAuthResult,
 } from "@/lib/auth-flow";
-import { SKILLS } from "@/lib/platform/types";
+import { SkillOptions, SkillHelp } from "./skill-select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 type Stage = "phone" | "code" | "profile" | "password";
 export function AuthMethods({
   signup = false,
+  unified = false,
   next,
   phoneEnabled = false,
   onAuthenticated,
@@ -39,6 +40,7 @@ export function AuthMethods({
   recovery = false,
 }: {
   signup?: boolean;
+  unified?: boolean;
   next?: string;
   phoneEnabled?: boolean;
   onAuthenticated?: () => void;
@@ -98,7 +100,11 @@ export function AuthMethods({
     } else navigate(result);
   };
   const sendCode = async () => {
-    const result = await requestPhoneCode(phone, signup, accepted);
+    const result = await requestPhoneCode(
+      phone,
+      signup || (unified && !recovery),
+      accepted,
+    );
     setMessage(result.message);
     setFailed(!result.success);
     if (result.success) {
@@ -296,7 +302,7 @@ export function AuthMethods({
                       ? "برای ورود با کد، نیازی به رمز ندارید."
                       : "با شماره موبایل و رمز حساب خود وارد شوید."}
               </p>
-              {signup && (
+              {(signup || (unified && mode === "otp" && !recovery)) && (
                 <label className="auth-consent">
                   <input
                     name="acceptedTerms"
@@ -386,18 +392,10 @@ export function AuthMethods({
                   <option value="" disabled>
                     سطح خود را انتخاب کنید
                   </option>
-                  {SKILLS.map((skill, index) => (
-                    <option key={skill} value={index}>
-                      {skill}
-                      {index === 0
-                        ? " · تازه‌کار"
-                        : index === 5
-                          ? " · پیشرفته"
-                          : ""}
-                    </option>
-                  ))}
+                  <SkillOptions />
                 </select>
               </label>
+              <SkillHelp />
               {cities.length > 0 && (
                 <label className="auth-field">
                   شهر{" "}

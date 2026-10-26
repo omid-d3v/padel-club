@@ -6,11 +6,13 @@ import { ActionForm } from "./action-form";
 import { EquipmentIcon } from "./sport-icon";
 import { QuantityStepper } from "@/components/ui/quantity-stepper";
 export function JoinForm({
+  basePrice = 0,
   matchId,
   equipment,
   pending,
   disabled,
 }: {
+  basePrice?: number;
   matchId: string;
   equipment: Equipment[];
   pending: boolean;
@@ -57,6 +59,16 @@ export function JoinForm({
           ))}
         </fieldset>
       )}
+      <p className="font-bold">
+        مجموع سهم شما:{" "}
+        {money(
+          basePrice +
+            equipment.reduce(
+              (total, e) => total + e.price * (quantities[e.id] ?? 0),
+              0,
+            ),
+        )}
+      </p>
       <p className="text-xs leading-7 text-muted-foreground">
         موجودی و هزینه نهایی در سرور بررسی می‌شود. تجهیزات شخصی فقط به سهم شما
         افزوده می‌شود.

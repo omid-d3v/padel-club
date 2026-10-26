@@ -25,6 +25,8 @@ export function AvailabilityPicker({
   value,
   onChange,
   bookingHref,
+  priceMode = "private",
+  fee = 0,
 }: {
   slots: AvailableSlot[];
   now: number;
@@ -32,6 +34,8 @@ export function AvailabilityPicker({
   value?: string;
   onChange?: (id: string) => void;
   bookingHref?: string;
+  priceMode?: "private" | "open";
+  fee?: number;
 }) {
   const usable = slots
     .filter((s) => Date.parse(s.starts_at) > now)
@@ -150,7 +154,11 @@ export function AvailabilityPicker({
                         دقیقه
                       </span>
                       <span>
-                        {s.available ? money(s.court_price) : "در دسترس نیست"}
+                        {s.available
+                          ? priceMode === "open"
+                            ? `${money(Math.floor(s.court_price / 4) + (s.court_price % 4) + fee)} سهم پایهٔ تو`
+                            : `${money(s.court_price)} کل زمین`
+                          : "در دسترس نیست"}
                       </span>
                     </span>
                   </button>

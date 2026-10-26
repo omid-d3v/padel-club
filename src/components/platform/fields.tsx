@@ -1,3 +1,5 @@
+"use client";
+import { useId } from "react";
 import { Input } from "@/components/ui/input";
 import { JalaliDateInput } from "@/components/ui/jalali-date-input";
 import type { ComponentProps } from "react";
@@ -5,18 +7,22 @@ export function Field({
   label,
   ...props
 }: ComponentProps<"input"> & { label: string }) {
+  const generatedId = useId();
+  const id = props.id ?? generatedId;
   return (
-    <label className="field">
-      {label}
+    <div className="field">
+      <label htmlFor={id}>{label}</label>
       {props.type === "date" || props.type === "datetime-local" ? (
         <JalaliDateInput
           {...props}
+          id={id}
+          calendarLabel={`انتخاب ${label}`}
           type={props.type === "date" ? "date" : "datetime-local"}
         />
       ) : (
-        <Input {...props} />
+        <Input {...props} id={id} />
       )}
-    </label>
+    </div>
   );
 }
 export function SelectField({

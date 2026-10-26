@@ -16,10 +16,12 @@ import {
   signInPhonePassword,
   completePhoneProfile,
   setPhonePassword,
+  resendNotificationPhone,
 } from "../src/app/phone-auth-actions";
 import { legacyAdminIdentity } from "../src/lib/phone-auth";
 const userId = "20000000-0000-4000-8000-000000000010";
 const adminId = "20000000-0000-4000-8000-000000000001";
+const resend = vi.fn();
 const signInWithOtp = vi.fn(),
   verifyOtp = vi.fn(),
   signInWithPassword = vi.fn(),
@@ -33,6 +35,7 @@ const profileRead = vi.fn(),
   adminEq = vi.fn();
 const db = {
   auth: {
+    resend,
     signInWithOtp,
     verifyOtp,
     signInWithPassword,
@@ -355,4 +358,14 @@ describe("profile completion and password setup", () => {
     ).toBe(false);
     expect(updateUser).not.toHaveBeenCalled();
   });
+});
+
+it("resends a phone-change code through the authenticated resend endpoint", async () => {
+  resend.mockResolvedValue({ error: null });
+  expect((await resendNotificationPhone("۰۹۱۲۳۴۵۶۷۸۹")).success).toBe(true);
+  expect(resend).toHaveBeenCalledWith({
+    type: "phone_change",
+    phone: "+989123456789",
+  });
+  expect((await resendNotificationPhone("bad-number")).success).toBe(false);
 });

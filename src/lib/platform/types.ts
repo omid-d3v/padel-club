@@ -274,6 +274,28 @@ export interface CalendarConnection {
   created_at: string;
 }
 export type PlatformTables = {
+  support_requests: Table<{
+    id: string;
+    user_id: string;
+    request_key: string;
+    booking_id: string | null;
+    payment_id: string | null;
+    event_id: string | null;
+    subject: string;
+    body: string;
+    status: "open" | "answered";
+    reply: string | null;
+    replied_by: string | null;
+    created_at: string;
+    replied_at: string | null;
+  }>;
+  result_confirmations: Table<{
+    result_id: string;
+    user_id: string;
+    decision: string;
+    reason: string | null;
+    created_at: string;
+  }>;
   payment_settings: Table<{
     id: boolean;
     zarinpal_enabled: boolean;
@@ -412,6 +434,57 @@ export type PlatformTables = {
 };
 type RPC<A, R = string> = { Args: A; Returns: R };
 export type PlatformFunctions = {
+  operations_summary: {
+    Args: Record<string, never>;
+    Returns: {
+      pending: number;
+      queue: number;
+      expiring: number;
+      refunds: number;
+      attention: number;
+      receipts: number;
+      support: number;
+    };
+  };
+  event_ready: RPC<{ p_event: string }, boolean>;
+  quote_booking_discount: RPC<
+    { p_slot: string; p_kind: string; p_equipment: Json; p_code: string },
+    { original: number; discount: number; total: number }
+  >;
+  request_booking_checkout: RPC<{
+    p_slot: string;
+    p_kind: string;
+    p_key: string;
+    p_title?: string;
+    p_description?: string;
+    p_min_skill?: number | null;
+    p_max_skill?: number | null;
+    p_equipment?: Json;
+    p_code?: string;
+    p_expected_total?: number | null;
+  }>;
+  booking_cancellation_quote: RPC<
+    { p_booking: string },
+    { paid: number; refund: number; allowed: boolean }
+  >;
+  cancel_booking_quoted: RPC<
+    { p_booking: string; p_reason: string; p_refund: number },
+    undefined
+  >;
+  withdraw_event: RPC<{ p_event: string; p_refund: number }, undefined>;
+  create_support_request: RPC<{
+    p_key: string;
+    p_subject: string;
+    p_body: string;
+    p_booking?: string | null;
+    p_payment?: string | null;
+    p_event?: string | null;
+  }>;
+  answer_support_request: RPC<
+    { p_request: string; p_reply: string },
+    undefined
+  >;
+  set_slot_visibility: RPC<{ p_slot: string; p_enabled: boolean }, undefined>;
   set_club_availability: RPC<{ p_club: string; p_enabled: boolean }, undefined>;
   start_payment: RPC<{
     p_participant?: string | null;

@@ -12,7 +12,7 @@ export default async function Results({
   if (!results.length) notFound();
   const king = results[0];
   return (
-    <>
+    <section className="public-container public-page">
       <div className="mb-6">
         <BackLink href="/leaderboard" label="لیدربرد بازیکنان" />
       </div>
@@ -46,6 +46,6 @@ export default async function Results({
       <p className="mt-4 text-xs leading-7 text-muted-foreground">
         ترتیب: برد بازی، برد راند، تفاضل راند و در تساوی کامل، اسلات اولیه.
       </p>
-    </>
+    </section>
   );
 }

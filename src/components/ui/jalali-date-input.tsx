@@ -30,9 +30,10 @@ type Props = Pick<
   | "max"
   | "form"
   | "aria-label"
-> & { type?: "date" | "datetime-local" };
+> & { type?: "date" | "datetime-local"; calendarLabel?: string };
 export function JalaliDateInput({
   type = "date",
+  calendarLabel = "باز کردن تقویم شمسی",
   name,
   defaultValue,
   required,
@@ -146,7 +147,7 @@ export function JalaliDateInput({
             e.preventDefault();
             showCalendar();
           }}
-          aria-label="باز کردن تقویم شمسی"
+          aria-label={calendarLabel}
           aria-haspopup="dialog"
           aria-expanded={open}
           className="absolute right-0 top-0 grid size-12 place-items-center rounded-xl text-emerald-900 outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 disabled:opacity-50"

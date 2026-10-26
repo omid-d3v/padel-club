@@ -3026,3 +3026,54 @@ a:focus-visible {
     display: flex;
   }
 }
+
+/* Shared product refinements: readable helpers, stable profile hierarchy. */
+.auth-hint,
+.auth-consent {
+  font-size: 13px;
+  color: #4d6045;
+}
+.auth-steps {
+  color: #4d6045;
+}
+.profile-main {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+}
+.profile-phone {
+  grid-column: 2;
+  grid-row: 1;
+}
+.profile-aside {
+  grid-column: 2;
+  grid-row: 2;
+}
+.account-nav {
+  scrollbar-width: thin;
+  scroll-padding-inline: 16px;
+}
+@media (max-width: 767px) {
+  .profile-content-grid {
+    display: flex;
+    flex-direction: column;
+  }
+  .profile-main {
+    order: 0;
+  }
+  .profile-phone {
+    order: 1;
+  }
+  .profile-aside {
+    order: 2;
+  }
+  .account-nav {
+    border-inline-end: 3px solid #a6bd8d;
+  }
+}
+
+@media (min-width: 1024px) {
+  .account-nav {
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+}

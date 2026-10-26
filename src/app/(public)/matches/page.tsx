@@ -53,7 +53,7 @@ export default async function Matches({
           <h1>بازی خوب، با آدم‌های خوب.</h1>
         </div>
         <Button asChild>
-          <Link href="/clubs">ساخت بازی تازه</Link>
+          <Link href="/clubs?kind=open">ساخت بازی تازه</Link>
         </Button>
       </div>
       <p className="intro mb-8">
@@ -92,15 +92,29 @@ export default async function Matches({
           جست‌وجوی بازی
         </button>
       </form>
+      {(skill !== undefined || city || date) && (
+        <Link
+          href="/matches"
+          className="mb-5 inline-flex min-h-11 items-center underline"
+        >
+          پاک‌کردن فیلترها و دیدن همهٔ بازی‌ها
+        </Link>
+      )}
       {games.rows.length ? (
         <div className="discovery-grid">
           {games.rows.map((m) => (
             <MatchCardPublic key={m.id} match={m} />
           ))}
         </div>
-      ) : (
+      ) : games.unavailable ? null : (
         <PublicEmpty
-          title="هنوز بازیِ باز منتشر نشده."
+          title={
+            skill !== undefined || city || date
+              ? "بازی‌ای با این فیلترها پیدا نشد."
+              : "اولین بازی این جمع را بساز."
+          }
+          href="/clubs?kind=open"
+          action="ساخت بازی باز"
           body="یک باشگاه و سانس انتخاب کن و بازی خودت را بساز؛ نفرهای بعدی از همین صفحه به تو می‌پیوندند."
         />
       )}

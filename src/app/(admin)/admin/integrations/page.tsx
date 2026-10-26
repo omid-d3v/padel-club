@@ -169,6 +169,12 @@ export default async function Integrations() {
               >
                 <ActionForm
                   operation="admin:calendar-configure"
+                  confirmWhen={{
+                    field: "club_id",
+                    original: c.club_id ?? "",
+                    message:
+                      "باشگاه مقصد تغییر می‌کند. نگاشت‌های قبلی پاک و سانس‌های واردشده غیرفعال می‌شوند. رزروهای موجود حفظ می‌شوند. ادامه می‌دهید؟",
+                  }}
                   label="ذخیره تنظیمات اتصال"
                   className="grid gap-4 md:grid-cols-3"
                 >

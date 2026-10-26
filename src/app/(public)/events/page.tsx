@@ -33,7 +33,7 @@ export default async function Events() {
               />
             ))}
         </div>
-      ) : (
+      ) : ev.unavailable ? null : (
         <PublicEmpty
           title="منتظر رقابت بعدی باشگاه باش."
           body="رویدادها پس از ثبت و تأیید اطلاعات توسط برگزارکننده منتشر می‌شوند."

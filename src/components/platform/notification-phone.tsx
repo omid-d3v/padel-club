@@ -1,8 +1,9 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import {
   requestNotificationPhone,
+  resendNotificationPhone,
   confirmNotificationPhone,
 } from "@/app/phone-auth-actions";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,12 @@ export function NotificationPhone({
   const [phone, setPhone] = useState(""),
     [sent, setSent] = useState(false),
     [message, setMessage] = useState("");
+  const [retryIn, setRetryIn] = useState(0);
+  useEffect(() => {
+    if (retryIn <= 0) return;
+    const timer = setTimeout(() => setRetryIn(retryIn - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [retryIn]);
   const [pending, start] = useTransition();
   return (
     <section className="platform-card my-5 space-y-4">
@@ -37,6 +44,7 @@ export function NotificationPhone({
             setMessage(result.message);
             if (result.success) {
               setSent(!sent);
+              if (!sent) setRetryIn(60);
               if (sent) router.refresh();
             }
           });
@@ -84,7 +92,30 @@ export function NotificationPhone({
               : "دریافت کد تأیید شماره"}
         </Button>
         {sent && (
-          <Button variant="ghost" type="button" onClick={() => setSent(false)}>
+          <Button
+            variant="outline"
+            type="button"
+            disabled={pending || retryIn > 0}
+            onClick={() =>
+              start(async () => {
+                const result = await resendNotificationPhone(phone);
+                setMessage(result.message);
+                if (result.success) setRetryIn(60);
+              })
+            }
+          >
+            {retryIn > 0
+              ? `ارسال مجدد تا ${retryIn.toLocaleString("fa-IR")} ثانیه دیگر`
+              : "ارسال دوبارهٔ کد"}
+          </Button>
+        )}
+        {sent && (
+          <Button
+            variant="ghost"
+            type="button"
+            disabled={pending}
+            onClick={() => setSent(false)}
+          >
             ویرایش شماره
           </Button>
         )}

@@ -1,7 +1,15 @@
 "use client";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useTransition,
+  startTransition,
+  type ReactNode,
+} from "react";
 import type { Club, Court, Equipment, Slot } from "@/lib/platform/types";
-import { SKILLS } from "@/lib/platform/types";
+import { SkillOptions, SkillHelp } from "./skill-select";
+import { previewBookingDiscount } from "@/app/product-actions";
 import { money, moment, time, cancellationText } from "@/lib/platform/format";
 import { ActionForm } from "./action-form";
 import { Field } from "./fields";
@@ -57,8 +65,6 @@ export function BookingForm({
       initialSlotId && initialKind === "private" ? 1 : 0,
     ),
     [error, setError] = useState("");
-  const skipInformation = authenticated && !needsProfile;
-  const step = rawStep === 3 && skipInformation ? 4 : rawStep;
   const [name, setName] = useState(""),
     [skill, setSkill] = useState("1"),
     [title, setTitle] = useState(""),
@@ -67,6 +73,96 @@ export function BookingForm({
     [max, setMax] = useState(""),
     [accepted, setAccepted] = useState(false),
     [chosenMethod, setMethod] = useState("");
+  const [hydrated, setHydrated] = useState(false);
+  const draftKey = `matchsho:booking:${club.id}`;
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(draftKey);
+      const saved = raw ? JSON.parse(raw) : null;
+      startTransition(() => {
+        if (saved && saved.version === 1 && Date.now() - saved.at < 7200000) {
+          if (
+            initialKind !== "open" &&
+            (saved.kind === "open" || saved.kind === "private")
+          )
+            setKind(saved.kind);
+          setTitle(String(saved.title ?? "").slice(0, 100));
+          setDescription(String(saved.description ?? "").slice(0, 2000));
+          setMin(/^[0-5]$/.test(saved.min) ? saved.min : "");
+          setMax(/^[0-5]$/.test(saved.max) ? saved.max : "");
+          setQuantities(
+            Object.fromEntries(
+              equipment.flatMap((e) => {
+                const n = saved.quantities?.[e.id];
+                return Number.isInteger(n) && n > 0
+                  ? [[e.id, Math.min(n, e.stock, 20)]]
+                  : [];
+              }),
+            ),
+          );
+          if (
+            !initialSlotId &&
+            saved.court === court.id &&
+            slots.some((s) => s.id === saved.slot && s.available)
+          )
+            setSlotId(saved.slot);
+        }
+        setHydrated(true);
+      });
+    } catch {
+      startTransition(() => setHydrated(true));
+    }
+    // Restore once for this court/date; prices and availability always come from the server.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draftKey]);
+  const skipInformation = authenticated && !needsProfile;
+  const step = rawStep === 3 && skipInformation ? 4 : rawStep;
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      sessionStorage.setItem(
+        draftKey,
+        JSON.stringify({
+          version: 1,
+          at: Date.now(),
+          court: court.id,
+          slot: slotId,
+          kind,
+          title,
+          description,
+          min,
+          max,
+          quantities,
+        }),
+      );
+    } catch {}
+  }, [
+    hydrated,
+    draftKey,
+    court.id,
+    slotId,
+    kind,
+    title,
+    description,
+    min,
+    max,
+    quantities,
+  ]);
+  const [discountCode, setDiscountCode] = useState(""),
+    [discount, setDiscount] = useState<{
+      key: string;
+      total: number;
+      discount: number;
+    } | null>(null),
+    [discountMessage, setDiscountMessage] = useState("");
+  const [checkingDiscount, checkDiscount] = useTransition();
+  const discountKey = JSON.stringify([
+    slotId,
+    kind,
+    quantities,
+    discountCode.trim().toUpperCase(),
+  ]);
+  const appliedDiscount = discount?.key === discountKey ? discount : null;
   const root = useRef<HTMLDivElement>(null),
     heading = useRef<HTMLHeadingElement>(null),
     mounted = useRef(false);
@@ -109,7 +205,8 @@ export function BookingForm({
           : "";
   const go = (next: number) => {
     setError("");
-    setStep(next === 3 && skipInformation ? (step > next ? 2 : 4) : next);
+    const target = next === 2 ? (step > 2 ? 1 : 3) : next;
+    setStep(target === 3 && skipInformation ? (step > target ? 1 : 4) : target);
   };
   const next = () => {
     if (
@@ -146,6 +243,10 @@ export function BookingForm({
       className="mx-auto max-w-2xl scroll-mt-24"
       data-booking-step={step}
     >
+      <p className="mb-3 text-sm">
+        انتخاب‌ها تا دو ساعت در همین مرورگر حفظ می‌شوند؛ مبلغ و موجودی هنگام ثبت
+        بررسی می‌شوند.
+      </p>
       <BookingProgress
         step={step}
         skipInformation={skipInformation}
@@ -178,7 +279,7 @@ export function BookingForm({
             className="booking-auth-back"
             variant="outline"
             type="button"
-            onClick={() => go(2)}
+            onClick={() => go(1)}
           >
             مرحلهٔ قبل
           </Button>
@@ -186,6 +287,7 @@ export function BookingForm({
       ) : (
         <ActionForm
           operation="request"
+          clearDraft={draftKey}
           className="space-y-5"
           showSubmit={step === 4}
           buttonVariant="default"
@@ -217,6 +319,8 @@ export function BookingForm({
                 : "ثبت رزرو"
           }
           disabled={
+            (directPay && !!discountCode.trim() && !appliedDiscount) ||
+            checkingDiscount ||
             !authenticated ||
             !slot ||
             (directPay && !method) ||
@@ -224,6 +328,20 @@ export function BookingForm({
           }
         >
           <input type="hidden" name="kind" value={kind} />
+          <input
+            type="hidden"
+            name="discount_code"
+            value={
+              directPay && appliedDiscount
+                ? discountCode.trim().toUpperCase()
+                : ""
+            }
+          />
+          <input
+            type="hidden"
+            name="discount_total"
+            value={directPay && appliedDiscount ? appliedDiscount.total : ""}
+          />
           <input type="hidden" name="slot_id" value={slot?.id ?? ""} />
           <input type="hidden" name="idempotency_key" value={key} />
           <input
@@ -332,6 +450,7 @@ export function BookingForm({
                       className="platform-textarea"
                     />
                   </label>
+                  <SkillHelp />
                   <div className="grid grid-cols-2 gap-3">
                     <label className="field">
                       حداقل سطح
@@ -340,11 +459,7 @@ export function BookingForm({
                         onChange={(e) => setMin(e.target.value)}
                       >
                         <option value="">بدون محدودیت</option>
-                        {SKILLS.map((s, i) => (
-                          <option key={s} value={i}>
-                            {s}
-                          </option>
-                        ))}
+                        <SkillOptions />
                       </select>
                     </label>
                     <label className="field">
@@ -354,11 +469,7 @@ export function BookingForm({
                         onChange={(e) => setMax(e.target.value)}
                       >
                         <option value="">بدون محدودیت</option>
-                        {SKILLS.map((s, i) => (
-                          <option key={s} value={i}>
-                            {s}
-                          </option>
-                        ))}
+                        <SkillOptions />
                       </select>
                     </label>
                   </div>
@@ -369,6 +480,8 @@ export function BookingForm({
           {step === 1 && (
             <div className="platform-card">
               <AvailabilityPicker
+                priceMode={kind}
+                fee={court.platform_fee}
                 slots={slots.map((s) => ({
                   ...s,
                   available: active.some((a) => a.id === s.id),
@@ -379,51 +492,10 @@ export function BookingForm({
                 onChange={(id) => {
                   setSlotId(id);
                   setKey(crypto.randomUUID());
-                  if (id) go(2);
+                  if (id) go(3);
                 }}
               />
             </div>
-          )}
-          {step === 2 && (
-            <section className="platform-card space-y-4">
-              <p className="text-sm leading-7 text-muted-foreground">
-                انتخاب تجهیزات اختیاری است. اگر وسایل خودت را داری، بدون انتخاب
-                ادامه بده.
-              </p>
-              {equipment.length ? (
-                equipment.map((e) => (
-                  <div className="equipment-choice" key={e.id}>
-                    <span className="flex items-center gap-3 text-sm">
-                      <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-emerald-50 text-emerald-900">
-                        <EquipmentIcon name={e.name} />
-                      </span>
-                      <span>
-                        {e.name}
-                        <small className="mt-1 block text-muted-foreground">
-                          {money(e.price)} ·{" "}
-                          {e.kind === "shared" && kind === "open"
-                            ? "بین چهار نفر تقسیم می‌شود"
-                            : "برای انتخاب تو"}
-                        </small>
-                      </span>
-                    </span>
-                    <QuantityStepper
-                      label={e.name}
-                      value={quantities[e.id] ?? 0}
-                      max={Math.min(20, e.stock)}
-                      onChange={(value) => {
-                        setQuantities((p) => ({ ...p, [e.id]: value }));
-                        setKey(crypto.randomUUID());
-                      }}
-                    />
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm">
-                  تجهیزات اجاره‌ای منتشر نشده؛ وسایل شخصی همراه داشته باش.
-                </p>
-              )}
-            </section>
           )}
           {step === 3 && (
             <section
@@ -450,11 +522,7 @@ export function BookingForm({
                       value={skill}
                       onChange={(e) => setSkill(e.target.value)}
                     >
-                      {SKILLS.map((s, i) => (
-                        <option key={s} value={i}>
-                          {s}
-                        </option>
-                      ))}
+                      <SkillOptions />
                     </select>
                   </label>
                 </>
@@ -475,6 +543,50 @@ export function BookingForm({
                   ? moment(slot.starts_at)
                   : "سانس انتخاب‌شده دیگر در دسترس نیست"}
               </p>
+              <details className="rounded-xl border border-border p-4">
+                <summary className="min-h-11 cursor-pointer font-bold">
+                  تجهیزات اجاره‌ای؛ اختیاری
+                </summary>{" "}
+                <section className="platform-card space-y-4">
+                  <p className="text-sm leading-7 text-muted-foreground">
+                    انتخاب تجهیزات اختیاری است. اگر وسایل خودت را داری، بدون
+                    انتخاب ادامه بده.
+                  </p>
+                  {equipment.length ? (
+                    equipment.map((e) => (
+                      <div className="equipment-choice" key={e.id}>
+                        <span className="flex items-center gap-3 text-sm">
+                          <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-emerald-50 text-emerald-900">
+                            <EquipmentIcon name={e.name} />
+                          </span>
+                          <span>
+                            {e.name}
+                            <small className="mt-1 block text-muted-foreground">
+                              {money(e.price)} ·{" "}
+                              {e.kind === "shared" && kind === "open"
+                                ? "بین چهار نفر تقسیم می‌شود"
+                                : "برای انتخاب تو"}
+                            </small>
+                          </span>
+                        </span>
+                        <QuantityStepper
+                          label={e.name}
+                          value={quantities[e.id] ?? 0}
+                          max={Math.min(20, e.stock)}
+                          onChange={(value) => {
+                            setQuantities((p) => ({ ...p, [e.id]: value }));
+                            setKey(crypto.randomUUID());
+                          }}
+                        />
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm">
+                      تجهیزات اجاره‌ای منتشر نشده؛ وسایل شخصی همراه داشته باش.
+                    </p>
+                  )}
+                </section>
+              </details>
               <dl className="price-lines">
                 <div>
                   <dt>{kind === "open" ? "سهم زمین" : "زمین"}</dt>
@@ -494,9 +606,69 @@ export function BookingForm({
                 </div>
                 <div>
                   <dt>{kind === "open" ? "برآورد سهم تو" : "جمع پرداخت"}</dt>
-                  <dd>{money(total)}</dd>
+                  <dd>{money(appliedDiscount?.total ?? total)}</dd>
                 </div>
               </dl>
+              {directPay && (
+                <details className="rounded-xl border border-border p-4">
+                  <summary className="min-h-11 cursor-pointer text-sm font-bold">
+                    کد تخفیف دارم
+                  </summary>
+                  <label className="field">
+                    کد تخفیف
+                    <input
+                      className="min-h-12 rounded-xl border p-3"
+                      value={discountCode}
+                      maxLength={40}
+                      dir="ltr"
+                      onChange={(e) => {
+                        setDiscountCode(e.target.value);
+                        setDiscountMessage("");
+                      }}
+                    />
+                  </label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={!slot || !discountCode.trim() || checkingDiscount}
+                    onClick={() =>
+                      checkDiscount(async () => {
+                        if (!slot) return;
+                        const result = await previewBookingDiscount({
+                          slot: slot.id,
+                          kind,
+                          code: discountCode.trim(),
+                          equipment: Object.entries(quantities)
+                            .filter(([, n]) => n > 0)
+                            .map(([id, quantity]) => ({ id, quantity })),
+                        });
+                        setDiscountMessage(result.message);
+                        if (result.quote)
+                          setDiscount({ key: discountKey, ...result.quote });
+                        else setDiscount(null);
+                      })
+                    }
+                  >
+                    {checkingDiscount
+                      ? "در حال بررسی تخفیف…"
+                      : "بررسی و اعمال تخفیف"}
+                  </Button>
+                  <p role="status" className="mt-3 text-sm">
+                    {discountMessage}
+                  </p>
+                  {appliedDiscount && (
+                    <p className="text-sm font-bold text-emerald-800">
+                      تخفیف: {money(appliedDiscount.discount)}؛ جمع پرداخت:{" "}
+                      {money(appliedDiscount.total)}
+                    </p>
+                  )}
+                  {discountCode.trim() && !appliedDiscount && (
+                    <p className="text-sm">
+                      پیش از ادامه، کد را بررسی یا پاک کنید.
+                    </p>
+                  )}
+                </details>
+              )}
               {directPay && (
                 <PaymentMethodFields
                   methods={methods}

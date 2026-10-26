@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { logout } from "@/app/actions";
 const links = [
   { href: "/admin", label: "داشبورد", icon: LayoutDashboard },
+  { href: "/admin/support", label: "پیگیری کاربران", icon: ReceiptText },
   { href: "/admin/payments", label: "بررسی واریزها", icon: ReceiptText },
   {
     href: "/admin/operations",
@@ -27,7 +28,7 @@ const links = [
   { href: "/admin/integrations", label: "اتصال تقویم‌ها", icon: PanelTop },
   { href: "/admin/events", label: "رویدادها", icon: Trophy },
   { href: "/tournaments", label: "مسابقات", icon: Trophy },
-  { href: "/players", label: "بازیکنان", icon: Users },
+  { href: "/players", label: "بازیکنان مسابقات", icon: Users },
   { href: "/leaderboard", label: "لیدربرد", icon: ChartNoAxesColumnIncreasing },
   { href: "/admin/settings", label: "تنظیمات", icon: Settings },
 ];
@@ -128,6 +129,7 @@ export function Shell({
                   "/admin/integrations",
                   "/admin/events",
                   "/admin/settings",
+                  "/admin/support",
                 ].includes(x.href),
               )
               .map((x) => (

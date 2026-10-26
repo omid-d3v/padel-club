@@ -146,7 +146,24 @@ for (let i = 0; i < 10; i++)
     "insert into discount_codes(code,kind,value,max_uses,expires_at,active) values($1,'percent',10,5,now()+interval '1 day',false)",
     ["UI_AUDIT_" + String(i).padStart(2, "0")],
   );
+for (const code of ["UX_CHECKOUT_DESKTOP", "UX_CHECKOUT_MOBILE"])
+  await db.query(
+    "insert into discount_codes(code,kind,value,max_uses,expires_at,active) values($1,'percent',10,5,now()+interval '1 day',true)",
+    [code],
+  );
+for (const [n, label] of [
+  [990, "پشتیبانی دسکتاپ"],
+  [989, "پشتیبانی موبایل"],
+]) {
+  await db.query("insert into auth.users(id) values($1)", [uuid(n)]);
+  await db.query("select set_config('request.jwt.claim.sub',$1,false)", [
+    uuid(n),
+  ]);
+  await db.query("select save_my_profile($1,1)", [label]);
+}
 const phones = new Map([
+  [uuid(990), "989120000010"],
+  [uuid(989), "989120000011"],
   [admin, "989120000001"],
   [player, "989120000002"],
   [mobilePlayer, "989120000003"],
@@ -393,6 +410,8 @@ http
           }
           if (value.startsWith("eq."))
             wheres.push(`${identifier(column)}=${bind(value.slice(3))}`);
+          else if (value === "is.null")
+            wheres.push(`${identifier(column)} is null`);
           else if (value.startsWith("in.(")) {
             const vals = value.slice(4, -1).split(",");
             wheres.push(
@@ -402,6 +421,14 @@ http
         }
         const where = wheres.length ? `where ${wheres.join(" and ")}` : "";
         if (req.method === "GET" || req.method === "HEAD") {
+          if (req.method === "HEAD") {
+            const { rows } = await db.query(
+              `select count(*)::integer count from public.${table} ${where}`,
+              parameters,
+            );
+            res.setHeader("content-range", `0-0/${rows[0].count}`);
+            return send(null);
+          }
           const select = url.searchParams.get("select") ?? "*";
           const columns =
             select === "*" ? "*" : select.split(",").map(identifier).join(",");

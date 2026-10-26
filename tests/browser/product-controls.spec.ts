@@ -15,6 +15,12 @@ test("equipment stepper enforces stock, does not submit, and sends the selected 
   await page.goto(
     "/clubs/browser-test-club/book?court=10000000-0000-4000-8000-000000000703",
   );
+  await page.getByRole("button", { name: "مرحلهٔ بعد", exact: true }).click();
+  await page
+    .getByRole("button", { name: "رفتن به نخستین روز آزاد", exact: true })
+    .click();
+  await page.locator("[data-slot-id]").first().click();
+  await page.locator("summary").filter({ hasText: "تجهیزات اجاره‌ای" }).click();
   const group = page.getByRole("group", {
     name: "انتخاب تعداد راکت آزمون",
     exact: true,
@@ -40,68 +46,41 @@ test("equipment stepper enforces stock, does not submit, and sends the selected 
     fullPage: true,
   });
 });
-test("booking mode tabs change the flow, preserve eligible slots, and support RTL keyboard navigation", async ({
+test("booking kind retains an open-game title and eligible slot when navigating back", async ({
   page,
 }) => {
   await page.goto(
-    "/clubs/browser-test-club/book?court=10000000-0000-4000-8000-000000000703",
+    "/clubs/browser-test-club/book?court=10000000-0000-4000-8000-000000000703&kind=open",
   );
-  const tabs = page.getByRole("tablist", { name: "شیوه بازی" });
-  const privateTab = tabs.getByRole("tab", { name: /رزرو خصوصی زمین/ });
-  const openTab = tabs.getByRole("tab", { name: /بازی باز چهار نفره/ });
-  await expect(privateTab).toHaveAttribute("aria-selected", "true");
-  await expect(page.getByRole("tabpanel")).toHaveCount(1);
-  await expect(page.locator('input[name="kind"]')).toHaveValue("private");
-  await expect(page.getByRole("textbox", { name: "عنوان بازی" })).toHaveCount(
-    0,
-  );
-  await page.getByRole("button", { name: "رفتن به نخستین روز آزاد" }).click();
-  const slot = page.locator("[data-slot-id]").filter({ visible: true }).first();
-  await slot.click();
-  const selected = await slot.getAttribute("data-slot-id");
-  await page.getByRole("checkbox").check();
-  await openTab.click();
-  await expect(openTab).toHaveAttribute("aria-selected", "true");
   await expect(page.locator('input[name="kind"]')).toHaveValue("open");
-  await expect(page.getByRole("textbox", { name: "عنوان بازی" })).toBeVisible();
-  await expect(
-    page.getByRole("heading", { name: "برآورد سهم من در بازی" }),
-  ).toBeVisible();
-  await expect(page.getByRole("checkbox")).not.toBeChecked();
-  await expect(page.locator(`[data-slot-id="${selected}"]`)).toHaveAttribute(
+  await page.getByLabel("عنوان بازی", { exact: true }).fill("بازی دوستانه");
+  await page.getByRole("button", { name: "مرحلهٔ بعد", exact: true }).click();
+  await page
+    .getByRole("button", { name: "رفتن به نخستین روز آزاد", exact: true })
+    .click();
+  const slot = await page
+    .locator("[data-slot-id]")
+    .first()
+    .getAttribute("data-slot-id");
+  await page.locator(`[data-slot-id="${slot}"]`).click();
+  await expect(page.locator("[data-booking-step]")).toHaveAttribute(
+    "data-booking-step",
+    "4",
+  );
+  await page.getByRole("button", { name: "مرحلهٔ قبل", exact: true }).click();
+  await expect(page.locator(`[data-slot-id="${slot}"]`)).toHaveAttribute(
     "aria-pressed",
     "true",
   );
-  await expect(
-    page.getByRole("button", { name: "درخواست زمین و ساخت بازی", exact: true }),
-  ).toBeVisible();
+  await page.getByRole("button", { name: "مرحلهٔ قبل", exact: true }).click();
+  await expect(page.getByLabel("عنوان بازی", { exact: true })).toHaveValue(
+    "بازی دوستانه",
+  );
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
-  await page.screenshot({
-    path: `test-results/booking-mode-open-${test.info().project.name}.png`,
-    fullPage: true,
-  });
-  await openTab.focus();
-  await page.keyboard.press("ArrowRight");
-  await expect(privateTab).toBeFocused();
-  await expect(privateTab).toHaveAttribute("aria-selected", "true");
-  await expect(page.getByRole("textbox", { name: "عنوان بازی" })).toHaveCount(
-    0,
-  );
-  const form = page.locator("form").filter({ has: tabs });
-  const payload = await form.evaluate((node) =>
-    Object.fromEntries(new FormData(node as HTMLFormElement)),
-  );
-  expect(payload.kind).toBe("private");
-  expect(payload).not.toHaveProperty("title");
-  expect(payload.min_skill).toBe("");
-  await page.screenshot({
-    path: `test-results/booking-mode-private-${test.info().project.name}.png`,
-    fullPage: true,
-  });
 });
 test("admin lists paginate, filter, search, and restore focus from the details modal", async ({
   page,
