@@ -134,6 +134,8 @@ bash deploy/migrate.sh baseline-cloud
 bash deploy/migrate.sh apply
 ```
 
+خروجی schema فیلترشدهٔ Cloud، policyهای سفارشی `storage.objects` را منتقل نمی‌کند. `migrate.sh apply` اکنون پس از migrationهای برنامه، `restore-storage-policies.sh` را با اتصال داخلی ادمین و فقط برای SQL محدود بازیابی policy اجرا می‌کند تا policyهای جاافتادهٔ رسید خصوصی، عکس باشگاه و آواتار بازگردند. این مرحله تکرارپذیر است، policyهای موجود را حذف یا بازنویسی نمی‌کند و به کاربر migration نقش اضافه نمی‌دهد. نقش مالک Storage به‌تنهایی در نسخهٔ pinشده مجوز resolve کردن `auth.uid()` را ندارد؛ migrationهای عمومی برنامه همچنان با `postgres` اجرا می‌شوند. پس از انتقال، `deploy/verify.sql` باید علاوه بر خصوصی بودن bucket، وجود policyهای Storage و فعال بودن RLS را نیز تأیید کند؛ موفقیت upload با service-role جای تست upload کاربر را نمی‌گیرد.
+
 baseline فقط وقتی همهٔ نسخه‌های همین checkout در تاریخچهٔ Cloud وجود داشته باشند، checksumها را ثبت می‌کند؛ SQL قدیمی را اجرا نمی‌کند. نسخهٔ اضافی/کمتر باعث توقف می‌شود. تطبیق history به‌تنهایی drift ناشی از SQL دستی روی Cloud را اثبات یا رد نمی‌کند؛ schema dump و تست‌های عملی را هم بررسی کنید. قبل از export، Cloud و checkout را هم‌نسخه کنید یا checkout دقیقاً مطابق مبدأ بگیرید؛ history را برای دورزدن خطا جعل نکنید. در این سازوکار `_matchsho_deploy.migrations` دفتر استقرار بعدی است؛ CLI `db push` را موازی این runner روی همین مقصد استفاده نکنید. هنگام انتقال آزمایشی و نهایی، از مقصدهای جدا/خالی استفاده کنید؛ بازگرداندن dump روی دادهٔ جدید بدون برنامه ممکن است اطلاعات را overwrite کند.
 
 ## ۵. انتقال فایل‌ها: تصاویر و رسیدهای خصوصی

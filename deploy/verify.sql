@@ -16,6 +16,10 @@ FOREACH item IN ARRAY ARRAY['admins','user_profiles','bookings','payments','paym
 END LOOP;
 IF has_function_privilege('anon','public.review_card_receipt(uuid,integer,boolean,text,text)','execute') THEN RAISE EXCEPTION 'Anonymous receipt review is unsafe'; END IF;
 IF EXISTS(SELECT 1 FROM storage.buckets WHERE id='payment-receipts' AND public) THEN RAISE EXCEPTION 'Receipt bucket must stay private'; END IF;
+IF NOT EXISTS(SELECT 1 FROM pg_class WHERE oid='storage.objects'::regclass AND relrowsecurity) THEN RAISE EXCEPTION 'Storage objects must enforce RLS'; END IF;
+FOREACH item IN ARRAY ARRAY['platform_club_images','platform_own_avatar','receipt_upload','receipt_read'] LOOP
+  IF NOT EXISTS(SELECT 1 FROM pg_policies WHERE schemaname='storage' AND tablename='objects' AND policyname=item AND roles=ARRAY['authenticated']::name[]) THEN RAISE EXCEPTION 'Missing Storage policy: %',item; END IF;
+END LOOP;
 END $verify$;
 select jobname,active,schedule from cron.job where jobname in ('padel-expiry','rallyyar-calendar-sync');
 COMMIT;

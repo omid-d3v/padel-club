@@ -10,3 +10,6 @@ trap 'rm -f -- "$sql_file"' EXIT
 bash "$root/deploy/stack.sh" run --rm --no-deps -T tools "$mode" > "$sql_file"
 bash "$root/deploy/stack.sh" exec -T db psql -X -h 127.0.0.1 -U postgres -d postgres \
   --set=ON_ERROR_STOP=1 --file=- < "$sql_file"
+if [[ "$mode" == apply ]]; then
+  bash "$root/deploy/restore-storage-policies.sh"
+fi
