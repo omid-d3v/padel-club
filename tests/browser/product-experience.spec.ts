@@ -16,7 +16,7 @@ test("public open-game journey carries the intent and preserves the draft across
 }) => {
   await page.goto("/matches");
   await page
-    .getByRole("link", { name: "ساخت بازی باز", exact: true })
+    .getByRole("link", { name: /^ساخت بازی (باز|تازه)$/ })
     .first()
     .click();
   await expect(page).toHaveURL(/kind=open/);
@@ -180,6 +180,19 @@ test("administrator search, filtering and opened record survive reload", async (
   await expect(
     page.getByRole("textbox", { name: "جست‌وجو در کدهای تخفیف" }),
   ).toHaveValue("UI_AUDIT_00");
+});
+test("operation filters follow the destination URL and browser Back", async ({
+  page,
+}) => {
+  await login(page);
+  await page.goto("/admin/operations?tab=bookings&q=نام‌ناموجود");
+  const search = page.getByRole("textbox", { name: /^جست‌وجو در / });
+  await expect(search).toHaveValue("نام‌ناموجود");
+  await page.getByRole("link", { name: /^در انتظار باشگاه/ }).click();
+  await expect(search).toHaveValue("");
+  await expect(page).toHaveURL(/state=pending_club/);
+  await page.goBack();
+  await expect(search).toHaveValue("نام‌ناموجود");
 });
 test("member and admin pages stay readable without horizontal overflow", async ({
   page,

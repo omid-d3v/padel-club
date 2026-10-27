@@ -92,14 +92,16 @@ test("inline booking wizard, private receipt and admin review", async ({
     page.getByText("کارت آزمایشی بدون واریز واقعی", { exact: true }),
   ).toBeVisible();
   const upload = async (label: string) => {
-    await page.getByLabel("عکس رسید واریز", { exact: true }).setInputFiles({
-      name: "test-only.png",
-      mimeType: "image/png",
-      buffer: Buffer.from(
-        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jS1sAAAAASUVORK5CYII=",
-        "base64",
-      ),
-    });
+    await page
+      .getByLabel(/^(انتخاب عکس رسید واریز|تعویض عکس رسید)$/)
+      .setInputFiles({
+        name: "test-only.png",
+        mimeType: "image/png",
+        buffer: Buffer.from(
+          "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jS1sAAAAASUVORK5CYII=",
+          "base64",
+        ),
+      });
     await page.getByRole("checkbox").check();
     await page.getByRole("button", { name: label, exact: true }).click();
     await expect(

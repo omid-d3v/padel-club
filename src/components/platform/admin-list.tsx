@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState, type ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import { normalizeSearch } from "@/lib/product";
 import Link from "next/link";
@@ -48,12 +48,11 @@ export function AdminList({
     }
     history.replaceState(null, "", url);
   };
-  const [query, setQuery] = useState(params.get("q") ?? "");
-  const [filter, setFilter] = useState(params.get("state") ?? "");
-  const [page, setPage] = useState(
-    Math.max(1, Number(params.get("page")) || 1),
-  );
-  const [selected, setSelected] = useState<string | null>(params.get("record"));
+  // The URL is the single source of truth, including navigation between tabs.
+  const query = params.get("q") ?? "";
+  const filter = params.get("state") ?? "";
+  const page = Math.max(1, Math.floor(Number(params.get("page")) || 1));
+  const selected = params.get("record");
   const found = items.filter(
     (item) =>
       (!filter || item.state === filter) &&
@@ -91,9 +90,7 @@ export function AdminList({
             placeholder="نام، شناسه یا جزئیات…"
             value={query}
             onChange={(e) => {
-              setQuery(e.target.value);
               updateUrl({ q: e.target.value, page: null });
-              setPage(1);
             }}
           />
         </label>
@@ -104,9 +101,7 @@ export function AdminList({
               aria-label={`فیلتر وضعیت ${title}`}
               value={filter}
               onChange={(e) => {
-                setFilter(e.target.value);
                 updateUrl({ state: e.target.value, page: null });
-                setPage(1);
               }}
             >
               <option value="">همه وضعیت‌ها</option>
@@ -157,7 +152,7 @@ export function AdminList({
                 aria-label={`جزئیات ${item.title}`}
                 onClick={(event) => {
                   returnFocusRef.current = event.currentTarget;
-                  setSelected(item.id);
+
                   updateUrl({ record: item.id });
                 }}
               >
@@ -179,10 +174,7 @@ export function AdminList({
                 type="button"
                 className="mt-4 underline"
                 onClick={() => {
-                  setQuery("");
                   updateUrl({ q: null, state: null, page: null });
-                  setFilter("");
-                  setPage(1);
                 }}
               >
                 پاک‌کردن فیلترها
@@ -202,7 +194,6 @@ export function AdminList({
             aria-label="صفحه قبل"
             disabled={current <= 1}
             onClick={() => {
-              setPage(current - 1);
               updateUrl({ page: String(current - 1) });
             }}
           >
@@ -213,7 +204,6 @@ export function AdminList({
             aria-label="صفحه بعد"
             disabled={current >= pages}
             onClick={() => {
-              setPage(current + 1);
               updateUrl({ page: String(current + 1) });
             }}
           >
@@ -226,7 +216,6 @@ export function AdminList({
         open={!!active}
         onOpenChange={(open) => {
           if (!open) {
-            setSelected(null);
             updateUrl({ record: null });
           }
         }}
