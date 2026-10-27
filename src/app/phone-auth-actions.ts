@@ -122,6 +122,58 @@ export async function verifyPhoneCode(
     return { success: false, message: "شماره و کد تأیید را بررسی کنید." };
   }
 }
+function passwordLoginFailure(error: unknown, stage: string): PhoneAuthResult {
+  const value =
+    error && typeof error === "object"
+      ? (error as { code?: unknown; status?: unknown })
+      : {};
+  const code =
+    typeof value.code === "string" && /^[a-z_]{1,64}$/.test(value.code)
+      ? value.code
+      : "unknown";
+  const status =
+    typeof value.status === "number" &&
+    Number.isInteger(value.status) &&
+    value.status >= 400 &&
+    value.status <= 599
+      ? value.status
+      : undefined;
+  console.error("[phone-auth] password login failed", { stage, code, status });
+  let message = "شماره یا رمز عبور درست نیست؛ مقدارها را دوباره بررسی کنید.";
+  if (
+    status === 429 ||
+    [
+      "over_request_rate_limit",
+      "over_sms_send_rate_limit",
+      "too_many_requests",
+    ].includes(code)
+  )
+    message =
+      "تعداد تلاش‌های ورود زیاد شده است؛ کمی صبر کنید و دوباره تلاش کنید.";
+  else if (code === "phone_provider_disabled")
+    message =
+      "ورود با شماره در سرویس احراز هویت هنوز فعال نیست؛ تنظیمات ورود باید بررسی شود.";
+  else if (code === "email_not_confirmed" || code === "phone_not_confirmed")
+    message =
+      "شناسهٔ ورود این حساب هنوز تأیید نشده است؛ تأیید حساب باید تکمیل شود.";
+  else if (code === "email_provider_disabled")
+    message =
+      "روش ورود حساب قدیمی در سرویس احراز هویت غیرفعال است؛ تنظیمات ورود باید بررسی شود.";
+  else if (code === "user_banned")
+    message = "دسترسی ورود این حساب مسدود شده است؛ وضعیت حساب باید بررسی شود.";
+  else if (
+    (status && status >= 500) ||
+    [
+      "unexpected_failure",
+      "request_timeout",
+      "hook_timeout",
+      "unknown",
+    ].includes(code)
+  )
+    message = "ارتباط با سرویس ورود کامل نشد؛ کمی بعد دوباره تلاش کنید.";
+  return { success: false, message };
+}
+
 export async function signInPhonePassword(
   phone: string,
   password: string,
@@ -140,14 +192,22 @@ export async function signInPhonePassword(
       password,
     });
     if (result.error) {
-      if (result.error.code !== "invalid_credentials") return failure;
+      // A legacy email admin must still be able to sign in when phone auth is
+      // disabled. Retry only these lookup/provider cases, never rate limits.
+      if (
+        !["invalid_credentials", "phone_provider_disabled"].includes(
+          result.error.code ?? "",
+        )
+      )
+        return passwordLoginFailure(result.error, "phone");
       const identity = await legacyAdminIdentity(normalized);
-      if (!identity) return failure;
+      if (!identity)
+        return passwordLoginFailure(result.error, "admin_alias_lookup");
       const alias = await db.auth.signInWithPassword({
         email: identity.email,
         password,
       });
-      if (alias.error) return failure;
+      if (alias.error) return passwordLoginFailure(alias.error, "admin_email");
       const { data: admin, error } = await db.rpc("is_admin");
       if (alias.data.user?.id !== identity.id || error || !admin) {
         await db.auth.signOut();

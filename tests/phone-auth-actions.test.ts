@@ -240,6 +240,60 @@ describe("phone password login and existing admin alias", () => {
     });
     expect(JSON.stringify(result)).not.toContain("private-admin");
   });
+  it("can authenticate the existing email admin when the phone provider is disabled", async () => {
+    legacy();
+    signInWithPassword
+      .mockReset()
+      .mockResolvedValueOnce({
+        data: { user: null },
+        error: { code: "phone_provider_disabled", status: 422 },
+      })
+      .mockResolvedValueOnce({ data: { user: { id: adminId } }, error: null });
+    expect(
+      await signInPhonePassword("09123456789", "existing-admin-password"),
+    ).toMatchObject({ success: true, redirect: "/admin" });
+    expect(signInWithPassword).toHaveBeenNthCalledWith(2, {
+      email: "private-admin@example.test",
+      password: "existing-admin-password",
+    });
+  });
+  it("does not bypass rate limits or blame the password for a provider outage", async () => {
+    vi.stubEnv("ADMIN_NOTIFICATION_PHONES", "09123456789");
+    signInWithPassword.mockResolvedValue({
+      data: { user: null },
+      error: { code: "over_request_rate_limit", status: 429 },
+    });
+    expect(
+      (await signInPhonePassword("09123456789", "password")).message,
+    ).toContain("تعداد تلاش");
+    expect(mock.trustedClient).not.toHaveBeenCalled();
+    signInWithPassword.mockResolvedValue({
+      data: { user: null },
+      error: { code: "unexpected_failure", status: 503 },
+    });
+    expect(
+      (await signInPhonePassword("09123456789", "password")).message,
+    ).toContain("ارتباط با سرویس");
+    expect(mock.trustedClient).not.toHaveBeenCalled();
+  });
+  it("identifies an unconfirmed legacy account without leaking its email or password", async () => {
+    legacy();
+    signInWithPassword
+      .mockReset()
+      .mockResolvedValueOnce(invalid)
+      .mockResolvedValueOnce({
+        data: { user: null },
+        error: { code: "email_not_confirmed", status: 400 },
+      });
+    const r = await signInPhonePassword("09123456789", "private-password");
+    expect(r.success).toBe(false);
+    expect(r.message).toContain("هنوز تأیید نشده");
+    expect(JSON.stringify(r)).not.toContain("private-");
+    expect(console.error).toHaveBeenLastCalledWith(
+      "[phone-auth] password login failed",
+      { stage: "admin_email", code: "email_not_confirmed", status: 400 },
+    );
+  });
   it("never creates an OTP account for an unlinked existing admin alias", async () => {
     vi.stubEnv("ADMIN_NOTIFICATION_PHONES", "09123456789");
     expect((await requestPhoneCode("09123456789", true, true)).success).toBe(
