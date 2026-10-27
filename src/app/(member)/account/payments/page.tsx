@@ -1,3 +1,4 @@
+import { refundLabel, supportHref } from "@/lib/product";
 import { ownRows, requireMember } from "@/lib/platform/data";
 import { money, moment, bookingLabels } from "@/lib/platform/format";
 import { ActionForm } from "@/components/platform/action-form";
@@ -40,7 +41,11 @@ export default async function Payments({
         payments
           .toSorted((a, b) => b.created_at.localeCompare(a.created_at))
           .map((p) => (
-            <article key={p.id} className="platform-card my-5">
+            <article
+              id={`payment-${p.id}`}
+              key={p.id}
+              className="platform-card my-5"
+            >
               <div className="flex flex-wrap justify-between gap-3">
                 <b>{money(p.amount)}</b>
                 <span className="status-pill">{bookingLabels[p.status]}</span>
@@ -72,6 +77,12 @@ export default async function Payments({
                   </ActionForm>
                 </div>
               )}
+              <Link
+                className="mt-3 inline-flex min-h-11 items-center text-sm underline"
+                href={supportHref(undefined, p.id)}
+              >
+                پیگیری این پرداخت یا استرداد
+              </Link>
               {refunds
                 ?.filter((r) => r.payment_id === p.id)
                 .map((r) => (
@@ -79,10 +90,16 @@ export default async function Payments({
                     className="mt-5 rounded-xl bg-muted p-4 text-sm"
                     key={r.id}
                   >
-                    <b>استرداد: {bookingLabels[r.status]}</b>
+                    <b>استرداد: {refundLabel(r.status)}</b>
                     <p className="mt-2">
                       {money(r.amount)} · {r.reason}
                     </p>
+                    <p className="mt-2">ثبت درخواست: {moment(r.created_at)}</p>
+                    {r.completed_at && (
+                      <p className="mt-2">
+                        انجام انتقال: {moment(r.completed_at)}
+                      </p>
+                    )}
                     {r.provider_reference && (
                       <p className="mt-2">
                         مرجع انجام استرداد: <bdi>{r.provider_reference}</bdi>

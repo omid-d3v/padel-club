@@ -1,3 +1,6 @@
+import { CancelBooking } from "@/components/platform/cancel-booking";
+import { InviteButton } from "@/components/platform/invite-button";
+import { supportHref } from "@/lib/product";
 import Link from "next/link";
 import { Countdown } from "@/components/platform/countdown";
 import { ownRows, requireMember } from "@/lib/platform/data";
@@ -30,7 +33,17 @@ export default async function Bookings() {
         )
     : { data: [], error: null };
   if (error) throw new Error("دریافت رزرو انجام نشد.");
-  const methods = await paymentMethods();
+  const [methods, { data: games }, ownPayments] = await Promise.all([
+    paymentMethods(),
+    m.db
+      .from("open_matches")
+      .select("*")
+      .in(
+        "booking_id",
+        participants.map((p) => p.booking_id),
+      ),
+    ownRows("payments"),
+  ]);
   const { data: proposals, error: proposalError } = await m.db
     .from("booking_reschedules")
     .select("*")
@@ -61,8 +74,14 @@ export default async function Bookings() {
           .map((p) => {
             const b = bookings?.find((b) => b.id === p.booking_id);
             if (!b) return null;
+            const location = locations?.find((l) => l.booking_id === b.id);
+            const game = games?.find((g) => g.booking_id === b.id);
             return (
-              <article key={p.id} className="platform-card my-5">
+              <article
+                id={`booking-${b.id}`}
+                key={p.id}
+                className="platform-card my-5"
+              >
                 {proposals?.find(
                   (proposal) => proposal.booking_id === b.id,
                 ) && (
@@ -80,9 +99,14 @@ export default async function Bookings() {
                 <div className="mb-5 flex flex-wrap justify-between gap-3">
                   <div>
                     <h2>
-                      {b.kind === "private"
-                        ? "درخواست خصوصی زمین"
-                        : "جایگاه بازی باز"}
+                      {game?.title ??
+                        (b.kind === "private" ? "رزرو خصوصی زمین" : "بازی باز")}
+                      {location && (
+                        <span className="mt-3 block text-base">
+                          {location.club} · {location.court} ·{" "}
+                          {moment(location.starts_at)}
+                        </span>
+                      )}
                     </h2>
                     <p className="text-xs text-muted-foreground">
                       ثبت در {moment(b.created_at)}
@@ -143,7 +167,8 @@ export default async function Bookings() {
                     </div>
                   </div>
                   <div className="space-y-4 text-sm">
-                    {b.status === "pending_club" && (
+                    {(b.status === "pending_club" ||
+                      b.status === "booking_in_progress") && (
                       <Countdown
                         now={now}
                         deadline={b.request_expires_at}
@@ -175,7 +200,14 @@ export default async function Bookings() {
                         </p>
                       ))}
                     {p.status === "reserved" &&
-                      !benefits.some((x) => x.participant_id === p.id) && (
+                      !benefits.some((x) => x.participant_id === p.id) &&
+                      !ownPayments.some(
+                        (payment) =>
+                          payment.participant_id === p.id &&
+                          ["pending", "paid", "needs_attention"].includes(
+                            payment.status,
+                          ),
+                      ) && (
                         <ActionForm operation="discount" label="اعمال کد تخفیف">
                           <input
                             type="hidden"
@@ -227,6 +259,26 @@ export default async function Bookings() {
                         }
                       />
                     )}
+                    {game && (
+                      <>
+                        <Link
+                          className="block min-h-11 underline"
+                          href={`/matches/${game.id}`}
+                        >
+                          مشاهده اعضا و ظرفیت بازی
+                        </Link>
+                        <InviteButton
+                          title={game.title}
+                          href={`/matches/${game.id}`}
+                        />
+                      </>
+                    )}
+                    <Link
+                      className="block min-h-11 underline"
+                      href={supportHref(b.id)}
+                    >
+                      درخواست پیگیری این رزرو
+                    </Link>
                     <Link
                       href="/account/payments"
                       className="block text-xs underline"
@@ -235,29 +287,38 @@ export default async function Bookings() {
                     </Link>
                   </div>
                 </div>
+                {b.user_id !== m.userId &&
+                  !["completed", "expired", "cancelled"].includes(b.status) &&
+                  !["withdrawn", "expired", "refunded"].includes(p.status) && (
+                    <div className="mt-5">
+                      {game &&
+                      Date.parse(game.cutoff_at) > now &&
+                      b.status !== "confirmed" ? (
+                        <ActionForm
+                          operation="withdraw"
+                          label="انصراف از این بازی"
+                          confirm={`جایگاه شما آزاد می‌شود. مبلغ ${money(ownPayments.filter((payment) => payment.participant_id === p.id && payment.status === "paid").reduce((sum, payment) => sum + payment.amount, 0))} از پرداخت‌های معتبر برای بازگشت وجه ثبت می‌شود؛ انجام انتقال از بخش پرداخت‌ها قابل پیگیری است. انصراف ثبت شود؟`}
+                        >
+                          <input
+                            type="hidden"
+                            name="match_id"
+                            value={game?.id ?? ""}
+                          />
+                        </ActionForm>
+                      ) : (
+                        <Link className="underline" href={supportHref(b.id)}>
+                          درخواست انصراف یا جایگزینی بازیکن
+                        </Link>
+                      )}
+                    </div>
+                  )}
                 {b.user_id === m.userId &&
                   !["completed", "expired", "cancelled"].includes(b.status) && (
                     <details className="mt-6 border-t border-border pt-5">
                       <summary className="min-h-11 cursor-pointer text-sm">
                         لغو درخواست یا رزرو
                       </summary>
-                      <ActionForm
-                        operation="cancel"
-                        label="درخواست لغو"
-                        confirm={
-                          b.payment_first && b.fulfillment_state !== "booked"
-                            ? "رزرو لغو و درخواست استرداد کامل وجه ثبت می‌شود. واریز وجه از بخش پرداخت‌ها قابل پیگیری است."
-                            : "رزرو طبق شرایط ثبت‌شده لغو می‌شود. استرداد احتمالی جداگانه قابل پیگیری است."
-                        }
-                      >
-                        <input type="hidden" name="booking_id" value={b.id} />
-                        <Field
-                          label="دلیل لغو"
-                          name="reason"
-                          required
-                          minLength={2}
-                        />
-                      </ActionForm>
+                      <CancelBooking booking={b.id} />
                     </details>
                   )}
               </article>

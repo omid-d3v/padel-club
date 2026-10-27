@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { requireMember, catalog, ownRows } from "@/lib/platform/data";
+import { SkillOptions, SkillHelp } from "@/components/platform/skill-select";
 import { SKILLS } from "@/lib/platform/types";
 import { ActionForm } from "@/components/platform/action-form";
 import { Field, SelectField } from "@/components/platform/fields";
@@ -41,13 +42,17 @@ export default async function Profile() {
         سطح اولیه خوداظهاری است. تأیید سطح و تغییر رتبه رقابتی فقط از مسیر بررسی
         مدیر انجام می‌شود.
       </p>
-      <div className="content-grid">
-        <NotificationPhone
-          verifiedPhone={
-            authUser.user?.phone_confirmed_at ? authUser.user.phone : undefined
-          }
-        />
-        <div className="platform-card">
+      <div className="content-grid profile-content-grid">
+        <div className="profile-phone">
+          <NotificationPhone
+            verifiedPhone={
+              authUser.user?.phone_confirmed_at
+                ? authUser.user.phone
+                : undefined
+            }
+          />
+        </div>
+        <div className="platform-card profile-main">
           <div className="mb-5">
             <Link
               href="/reset-password"
@@ -81,6 +86,16 @@ export default async function Profile() {
             operation="profile"
             label="ذخیره پروفایل"
             buttonVariant="default"
+            confirmWhen={
+              m.profile?.skill_verified
+                ? {
+                    field: "skill_level",
+                    original: String(m.profile.skill_level),
+                    message:
+                      "با تغییر سطح بازی، تأیید قبلی برداشته می‌شود؛ برای ارزیابی دوباره از پشتیبانی درخواست بدهید. سطح تغییر کند؟",
+                  }
+                : undefined
+            }
           >
             <h3 className="form-section-title">
               <UserRound size={18} />
@@ -111,13 +126,10 @@ export default async function Profile() {
                 name="skill_level"
                 defaultValue={m.profile?.skill_level ?? 1}
               >
-                {SKILLS.map((s, i) => (
-                  <option key={s} value={i}>
-                    {s}
-                  </option>
-                ))}
+                <SkillOptions />
               </select>
             </label>
+            <SkillHelp />
             <h3 className="form-section-title">
               <Camera size={18} />
               تصویر پروفایل
@@ -129,7 +141,7 @@ export default async function Profile() {
             </p>
           </ActionForm>
         </div>
-        <aside className="space-y-5">
+        <aside className="space-y-5 profile-aside">
           <div className="profile-trust">
             <ShieldCheck size={28} />
             <h2>پروفایل قابل اعتماد</h2>

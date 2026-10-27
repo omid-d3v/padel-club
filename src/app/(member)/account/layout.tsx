@@ -16,10 +16,15 @@ export default async function AccountLayout({
 }) {
   const m = await requireMember();
   if (!m.profile) redirect("/onboarding");
+  const { count: unread } = await m.db
+    .from("notifications")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", m.userId)
+    .is("read_at", null);
   return (
     <PublicShell>
       <div className="public-container pt-6">
-        <MemberNav admin={m.admin}>
+        <MemberNav admin={m.admin} unread={unread ?? 0}>
           <form action={logout}>
             <button className="min-h-11 px-3 text-sm text-red-700">
               خروج از حساب

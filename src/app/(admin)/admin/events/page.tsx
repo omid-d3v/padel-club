@@ -1,3 +1,7 @@
+import {
+  EventKindFields,
+  EventCourtFields,
+} from "@/components/platform/event-fields";
 import Link from "next/link";
 import { AdminList } from "@/components/platform/admin-list";
 import { DetailPanel } from "@/components/platform/detail-panel";
@@ -14,23 +18,35 @@ export default async function ManageEvents({
 }: {
   searchParams: Promise<{ edit?: string; create?: string }>;
 }) {
-  const [q, m, events, clubs, courts, slots, registrations, secured] =
-    await Promise.all([
-      searchParams,
-      requireMember(),
-      adminRows("platform_events"),
-      adminRows("clubs"),
-      adminRows("courts"),
-      adminRows("court_slots"),
-      adminRows("event_registrations"),
-      adminRows("event_courts"),
-    ]);
+  const [
+    q,
+    m,
+    events,
+    clubs,
+    courts,
+    slots,
+    registrations,
+    secured,
+    profiles,
+    bookings,
+  ] = await Promise.all([
+    searchParams,
+    requireMember(),
+    adminRows("platform_events"),
+    adminRows("clubs"),
+    adminRows("courts"),
+    adminRows("court_slots"),
+    adminRows("event_registrations"),
+    adminRows("event_courts"),
+    adminRows("user_profiles"),
+    adminRows("bookings"),
+  ]);
   const edit = events.find((e) => e.id === q.edit);
   return (
     <>
       <PageHeader
         title="رویدادها و رقابت‌ها"
-        description="امریکانو هشت‌نفره از همان موتور و رتبه‌بندی قبلی استفاده می‌کند. ثبت‌نام و پرداخت مستقل‌اند."
+        description="اطلاعات رویداد را ثبت کنید، زمین‌ها را تأیید کنید و سپس ثبت‌نام‌ها و پرداخت‌ها را پیگیری کنید."
       />
       <div className="mb-6 flex flex-wrap justify-end gap-3">
         {edit && (
@@ -65,17 +81,7 @@ export default async function ManageEvents({
               pattern="[A-Za-z0-9 -]+"
               defaultValue={edit?.slug}
             />
-            <label className="field">
-              نوع
-              <select name="kind" defaultValue={edit?.kind ?? "americano"}>
-                <option value="americano">
-                  امریکانو؛ هشت نفر، دو زمین، هفت دور
-                </option>
-                <option value="tournament">
-                  تورنمنت؛ ثبت‌نام و نتیجه پایه
-                </option>
-              </select>
-            </label>
+            <EventKindFields kind={edit?.kind} capacity={edit?.capacity} />
             <SelectField
               label="باشگاه"
               name="club_id"
@@ -101,15 +107,6 @@ export default async function ManageEvents({
                   : undefined
               }
               required
-            />
-            <Field
-              label="ظرفیت؛ امریکانو دقیقاً ۸ نفر"
-              name="capacity"
-              type="number"
-              min={4}
-              max={128}
-              required
-              defaultValue={edit?.capacity ?? 8}
             />
             <Field
               label="ورودیه هر نفر؛ تومان"
@@ -181,6 +178,23 @@ export default async function ManageEvents({
                   </Link>
                 )}
               </div>
+              <ul className="my-4 space-y-3 rounded-xl bg-muted p-4 text-sm">
+                <li>{e.published ? "✓ منتشر شده" : "○ هنوز منتشر نشده"}</li>
+                <li>
+                  {secured.filter((s) => s.event_id === e.id).length === 2
+                    ? "✓ دو زمین تأیید شده"
+                    : "○ تأیید دو زمین هم‌زمان لازم است"}
+                </li>
+                <li>
+                  {number(
+                    registrations.filter(
+                      (r) => r.event_id === e.id && r.status === "paid",
+                    ).length,
+                  )}{" "}
+                  از {number(e.capacity)} بازیکن با پرداخت قطعی
+                </li>
+                <li>مهلت ثبت‌نام: {moment(e.registration_deadline)}</li>
+              </ul>
               {e.status === "registration" && (
                 <>
                   <details className="mb-5">
@@ -194,25 +208,32 @@ export default async function ManageEvents({
                       confirm="باشگاه واقعاً هر دو زمین را در زمان رویداد تأیید کرده است؟"
                     >
                       <input name="event_id" value={e.id} type="hidden" />
-                      {["slot1", "slot2"].map((name, i) => (
-                        <SelectField
-                          key={name}
-                          name={name}
-                          label={`سانس زمین ${i + 1}`}
-                          options={slots
-                            .filter((s) =>
+                      <EventCourtFields
+                        slots={slots
+                          .filter(
+                            (s) =>
+                              s.published &&
+                              Date.parse(s.starts_at) <=
+                                Date.parse(e.starts_at) &&
+                              Date.parse(s.ends_at) > Date.parse(e.starts_at) &&
                               courts.some(
                                 (c) =>
                                   c.id === s.court_id &&
-                                  c.club_id === e.club_id,
+                                  c.club_id === e.club_id &&
+                                  c.active,
+                              ) &&
+                              !bookings.some(
+                                (b) =>
+                                  b.slot_id === s.id &&
+                                  !["cancelled", "expired"].includes(b.status),
                               ),
-                            )
-                            .map((s) => ({
-                              id: s.id,
-                              name: `${courts.find((c) => c.id === s.court_id)?.name} · ${moment(s.starts_at)}`,
-                            }))}
-                        />
-                      ))}
+                          )
+                          .map((s) => ({
+                            id: s.id,
+                            court: s.court_id,
+                            name: `${courts.find((c) => c.id === s.court_id)?.name} · ${moment(s.starts_at)}`,
+                          }))}
+                      />
                       <Field
                         name="reference"
                         label="مرجع تأیید باشگاه"
@@ -224,6 +245,16 @@ export default async function ManageEvents({
                   <ActionForm
                     operation="admin:activate-event"
                     label="شروع رویداد و ساخت دورها"
+                    disabled={
+                      secured.filter((s) => s.event_id === e.id).length !== 2 ||
+                      (e.kind === "americano"
+                        ? registrations.filter(
+                            (r) => r.event_id === e.id && r.status === "paid",
+                          ).length !== 8
+                        : registrations.filter(
+                            (r) => r.event_id === e.id && r.status === "paid",
+                          ).length < 4)
+                    }
                     confirm="ثبت‌نام‌ها، زمین‌ها و زمان‌بندی بررسی شده‌اند؟"
                   >
                     <input name="event_id" type="hidden" value={e.id} />
@@ -272,7 +303,12 @@ export default async function ManageEvents({
                         .filter(
                           (r) => r.event_id === e.id && r.status === "paid",
                         )
-                        .map((r) => ({ id: r.id, name: r.user_id }))}
+                        .map((r) => ({
+                          id: r.id,
+                          name:
+                            profiles.find((p) => p.user_id === r.user_id)
+                              ?.display_name ?? "بازیکن",
+                        }))}
                     />
                     <Field
                       name="rank"

@@ -13,7 +13,7 @@ export const BOOKING_STEPS = [
   "سانس",
   "تجهیزات",
   "اطلاعات",
-  "پرداخت",
+  "مرور و پرداخت",
 ];
 const icons = [MapPin, CalendarDays, ShoppingBag, UserRound, CreditCard];
 export function BookingProgress({
@@ -26,7 +26,7 @@ export function BookingProgress({
   skipInformation?: boolean;
 }) {
   const steps = BOOKING_STEPS.map((title, id) => ({ title, id })).filter(
-    (s) => !skipInformation || s.id !== 3,
+    (s) => s.id !== 2 && (!skipInformation || s.id !== 3),
   );
   const current = steps.findIndex((s) => s.id === step);
   return (

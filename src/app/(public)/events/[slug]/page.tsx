@@ -1,3 +1,5 @@
+import { loginHref } from "@/lib/product";
+import { cancellationText } from "@/lib/platform/format";
 import { requestTime } from "@/lib/platform/request-time";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -44,6 +46,23 @@ export default async function Event({
     { p_event: e.id },
   );
   if (placementError) throw new Error("دریافت نتایج انجام نشد.");
+  const [{ data: ready }, { data: registration }] = await Promise.all([
+    db.rpc("event_ready", { p_event: e.id }),
+    m
+      ? m.db
+          .from("event_registrations")
+          .select("*")
+          .eq("event_id", e.id)
+          .eq("user_id", m.userId)
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
+  ]);
+  const existing =
+    registration &&
+    (registration.status === "paid" ||
+      (registration.status === "reserved" &&
+        !!registration.lock_expires_at &&
+        Date.parse(registration.lock_expires_at) > now));
   const closed =
     e.status !== "registration" ||
     new Date(e.registration_deadline).getTime() <= now;
@@ -98,7 +117,7 @@ export default async function Event({
             <p className="mt-4 text-sm text-muted-foreground">
               {e.kind === "americano"
                 ? "هشت بازیکن، دو زمین، هفت دور؛ هر بازیکن یک بار با همه هم‌تیمی می‌شود. امتیازدهی بر پایه برد بازی و برد راند فعلی باشگاه است."
-                : "تورنمنت با ثبت‌نام فردی؛ این نسخه ثبت‌نام، ظرفیت و نتیجه اولیه را پشتیبانی می‌کند."}
+                : "ثبت‌نام به‌صورت فردی انجام می‌شود. برنامهٔ رقابت و نتایج در همین صفحه در دسترس قرار می‌گیرد."}
             </p>
           </div>
           <div className="platform-card">
@@ -168,7 +187,29 @@ export default async function Event({
             جایگاه پرداختی تا ۱۰ دقیقه نگه داشته می‌شود. پرداخت و شرایط لغو در
             سابقه حساب شما ثبت خواهد شد.
           </p>
-          {m ? (
+          <p className="my-4 text-sm leading-8">
+            {cancellationText(e.cancellation_policy)}
+          </p>
+          {existing ? (
+            <Link
+              className="block min-h-11 underline text-emerald-800"
+              href={`/account/events#event-${e.id}`}
+            >
+              ثبت‌نام شما{" "}
+              {registration.status === "paid"
+                ? "قطعی است؛ مشاهده جزئیات"
+                : "در انتظار پرداخت است؛ تکمیل ثبت‌نام"}
+            </Link>
+          ) : closed ? (
+            <p role="status">ثبت‌نام این رویداد بسته شده است.</p>
+          ) : !ready ? (
+            <p role="status">
+              زمان و زمین رویداد در حال نهایی‌شدن است؛ ثبت‌نام پس از تأیید
+              زمین‌ها باز می‌شود.
+            </p>
+          ) : (roster?.length ?? 0) >= e.capacity ? (
+            <p role="status">ظرفیت این رویداد تکمیل است.</p>
+          ) : m ? (
             <ActionForm
               operation="register-event"
               label="ثبت‌نام در رویداد"
@@ -181,7 +222,10 @@ export default async function Event({
               </label>
             </ActionForm>
           ) : (
-            <Link href="/login" className="text-emerald-800 underline">
+            <Link
+              href={loginHref(`/events/${e.slug}`)}
+              className="text-emerald-800 underline"
+            >
               ورود برای ثبت‌نام
             </Link>
           )}

@@ -1,3 +1,4 @@
+import { sportName } from "@/lib/product";
 import Link from "next/link";
 import Image from "next/image";
 import { SportIcon, EquipmentIcon } from "@/components/platform/sport-icon";
@@ -37,13 +38,16 @@ export async function generateMetadata({
 }
 export default async function Club({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams?: Promise<{ kind?: string; sport?: string }>;
 }) {
   const { slug } = await params;
   const d = await catalog();
   const c = d.clubs.find((c) => c.slug === slug);
   if (!c) notFound();
+  const q = (await searchParams) ?? {};
   const city = d.cities.find((x) => x.id === c.city_id);
   const photo =
     c.photo_path && process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -127,8 +131,21 @@ export default async function Club({
         <div className="space-y-6">
           <div className="platform-card">
             <h2>زمین‌ها و سانس‌ها</h2>
+            {q.sport && (
+              <p className="my-3 text-sm">
+                ورزش انتخابی: {sportName(q.sport)} ·{" "}
+                <Link
+                  className="underline"
+                  href={`/clubs/${c.slug}${q.kind === "open" ? "?kind=open" : ""}`}
+                >
+                  دیدن همهٔ زمین‌ها
+                </Link>
+              </p>
+            )}
             {d.courts
-              .filter((x) => x.club_id === c.id)
+              .filter(
+                (x) => x.club_id === c.id && (!q.sport || x.sport === q.sport),
+              )
               .map((court) => (
                 <div key={court.id} className="booking-row">
                   <div className="court-card-identity">
@@ -147,13 +164,17 @@ export default async function Club({
                     </div>
                   </div>
                   <Button asChild>
-                    <Link href={`/clubs/${c.slug}/book?court=${court.id}`}>
+                    <Link
+                      href={`/clubs/${c.slug}/book?court=${court.id}${q.kind === "open" ? "&kind=open" : ""}`}
+                    >
                       مشاهده سانس‌ها
                     </Link>
                   </Button>
                 </div>
               ))}
-            {!d.courts.some((x) => x.club_id === c.id) && (
+            {!d.courts.some(
+              (x) => x.club_id === c.id && (!q.sport || x.sport === q.sport),
+            ) && (
               <p className="text-sm text-muted-foreground">
                 سانس قابل رزروی برای این باشگاه منتشر نشده است.
               </p>
@@ -219,7 +240,7 @@ export default async function Club({
           )}
           <p className="mt-5 text-sm text-muted-foreground">
             {c.booking_mode === "MANUAL_APPROVAL"
-              ? "این باشگاه با تأیید دستی کار می‌کند. ابتدا نگه‌داشت سانس توسط باشگاه ثبت می‌شود؛ سپس مهلت پرداخت حداکثر ۶۰ دقیقه فعال خواهد شد."
+              ? "رزرو خصوصی: پس از پرداخت، ظرفیت توسط مسئول رزرو بررسی می‌شود؛ نتیجه را در حساب می‌بینید. بازی باز: پرداخت پس از تأیید نگه‌داشت زمین فعال می‌شود."
               : "رزرو خودکار فقط با اتصال معتبر باشگاه فعال می‌شود؛ پرداخت به‌تنهایی تأیید زمین نیست."}
           </p>
           <Link href="/terms" className="mt-5 block text-sm underline">

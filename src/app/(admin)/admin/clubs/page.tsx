@@ -579,19 +579,15 @@ export default async function ManageClubs({
                         </select>
                       </label>
                       <Field
-                        name="start_minute"
-                        label="دقیقه شروع از نیمه‌شب؛ مثلاً ۹۰۰ برای ۱۵:۰۰"
-                        type="number"
-                        min={0}
-                        max={1439}
+                        name="start_time"
+                        label="ساعت شروع"
+                        type="time"
                         required
                       />
                       <Field
-                        name="end_minute"
-                        label="دقیقه پایان از نیمه‌شب؛ مثلاً ۱۳۲۰ برای ۲۲:۰۰"
-                        type="number"
-                        min={1}
-                        max={1440}
+                        name="end_time"
+                        label="ساعت پایان؛ برای پایان روز ۰۰:۰۰ انتخاب کنید"
+                        type="time"
                         required
                       />
                       <label className="field">
@@ -616,6 +612,53 @@ export default async function ManageClubs({
                   {rules.length} برنامه ذخیره‌شده. پس از ثبت برنامه، سانس‌های
                   روز دلخواه را تولید کنید.
                 </p>
+                <div className="space-y-3">
+                  {rules.map((rule) => (
+                    <details
+                      key={rule.id}
+                      className="rounded-xl border border-border p-4"
+                    >
+                      <summary className="min-h-11 cursor-pointer">
+                        {courts.find((c) => c.id === rule.court_id)?.name} ·{" "}
+                        {
+                          [
+                            "یک‌شنبه",
+                            "دوشنبه",
+                            "سه‌شنبه",
+                            "چهارشنبه",
+                            "پنج‌شنبه",
+                            "جمعه",
+                            "شنبه",
+                          ][rule.weekday]
+                        }{" "}
+                        ·{" "}
+                        {String(Math.floor(rule.start_minute / 60)).padStart(
+                          2,
+                          "0",
+                        )}
+                        :{String(rule.start_minute % 60).padStart(2, "0")} تا{" "}
+                        {String(Math.floor(rule.end_minute / 60)).padStart(
+                          2,
+                          "0",
+                        )}
+                        :{String(rule.end_minute % 60).padStart(2, "0")}
+                      </summary>
+                      <p className="my-3 text-sm">
+                        هر سانس {rule.slot_minutes.toLocaleString("fa-IR")}{" "}
+                        دقیقه · {money(rule.price)}. حذف برنامه، سانس‌های از قبل
+                        ساخته‌شده را حذف نمی‌کند؛ برای تغییر برنامه، آن را حذف و
+                        برنامهٔ تازه ثبت کنید.
+                      </p>
+                      <ActionForm
+                        operation="admin:delete-rule"
+                        label="حذف برنامهٔ هفتگی"
+                        confirm="تولید سانس از این برنامه متوقف شود؟ سانس‌های موجود حفظ می‌شوند."
+                      >
+                        <input type="hidden" name="rule_id" value={rule.id} />
+                      </ActionForm>
+                    </details>
+                  ))}
+                </div>
                 <div className="my-5">
                   <DetailPanel
                     key={"ساخت سانس‌های این روز"}
@@ -662,20 +705,38 @@ export default async function ManageClubs({
                         courts.find((c) => c.id === s.court_id)?.club_id,
                     )?.name,
                     content: (
-                      <dl className="admin-facts">
-                        <div>
-                          <dt>شروع</dt>
-                          <dd>{moment(s.starts_at)}</dd>
-                        </div>
-                        <div>
-                          <dt>پایان</dt>
-                          <dd>{moment(s.ends_at)}</dd>
-                        </div>
-                        <div>
-                          <dt>قیمت سانس</dt>
-                          <dd>{money(s.court_price)}</dd>
-                        </div>
-                      </dl>
+                      <>
+                        <ActionForm
+                          operation="admin:slot-visibility"
+                          label={
+                            s.published
+                              ? "بستن این سانس برای رزرو"
+                              : "بازکردن سانس برای رزرو"
+                          }
+                          confirm="دسترسی رزرو این سانس تغییر کند؟ سانس دارای رزرو فعال قابل تغییر نیست."
+                        >
+                          <input type="hidden" name="slot_id" value={s.id} />
+                          <input
+                            type="hidden"
+                            name="enabled"
+                            value={String(!s.published)}
+                          />
+                        </ActionForm>
+                        <dl className="admin-facts">
+                          <div>
+                            <dt>شروع</dt>
+                            <dd>{moment(s.starts_at)}</dd>
+                          </div>
+                          <div>
+                            <dt>پایان</dt>
+                            <dd>{moment(s.ends_at)}</dd>
+                          </div>
+                          <div>
+                            <dt>قیمت سانس</dt>
+                            <dd>{money(s.court_price)}</dd>
+                          </div>
+                        </dl>
+                      </>
                     ),
                   }))}
               />

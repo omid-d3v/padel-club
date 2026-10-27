@@ -1,3 +1,5 @@
+import { loginHref } from "@/lib/product";
+import { SkillHelp } from "@/components/platform/skill-select";
 import { requestTime } from "@/lib/platform/request-time";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -39,6 +41,22 @@ export default async function Match({
   const [d, m, clubs] = await Promise.all([matches(id), member(), catalog()]);
   const game = d.rows[0];
   if (!game) notFound();
+  const { data: ownSeat } = m
+    ? await m.db
+        .from("booking_participants")
+        .select("*")
+        .eq("booking_id", game.booking_id)
+        .eq("user_id", m.userId)
+        .maybeSingle()
+    : { data: null };
+  const existing =
+    ownSeat && !["withdrawn", "expired", "refunded"].includes(ownSeat.status);
+  const levelMismatch =
+    !!m &&
+    !!m.profile &&
+    game.min_skill !== null &&
+    (m.profile.skill_level < game.min_skill ||
+      m.profile.skill_level > (game.max_skill ?? game.min_skill));
   const closed =
     new Date(game.cutoff_at).getTime() <= now ||
     !["pending_club", "collecting"].includes(game.status);
@@ -114,9 +132,31 @@ export default async function Match({
               ? "هنوز نگه‌داشت باشگاه ثبت نشده؛ پیوستن فعلاً اعلام علاقه‌مندی است و پرداخت فعال نیست."
               : "پرداخت در اعتبار نگه‌داشت باشگاه انجام می‌شود. تا پرداخت هر چهار نفر، زمین قطعی اعلام نمی‌شود."}
           </p>
-          {m ? (
+          {existing ? (
+            <Link
+              className="block min-h-11 text-emerald-800 underline"
+              href={`/account/bookings#booking-${game.booking_id}`}
+            >
+              شما عضو این بازی هستید؛ مشاهده وضعیت و پرداخت
+            </Link>
+          ) : closed || game.participants >= 4 ? (
+            <p role="status">
+              {game.participants >= 4
+                ? "ظرفیت این بازی تکمیل است."
+                : "مهلت پیوستن به این بازی تمام شده یا بازی بسته شده است."}
+            </p>
+          ) : levelMismatch ? (
+            <p role="status">
+              سطح ثبت‌شدهٔ شما با محدودهٔ این بازی همخوانی ندارد.{" "}
+              <Link href="/matches" className="underline">
+                بازی دیگری پیدا کنید
+              </Link>
+              .
+            </p>
+          ) : m ? (
             <JoinForm
               matchId={id}
+              basePrice={game.price}
               pending={game.status === "pending_club"}
               disabled={closed || game.participants >= 4}
               equipment={clubs.equipment.filter(
@@ -127,10 +167,14 @@ export default async function Match({
               )}
             />
           ) : (
-            <Link className="text-emerald-800 underline" href="/login">
+            <Link
+              className="text-emerald-800 underline"
+              href={loginHref(`/matches/${id}`)}
+            >
               برای پیوستن وارد شوید
             </Link>
           )}
+          <SkillHelp />
           <p className="mt-5 text-xs text-muted-foreground">
             اگر بازی در مهلت تکمیل نشود، لغو و درخواست استرداد کامل ثبت خواهد
             شد.

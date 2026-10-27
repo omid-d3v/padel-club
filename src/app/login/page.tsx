@@ -27,7 +27,7 @@ export default async function Login({
   return (
     <AuthPage
       title="زمین آماده است."
-      description="با شماره موبایل وارد شو؛ کد یک‌بارمصرف یا رمز، انتخاب با توست."
+      description="با شماره موبایل ادامه بده؛ اگر حساب نداری، حساب تو ساخته می‌شود. ورود با رمز هم در دسترس است."
     >
       {error === "admin" && (
         <p role="alert" className="auth-message is-error">
@@ -35,6 +35,7 @@ export default async function Login({
         </p>
       )}
       <AuthMethods
+        unified={process.env.PHONE_AUTH_ENABLED === "true"}
         phoneEnabled={process.env.PHONE_AUTH_ENABLED === "true"}
         next={returnTo}
         cities={cities.rows.map(({ id, name }) => ({ id, name }))}

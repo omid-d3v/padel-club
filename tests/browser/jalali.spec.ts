@@ -80,7 +80,7 @@ test("admin creates an exact Tehran slot using Persian date/time from a foreign 
     .getByRole("textbox", { name: "شروع؛ شمسی / وقت تهران" })
     .fill(`۱۴۱۰/۰۱/${persianDay} ۱۸:۰۰`);
   await form
-    .getByRole("button", { name: "باز کردن تقویم شمسی" })
+    .getByRole("button", { name: "انتخاب شروع؛ شمسی / وقت تهران" })
     .first()
     .click();
   const dialog = page.getByRole("dialog").last();

@@ -64,6 +64,7 @@ export async function PublicShell({ children }: { children: React.ReactNode }) {
             <Link href="/help">راهنمای بازی و رزرو</Link>
             <Link href="/terms">قوانین و لغو رزرو</Link>
             <Link href="/privacy">حریم خصوصی</Link>
+            <Link href="/account/support">پشتیبانی و پیگیری</Link>
           </nav>
         </div>
         <p className="public-container mt-12 border-t border-white/10 pt-6 text-xs text-white/45">

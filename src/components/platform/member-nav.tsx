@@ -11,6 +11,7 @@ import {
   Flag,
   Bell,
   Settings,
+  LifeBuoy,
 } from "lucide-react";
 const links = [
   { href: "/account", label: "خانه حساب", Icon: House },
@@ -20,12 +21,15 @@ const links = [
   { href: "/account/payments", label: "پرداخت و استرداد", Icon: Wallet },
   { href: "/account/results", label: "نتایج و اعتراض‌ها", Icon: Flag },
   { href: "/account/notifications", label: "اعلان‌ها", Icon: Bell },
+  { href: "/account/support", label: "پشتیبانی", Icon: LifeBuoy },
 ];
 export function MemberNav({
   admin,
   children,
+  unread = 0,
 }: {
   admin: boolean;
+  unread?: number;
   children: ReactNode;
 }) {
   const path = usePathname();
@@ -39,6 +43,11 @@ export function MemberNav({
         >
           <Icon size={17} aria-hidden="true" />
           {label}
+          {href === "/account/notifications" && unread > 0 && (
+            <span className="status-pill">
+              {unread.toLocaleString("fa-IR")}
+            </span>
+          )}
         </Link>
       ))}
       {admin && (

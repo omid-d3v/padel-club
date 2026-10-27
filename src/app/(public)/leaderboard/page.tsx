@@ -5,7 +5,7 @@ import { Leaderboard } from "@/components/leaderboard";
 export default async function LeaderboardPage() {
   const leaders = await getLeaderboard();
   return (
-    <>
+    <section className="public-container public-page">
       <PageHeader
         title="لیدربرد بازیکنان"
         description="هر بازی یک قدم بالاتر. آمار تمام مسابقات پایان‌یافته باشگاه."
@@ -32,6 +32,6 @@ export default async function LeaderboardPage() {
         رتبه‌بندی بر اساس تعداد تاج، میانگین رتبه بهتر و سپس درصد برد بازی‌هاست.
         مسابقات در حال برگزاری در این آمار حساب نمی‌شوند.
       </p>
-    </>
+    </section>
   );
 }

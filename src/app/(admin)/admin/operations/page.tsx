@@ -6,7 +6,7 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { Countdown } from "@/components/platform/countdown";
-import { adminRows } from "@/lib/platform/admin-data";
+import { adminRows, operationsSummary } from "@/lib/platform/admin-data";
 import { PageHeader } from "@/components/shared";
 import { ActionForm } from "@/components/platform/action-form";
 import { Field, CheckField, SelectField } from "@/components/platform/fields";
@@ -35,16 +35,18 @@ const sections = [
   ["discounts", "کدهای تخفیف"],
   ["providers", "اتصال باشگاه"],
   ["results", "نتایج و اعتراض"],
-  ["profiles", "بازیکنان"],
+  ["profiles", "حساب‌های بازیکنان"],
   ["audit", "گزارش تغییرات"],
 ] as const;
 export default async function Operations({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; urgent?: string }>;
 }) {
+  const [q, summary] = await Promise.all([searchParams, operationsSummary()]);
+  const tab = sections.some(([id]) => id === q.tab) ? q.tab : "queue";
+  const need = (...tabs: string[]) => tabs.includes(tab ?? "queue");
   const [
-    q,
     now,
     bookings,
     participants,
@@ -60,43 +62,72 @@ export default async function Operations({
     players,
     codes,
   ] = await Promise.all([
-    searchParams,
     requestTime(),
-    adminRows("bookings"),
-    adminRows("booking_participants"),
-    adminRows("court_slots"),
-    adminRows("courts"),
-    adminRows("clubs"),
-    adminRows("user_profiles"),
-    adminRows("payments"),
-    adminRows("refunds"),
-    adminRows("provider_attempts"),
-    adminRows("result_submissions"),
-    adminRows("audit_log"),
-    adminRows("players"),
-    adminRows("discount_codes"),
+    need(
+      "bookings",
+      "queue",
+      "receipts",
+      "payments",
+      "refunds",
+      "providers",
+      "results",
+    )
+      ? adminRows("bookings")
+      : Promise.resolve([]),
+    need("bookings", "queue", "receipts", "payments", "refunds")
+      ? adminRows("booking_participants")
+      : Promise.resolve([]),
+    need("bookings", "queue", "receipts", "providers")
+      ? adminRows("court_slots")
+      : Promise.resolve([]),
+    need("bookings", "queue", "receipts", "providers")
+      ? adminRows("courts")
+      : Promise.resolve([]),
+    need("bookings", "queue", "receipts", "providers")
+      ? adminRows("clubs")
+      : Promise.resolve([]),
+    need(
+      "bookings",
+      "queue",
+      "receipts",
+      "payments",
+      "refunds",
+      "profiles",
+      "results",
+      "audit",
+    )
+      ? adminRows("user_profiles")
+      : Promise.resolve([]),
+    need("bookings", "queue", "receipts", "payments", "refunds")
+      ? adminRows("payments")
+      : Promise.resolve([]),
+    need("bookings", "queue", "payments", "refunds")
+      ? adminRows("refunds")
+      : Promise.resolve([]),
+    need("providers") ? adminRows("provider_attempts") : Promise.resolve([]),
+    need("results") ? adminRows("result_submissions") : Promise.resolve([]),
+    need("audit") ? adminRows("audit_log") : Promise.resolve([]),
+    need("profiles") ? adminRows("players") : Promise.resolve([]),
+    need("discounts") ? adminRows("discount_codes") : Promise.resolve([]),
   ]);
   const [proposals, connections, receipts] = await Promise.all([
-    adminRows("booking_reschedules"),
-    adminRows("calendar_connections"),
-    adminRows("card_transfer_receipts"),
+    need("bookings", "queue", "receipts")
+      ? adminRows("booking_reschedules")
+      : Promise.resolve([]),
+    need("providers", "queue", "bookings")
+      ? adminRows("calendar_connections")
+      : Promise.resolve([]),
+    need("receipts", "payments", "queue")
+      ? adminRows("card_transfer_receipts")
+      : Promise.resolve([]),
   ]);
   const sourceUrls: Record<string, string> = {
     guilan: "https://guilanpadelclub.ir/booking",
     sabaland: "https://sabalandcomplex.ir/booking/",
     respina: "https://respina.gildev.ir/tennis/book",
   };
-  const tab = sections.some(([id]) => id === q.tab) ? q.tab : "queue";
   const names = (uid: string) =>
     profiles.find((p) => p.user_id === uid)?.display_name ?? "کاربر";
-  const pending = bookings.filter((b) => b.status === "pending_club");
-  const expiring = bookings.filter(
-    (b) =>
-      b.hold_expires_at &&
-      Date.parse(b.hold_expires_at) > now &&
-      Date.parse(b.hold_expires_at) < now + 3600000 &&
-      ["collecting", "awaiting_payment"].includes(b.status),
-  );
   const kinds: Record<string, string> = {
     private: "خصوصی",
     open: "بازی باز",
@@ -112,6 +143,14 @@ export default async function Operations({
       ? bookings
           .filter(
             (b) =>
+              q.urgent !== "1" ||
+              (!!b.hold_expires_at &&
+                Date.parse(b.hold_expires_at) > now &&
+                Date.parse(b.hold_expires_at) < now + 3600000 &&
+                ["collecting", "awaiting_payment"].includes(b.status)),
+          )
+          .filter(
+            (b) =>
               tab !== "queue" ||
               (b.mode === "MANUAL_APPROVAL" &&
                 (!b.payment_first ||
@@ -121,7 +160,12 @@ export default async function Operations({
                 b.fulfillment_state !== "booked" &&
                 !["cancelled", "expired", "completed"].includes(b.status)),
           )
-          .toSorted((a, b) => b.created_at.localeCompare(a.created_at))
+          .toSorted((a, b) =>
+            tab === "queue"
+              ? Date.parse(a.request_expires_at) -
+                Date.parse(b.request_expires_at)
+              : b.created_at.localeCompare(a.created_at),
+          )
           .map((b) => {
             const slot = slots.find((s) => s.id === b.slot_id);
             const court = courts.find((c) => c.id === slot?.court_id);
@@ -133,7 +177,7 @@ export default async function Operations({
             return {
               id: b.id,
               title: `${names(b.user_id)} · ${kinds[b.kind]}`,
-              meta: `${club?.name ?? "باشگاه"} · ${court?.name ?? "زمین"} · ${slot ? moment(slot.starts_at) : moment(b.created_at)}`,
+              meta: `${club?.name ?? "باشگاه"} · ${court?.name ?? "زمین"} · ${slot ? moment(slot.starts_at) : moment(b.created_at)}${tab === "queue" ? " · مهلت پاسخ: " + moment(b.request_expires_at) : ""}`,
               badge:
                 tab === "queue"
                   ? fulfillmentLabels[b.fulfillment_state]
@@ -546,26 +590,63 @@ export default async function Operations({
         title: a.actor_id ? names(a.actor_id) : "پردازش امن سرور",
         meta: moment(a.created_at),
         badge: a.operation,
-        search: a.entity,
+        search: a.entity + " " + a.entity_id,
         content: (
-          <dl className="admin-facts">
-            <div>
-              <dt>موجودیت</dt>
-              <dd>
-                <bdi>{a.entity}</bdi>
-              </dd>
+          <>
+            <p className="mb-4 text-sm">
+              شناسهٔ رکورد: <bdi>{a.entity_id}</bdi>
+            </p>
+            {(
+              {
+                bookings: "bookings",
+                payments: "payments",
+                refunds: "refunds",
+                result_submissions: "results",
+                user_profiles: "profiles",
+              } as Record<string, string>
+            )[a.entity] && (
+              <Link
+                className="mb-4 inline-flex min-h-11 items-center underline"
+                href={`/admin/operations?tab=${({ bookings: "bookings", payments: "payments", refunds: "refunds", result_submissions: "results", user_profiles: "profiles" } as Record<string, string>)[a.entity]}&record=${encodeURIComponent(a.entity_id)}`}
+              >
+                بازکردن پروندهٔ مرتبط
+              </Link>
+            )}
+            <dl className="admin-facts">
+              <div>
+                <dt>موجودیت</dt>
+                <dd>
+                  <bdi>{a.entity}</bdi>
+                </dd>
+              </div>
+              <div>
+                <dt>عملیات</dt>
+                <dd>
+                  <bdi>{a.operation}</bdi>
+                </dd>
+              </div>
+              <div>
+                <dt>زمان</dt>
+                <dd>{moment(a.created_at)}</dd>
+              </div>
+            </dl>
+            <div className="grid gap-4 md:grid-cols-2">
+              {[
+                ["پیش از تغییر", a.before_data],
+                ["پس از تغییر", a.after_data],
+              ].map(([label, value]) => (
+                <div key={String(label)}>
+                  <h3 className="my-3 font-bold">{String(label)}</h3>
+                  <pre
+                    dir="ltr"
+                    className="max-h-80 overflow-auto rounded-xl bg-muted p-3 text-xs whitespace-pre-wrap break-all"
+                  >
+                    {value ? JSON.stringify(value, null, 2) : "—"}
+                  </pre>
+                </div>
+              ))}
             </div>
-            <div>
-              <dt>عملیات</dt>
-              <dd>
-                <bdi>{a.operation}</bdi>
-              </dd>
-            </div>
-            <div>
-              <dt>زمان</dt>
-              <dd>{moment(a.created_at)}</dd>
-            </div>
-          </dl>
+          </>
         ),
       }));
   const title = sections.find(([id]) => id === tab)?.[1] ?? "رزروها";
@@ -628,41 +709,58 @@ export default async function Operations({
           <div className="admin-kpi">
             <CircleDollarSign size={21} />
             <span>رسید منتظر بررسی</span>
-            <strong>
-              {number(receipts.filter((r) => r.status === "pending").length)}
-            </strong>
+            <strong>{number(summary.receipts)}</strong>
           </div>
         )}
         {[
           {
             label: "در انتظار باشگاه",
-            value: pending.length,
+            value: summary.pending,
             Icon: CalendarClock,
           },
           {
             label: "نگه‌داشت رو به پایان",
-            value: expiring.length,
+            value: summary.expiring,
             Icon: CircleDollarSign,
           },
           {
             label: "استرداد باز",
-            value: refunds.filter((r) => r.status !== "completed").length,
+            value: summary.refunds,
             Icon: RotateCcw,
           },
           {
             label: "پرداخت نیازمند بررسی",
-            value: payments.filter((p) => p.status === "needs_attention")
-              .length,
+            value: summary.attention,
             Icon: ShieldAlert,
           },
         ].map(({ label, value, Icon }) => (
-          <div className="admin-kpi" key={label}>
+          <Link
+            className="admin-kpi"
+            key={label}
+            href={
+              label === "استرداد باز"
+                ? "/admin/operations?tab=refunds"
+                : label === "پرداخت نیازمند بررسی"
+                  ? "/admin/operations?tab=payments&state=needs_attention"
+                  : label === "نگه‌داشت رو به پایان"
+                    ? "/admin/operations?tab=bookings&urgent=1"
+                    : "/admin/operations?tab=bookings&state=pending_club"
+            }
+          >
             <Icon size={21} />
             <span>{label}</span>
             <strong>{number(value)}</strong>
-          </div>
+          </Link>
         ))}
       </div>
+      {q.urgent === "1" && (
+        <p className="my-4 text-sm">
+          فقط نگه‌داشت‌های رو به پایان نمایش داده می‌شود.{" "}
+          <Link className="underline" href="/admin/operations?tab=bookings">
+            نمایش همهٔ رزروها
+          </Link>
+        </p>
+      )}
       <nav aria-label="بخش‌های عملیات" className="admin-tabs">
         {sections.map(([id, label]) => (
           <Link

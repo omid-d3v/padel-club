@@ -17,11 +17,14 @@ import { number } from "@/lib/utils";
 import { SKILLS } from "@/lib/platform/types";
 import { moment } from "@/lib/platform/format";
 export default async function Account() {
-  const [m, bookings, registrations] = await Promise.all([
+  const [m, participants, registrations] = await Promise.all([
     requireMember(),
-    ownRows("bookings"),
+    ownRows("booking_participants"),
     ownRows("event_registrations"),
   ]);
+  const { data: locations } = await m.db.rpc("my_booking_locations");
+  const upcoming =
+    locations?.toSorted((a, b) => a.starts_at.localeCompare(b.starts_at)) ?? [];
   const { data: history } = m.profile?.player_id
     ? await m.db
         .from("public_results")
@@ -84,9 +87,48 @@ export default async function Account() {
           تکمیل پروفایل
         </Link>
       )}
+      <section className="platform-card my-6">
+        <h2>قدم بعدی شما</h2>
+        {upcoming.length ? (
+          <div className="space-y-4">
+            {upcoming.slice(0, 3).map((l) => (
+              <Link
+                key={l.booking_id}
+                className="block min-h-11 rounded-xl bg-muted p-4"
+                href={`/account/bookings#booking-${l.booking_id}`}
+              >
+                <b>
+                  {l.club} · {l.court}
+                </b>
+                <span className="mt-2 block text-sm">
+                  {moment(l.starts_at)} · وضعیت رزرو و پرداخت را ببینید
+                </span>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <Link
+            className="inline-flex min-h-11 items-center underline"
+            href="/clubs"
+          >
+            برای بازی بعدی سانس انتخاب کنید
+          </Link>
+        )}
+        <Link
+          className="mt-3 block min-h-11 underline"
+          href="/account/notifications?unread=1"
+        >
+          اعلان‌هایی که هنوز نخوانده‌اید
+        </Link>
+      </section>
       <div className="member-stats">
         {[
-          ["درخواست رزرو", bookings.length],
+          [
+            "جایگاه‌های فعال",
+            participants.filter((p) =>
+              ["paid", "reserved", "interested"].includes(p.status),
+            ).length,
+          ],
           [
             "ثبت‌نام رویداد",
             registrations.filter((r) => r.status === "paid").length,

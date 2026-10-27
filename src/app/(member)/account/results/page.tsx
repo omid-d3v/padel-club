@@ -1,8 +1,13 @@
 import { requireMember, ownRows } from "@/lib/platform/data";
-import { ActionForm } from "@/components/platform/action-form";
-import { Field, CheckField, SelectField } from "@/components/platform/fields";
+import {
+  SubmitResultForm,
+  ConfirmResultForm,
+} from "@/components/platform/result-forms";
+import { requestTime } from "@/lib/platform/request-time";
+import { moment } from "@/lib/platform/format";
 import { bookingLabels } from "@/lib/platform/format";
 export default async function Results() {
+  const now = await requestTime();
   const [m, participants] = await Promise.all([
     requireMember(),
     ownRows("booking_participants"),
@@ -18,6 +23,16 @@ export default async function Results() {
     .select("*")
     .or(`team1_users.cs.{${m.userId}},team2_users.cs.{${m.userId}}`);
   if (error) throw new Error("دریافت نتیجه‌ها انجام نشد.");
+  const { data: locations } = await m.db.rpc("my_booking_locations");
+  const { data: confirmations } = results?.length
+    ? await m.db
+        .from("result_confirmations")
+        .select("*")
+        .in(
+          "result_id",
+          results.map((r) => r.id),
+        )
+    : { data: [] };
   const contexts = await Promise.all(
     (matches ?? []).map(async (game) => ({
       id: game.id,
@@ -48,69 +63,44 @@ export default async function Results() {
                     ? "درخواست رقابتی"
                     : "دوستانه؛ بدون تغییر رتبه"}
                 </p>
+                <div className="my-4 space-y-2 text-sm">
+                  {roster.map((p) => {
+                    const c = confirmations?.find(
+                      (c) =>
+                        c.result_id === result.id && c.user_id === p.user_id,
+                    );
+                    return (
+                      <p key={p.user_id}>
+                        {p.name}:{" "}
+                        {c?.decision === "confirm"
+                          ? "تأیید کرده"
+                          : c?.decision === "dispute"
+                            ? "اعتراض ثبت کرده"
+                            : "در انتظار نظر"}
+                        {c?.reason && ` · ${c.reason}`}
+                      </p>
+                    );
+                  })}
+                </div>
                 {["pending", "disputed"].includes(result.status) && (
-                  <ActionForm operation="confirm-result" label="ثبت نظر من">
-                    <input name="result_id" type="hidden" value={result.id} />
-                    <label className="field">
-                      نظر شما
-                      <select name="decision">
-                        <option value="confirm">نتیجه را تأیید می‌کنم</option>
-                        <option value="dispute">به نتیجه اعتراض دارم</option>
-                      </select>
-                    </label>
-                    <Field
-                      label="توضیح؛ برای اعتراض دلیل را بنویسید"
-                      name="reason"
-                      maxLength={1000}
-                    />
-                  </ActionForm>
+                  <ConfirmResultForm result={result.id} />
                 )}
               </>
+            ) : locations?.find((l) => l.booking_id === game.booking_id) &&
+              Date.parse(
+                locations.find((l) => l.booking_id === game.booking_id)!
+                  .ends_at,
+              ) > now ? (
+              <p className="text-sm">
+                ثبت نتیجه پس از پایان سانس،{" "}
+                {moment(
+                  locations.find((l) => l.booking_id === game.booking_id)!
+                    .ends_at,
+                )}{" "}
+                فعال می‌شود.
+              </p>
             ) : (
-              <ActionForm
-                operation="submit-result"
-                label="ثبت نتیجه برای تأیید شرکت‌کنندگان"
-              >
-                <input name="match_id" type="hidden" value={game.id} />
-                <div className="grid gap-4 md:grid-cols-2">
-                  {[
-                    ["team1a", "نفر اول تیم اول"],
-                    ["team1b", "نفر دوم تیم اول"],
-                    ["team2a", "نفر اول تیم دوم"],
-                    ["team2b", "نفر دوم تیم دوم"],
-                  ].map(([name, label]) => (
-                    <SelectField
-                      key={name}
-                      name={name}
-                      label={label}
-                      options={roster.map((p) => ({
-                        id: p.user_id,
-                        name: p.name,
-                      }))}
-                    />
-                  ))}
-                  <Field
-                    name="sets1"
-                    label="ست برده تیم اول"
-                    type="number"
-                    min={0}
-                    max={3}
-                    required
-                  />
-                  <Field
-                    name="sets2"
-                    label="ست برده تیم دوم"
-                    type="number"
-                    min={0}
-                    max={3}
-                    required
-                  />
-                </div>
-                <CheckField
-                  name="competitive"
-                  label="درخواست بررسی نتیجه رقابتی؛ تغییر رتبه نیازمند تأیید جداگانه مدیر است"
-                />
-              </ActionForm>
+              <SubmitResultForm match={game.id} roster={roster} />
             )}
           </article>
         );

@@ -27,7 +27,7 @@ test("visitor chooses a real day and time before login; switching day clears sel
   await slot.click();
   await expect(page.locator("[data-booking-step]")).toHaveAttribute(
     "data-booking-step",
-    "2",
+    "3",
   );
   await page.getByRole("button", { name: "مرحلهٔ قبل", exact: true }).click();
   await expect(slot).toHaveAttribute("aria-pressed", "true");
@@ -58,9 +58,7 @@ test("visitor chooses a real day and time before login; switching day clears sel
     .first()
     .getAttribute("data-slot-id");
   await calendar.locator("[data-slot-id]").first().click();
-  await page
-    .getByRole("button", { name: "ادامه با این تجهیزات", exact: true })
-    .click();
+  await page.getByRole("button", { name: "ورود با رمز", exact: true }).click();
   await page
     .getByRole("textbox", { name: "شماره موبایل ایران", exact: true })
     .fill("09120000001");
@@ -79,7 +77,6 @@ test("visitor chooses a real day and time before login; switching day clears sel
       .getByRole("navigation", { name: "مراحل رزرو" })
       .getByText("اطلاعات", { exact: true }),
   ).toHaveCount(0);
-  await page.getByRole("button", { name: "مرحلهٔ قبل", exact: true }).click();
   await page.getByRole("button", { name: "مرحلهٔ قبل", exact: true }).click();
   await expect(page.locator(`[data-slot-id="${id}"]`)).toHaveAttribute(
     "aria-pressed",

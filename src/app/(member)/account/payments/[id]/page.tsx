@@ -1,3 +1,7 @@
+import { ReceiptInput } from "@/components/platform/receipt-input";
+import { CopyButton } from "@/components/platform/copy-button";
+import { Countdown } from "@/components/platform/countdown";
+import { supportHref } from "@/lib/product";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { z } from "zod";
@@ -69,12 +73,18 @@ export default async function TransferPayment({
                 >
                   {r.card_number.match(/.{1,4}/g)?.join(" ")}
                 </dd>
+                <CopyButton value={r.card_number} label="کپی شماره کارت" />
               </div>
               <div>
                 <dt className="text-xs">به نام</dt>
                 <dd className="mt-2 font-bold">{r.card_holder}</dd>
               </div>
             </dl>
+            <Countdown
+              now={now}
+              deadline={p.expires_at}
+              label="مهلت ثبت رسید برای حفظ سانس"
+            />
             <p className="text-xs leading-7">
               مهلت ثبت واریز برای حفظ سانس: {moment(p.expires_at)}. ثبت رسید به
               معنی تأیید پرداخت یا قطعی‌شدن زمین نیست.
@@ -138,15 +148,7 @@ export default async function TransferPayment({
             buttonVariant="default"
           >
             <input type="hidden" name="payment_id" value={p.id} />
-            <label className="field">
-              عکس رسید واریز
-              <input
-                type="file"
-                name="receipt"
-                accept="image/jpeg,image/png,image/webp"
-                required
-              />
-            </label>
+            <ReceiptInput />
             <p className="text-xs leading-7 text-muted-foreground">
               JPG، PNG یا WebP، حداکثر ۵ مگابایت. بخش مبلغ، زمان و شناسهٔ تراکنش
               خوانا باشد؛ اطلاعات غیرضروری حساب را در عکس بپوشان.
@@ -159,6 +161,12 @@ export default async function TransferPayment({
         )}
       </div>
       <div className="mt-6 flex flex-wrap gap-5 text-sm">
+        <Link
+          className="min-h-11 underline"
+          href={supportHref(undefined, p.id)}
+        >
+          درخواست پیگیری این پرداخت
+        </Link>
         <Link href="/account/bookings" className="min-h-11 underline">
           پیگیری رزرو و بازی‌ها
         </Link>

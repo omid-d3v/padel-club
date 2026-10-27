@@ -1,5 +1,7 @@
 "use client";
-import { useRef, useState, type ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
+import { useSearchParams } from "next/navigation";
+import { normalizeSearch } from "@/lib/product";
 import Link from "next/link";
 import {
   Search,
@@ -21,12 +23,6 @@ export interface AdminListItem {
   href?: string;
   content: ReactNode;
 }
-const normalize = (value: string) =>
-  value
-    .toLowerCase()
-    .replaceAll("ي", "ی")
-    .replaceAll("ك", "ک")
-    .replace(/[۰-۹]/g, (d) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)));
 export function AdminList({
   title,
   description,
@@ -43,16 +39,26 @@ export function AdminList({
   pageSize?: number;
 }) {
   const returnFocusRef = useRef<HTMLButtonElement | null>(null);
-  const [query, setQuery] = useState("");
-  const [filter, setFilter] = useState("");
-  const [page, setPage] = useState(1);
-  const [selected, setSelected] = useState<string | null>(null);
+  const params = useSearchParams();
+  const updateUrl = (patch: Record<string, string | null>) => {
+    const url = new URL(location.href);
+    for (const [key, value] of Object.entries(patch)) {
+      if (value) url.searchParams.set(key, value);
+      else url.searchParams.delete(key);
+    }
+    history.replaceState(null, "", url);
+  };
+  // The URL is the single source of truth, including navigation between tabs.
+  const query = params.get("q") ?? "";
+  const filter = params.get("state") ?? "";
+  const page = Math.max(1, Math.floor(Number(params.get("page")) || 1));
+  const selected = params.get("record");
   const found = items.filter(
     (item) =>
       (!filter || item.state === filter) &&
-      normalize(
+      normalizeSearch(
         `${item.title} ${item.meta} ${item.id} ${item.search ?? ""}`,
-      ).includes(normalize(query.trim())),
+      ).includes(normalizeSearch(query.trim())),
   );
   const pages = Math.max(1, Math.ceil(found.length / pageSize));
   const current = Math.min(page, pages);
@@ -84,8 +90,7 @@ export function AdminList({
             placeholder="نام، شناسه یا جزئیات…"
             value={query}
             onChange={(e) => {
-              setQuery(e.target.value);
-              setPage(1);
+              updateUrl({ q: e.target.value, page: null });
             }}
           />
         </label>
@@ -96,8 +101,7 @@ export function AdminList({
               aria-label={`فیلتر وضعیت ${title}`}
               value={filter}
               onChange={(e) => {
-                setFilter(e.target.value);
-                setPage(1);
+                updateUrl({ state: e.target.value, page: null });
               }}
             >
               <option value="">همه وضعیت‌ها</option>
@@ -148,7 +152,8 @@ export function AdminList({
                 aria-label={`جزئیات ${item.title}`}
                 onClick={(event) => {
                   returnFocusRef.current = event.currentTarget;
-                  setSelected(item.id);
+
+                  updateUrl({ record: item.id });
                 }}
               >
                 جزئیات و مدیریت <ArrowUpLeft size={17} aria-hidden="true" />
@@ -169,9 +174,7 @@ export function AdminList({
                 type="button"
                 className="mt-4 underline"
                 onClick={() => {
-                  setQuery("");
-                  setFilter("");
-                  setPage(1);
+                  updateUrl({ q: null, state: null, page: null });
                 }}
               >
                 پاک‌کردن فیلترها
@@ -190,7 +193,9 @@ export function AdminList({
             type="button"
             aria-label="صفحه قبل"
             disabled={current <= 1}
-            onClick={() => setPage(current - 1)}
+            onClick={() => {
+              updateUrl({ page: String(current - 1) });
+            }}
           >
             <ChevronRight size={18} />
           </button>
@@ -198,7 +203,9 @@ export function AdminList({
             type="button"
             aria-label="صفحه بعد"
             disabled={current >= pages}
-            onClick={() => setPage(current + 1)}
+            onClick={() => {
+              updateUrl({ page: String(current + 1) });
+            }}
           >
             <ChevronLeft size={18} />
           </button>
@@ -208,7 +215,9 @@ export function AdminList({
         returnFocusRef={returnFocusRef}
         open={!!active}
         onOpenChange={(open) => {
-          if (!open) setSelected(null);
+          if (!open) {
+            updateUrl({ record: null });
+          }
         }}
         title={active?.title ?? "جزئیات"}
         description={active?.meta ?? "اطلاعات و عملیات"}

@@ -1,3 +1,5 @@
+import { AuthPage } from "@/components/platform/auth-page";
+import Link from "next/link";
 import { requireMember } from "@/lib/platform/data";
 export const dynamic = "force-dynamic";
 import { updatePassword } from "@/app/platform-actions";
@@ -7,8 +9,16 @@ export const metadata = { title: "رمز عبور تازه", robots: { index: fa
 export default async function Reset() {
   await requireMember();
   return (
-    <main id="main" className="mx-auto max-w-md space-y-6 px-6 py-20">
-      <h1 className="text-2xl font-bold">رمز تازه را ثبت کنید.</h1>
+    <AuthPage
+      title="رمز تازه را ثبت کنید."
+      description="یک رمز قوی انتخاب کنید و آن را با دیگران به اشتراک نگذارید."
+    >
+      <Link
+        href="/account/profile"
+        className="inline-flex min-h-11 items-center underline"
+      >
+        بازگشت به پروفایل و تنظیمات حساب
+      </Link>
       <ActionForm action={updatePassword} label="ذخیره رمز جدید">
         <Field
           label="رمز جدید؛ حداقل ۱۰ کاراکتر"
@@ -30,6 +40,6 @@ export default async function Reset() {
           autoComplete="new-password"
         />
       </ActionForm>
-    </main>
+    </AuthPage>
   );
 }
