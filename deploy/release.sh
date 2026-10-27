@@ -69,3 +69,8 @@ mv "$state/runtime/app-image.env.next" "$state/runtime/app-image.env"
 ln -s "$root" "$base/current.next"
 mv -Tf "$base/current.next" "$base/current"
 echo "Deployed $sha. Retained previous release, images, credentials and data."
+# Diagnose sign-in configuration after a successful release, without changing
+# identities, credentials or the outcome of the completed deployment.
+if ! bash "$root/deploy/stack.sh" exec -T web node --input-type=module - --admin-auth-readiness < "$root/deploy/admin-auth-readiness.mjs"; then
+  echo 'Admin authentication readiness check unavailable; deployment remains active.' >&2
+fi

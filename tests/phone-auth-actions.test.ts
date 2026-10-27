@@ -1,3 +1,4 @@
+import { createClient as createAuthClient } from "@supabase/supabase-js";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const mock = vi.hoisted(() => ({
   createClient: vi.fn(),
@@ -239,6 +240,123 @@ describe("phone password login and existing admin alias", () => {
       password: "existing-admin-password",
     });
     expect(JSON.stringify(result)).not.toContain("private-admin");
+  });
+  it("can authenticate the existing email admin when the phone provider is disabled", async () => {
+    legacy();
+    signInWithPassword
+      .mockReset()
+      .mockResolvedValueOnce({
+        data: { user: null },
+        error: { code: "phone_provider_disabled", status: 422 },
+      })
+      .mockResolvedValueOnce({ data: { user: { id: adminId } }, error: null });
+    expect(
+      await signInPhonePassword("09123456789", "existing-admin-password"),
+    ).toMatchObject({ success: true, redirect: "/admin" });
+    expect(signInWithPassword).toHaveBeenNthCalledWith(2, {
+      email: "private-admin@example.test",
+      password: "existing-admin-password",
+    });
+  });
+  it("does not bypass rate limits or blame the password for a provider outage", async () => {
+    vi.stubEnv("ADMIN_NOTIFICATION_PHONES", "09123456789");
+    signInWithPassword.mockResolvedValue({
+      data: { user: null },
+      error: { code: "over_request_rate_limit", status: 429 },
+    });
+    expect(
+      (await signInPhonePassword("09123456789", "password")).message,
+    ).toContain("تعداد تلاش");
+    expect(mock.trustedClient).not.toHaveBeenCalled();
+    signInWithPassword.mockResolvedValue({
+      data: { user: null },
+      error: { code: "unexpected_failure", status: 503 },
+    });
+    expect(
+      (await signInPhonePassword("09123456789", "password")).message,
+    ).toContain("ارتباط با سرویس");
+    expect(mock.trustedClient).not.toHaveBeenCalled();
+  });
+  it("identifies an unconfirmed legacy account without leaking its email or password", async () => {
+    legacy();
+    signInWithPassword
+      .mockReset()
+      .mockResolvedValueOnce(invalid)
+      .mockResolvedValueOnce({
+        data: { user: null },
+        error: { code: "email_not_confirmed", status: 400 },
+      });
+    const r = await signInPhonePassword("09123456789", "private-password");
+    expect(r.success).toBe(false);
+    expect(r.message).toContain("هنوز تأیید نشده");
+    expect(JSON.stringify(r)).not.toContain("private-");
+    expect(console.error).toHaveBeenLastCalledWith(
+      "[phone-auth] password login failed",
+      { stage: "admin_email", code: "email_not_confirmed", status: 400 },
+    );
+  });
+  it("supports legacy Auth responses whose code is absent in the real SDK", async () => {
+    legacy();
+    const b64 = (value: unknown) =>
+      Buffer.from(JSON.stringify(value)).toString("base64url");
+    const token = `${b64({ alg: "HS256", typ: "JWT" })}.${b64({ sub: adminId, aud: "authenticated", role: "authenticated", exp: Math.floor(Date.now() / 1000) + 3600 })}.dGVzdA`;
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            error: "invalid_grant",
+            error_description: "Invalid login credentials",
+          }),
+          { status: 400 },
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            access_token: token,
+            refresh_token: "test-refresh",
+            token_type: "bearer",
+            expires_in: 3600,
+            user: { id: adminId, email: "private-admin@example.test" },
+          }),
+          { status: 200 },
+        ),
+      );
+    const client = createAuthClient(
+      "https://auth.example.test",
+      "test-public-key",
+      {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false,
+          detectSessionInUrl: false,
+        },
+        global: { fetch: fetcher },
+      },
+    );
+    signInWithPassword
+      .mockReset()
+      .mockImplementation(async (args) => client.auth.signInWithPassword(args));
+    expect(
+      await signInPhonePassword("09123456789", "existing-admin-password"),
+    ).toMatchObject({ success: true, redirect: "/admin" });
+    expect(fetcher).toHaveBeenCalledTimes(2);
+    expect(JSON.parse(fetcher.mock.calls[1][1].body)).toMatchObject({
+      email: "private-admin@example.test",
+      password: "existing-admin-password",
+    });
+  });
+  it("does not retry a code-less throttling response or expose raw provider data", async () => {
+    vi.stubEnv("ADMIN_NOTIFICATION_PHONES", "09123456789");
+    signInWithPassword.mockResolvedValue({
+      data: { user: null },
+      error: { status: 429, message: "private-provider-data" },
+    });
+    const r = await signInPhonePassword("09123456789", "password");
+    expect(r.message).toContain("تعداد تلاش");
+    expect(mock.trustedClient).not.toHaveBeenCalled();
+    expect(JSON.stringify(r)).not.toContain("private-provider-data");
   });
   it("never creates an OTP account for an unlinked existing admin alias", async () => {
     vi.stubEnv("ADMIN_NOTIFICATION_PHONES", "09123456789");
