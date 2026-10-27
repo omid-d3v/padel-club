@@ -163,12 +163,8 @@ function passwordLoginFailure(error: unknown, stage: string): PhoneAuthResult {
     message = "دسترسی ورود این حساب مسدود شده است؛ وضعیت حساب باید بررسی شود.";
   else if (
     (status && status >= 500) ||
-    [
-      "unexpected_failure",
-      "request_timeout",
-      "hook_timeout",
-      "unknown",
-    ].includes(code)
+    (code === "unknown" && status === undefined) ||
+    ["unexpected_failure", "request_timeout", "hook_timeout"].includes(code)
   )
     message = "ارتباط با سرویس ورود کامل نشد؛ کمی بعد دوباره تلاش کنید.";
   return { success: false, message };
@@ -194,7 +190,10 @@ export async function signInPhonePassword(
     if (result.error) {
       // A legacy email admin must still be able to sign in when phone auth is
       // disabled. Retry only these lookup/provider cases, never rate limits.
+      const legacyResponse =
+        !result.error.code && [400, 422].includes(result.error.status ?? 0);
       if (
+        !legacyResponse &&
         !["invalid_credentials", "phone_provider_disabled"].includes(
           result.error.code ?? "",
         )
